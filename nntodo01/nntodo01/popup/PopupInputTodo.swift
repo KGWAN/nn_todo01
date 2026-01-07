@@ -8,10 +8,12 @@
 import SwiftUI
 
 struct PopupInputTodo: View {
+    //init
     @Binding var isPresented: Bool
-    
-    @State private var todoText: String = ""
+    let onFinish: (Todo) -> Void
+    // state
     @State private var canInput: Bool = false
+    @State private var todoText: String = ""
     
     var body: some View {
         ContainerPopup(
@@ -19,14 +21,15 @@ struct PopupInputTodo: View {
             isPresented: $isPresented,
             content: {
                 HStack(alignment: .center, spacing: 10) {
-                    BtnCheck()
+                    BtnCheckImg(Binding(get: { false }, set: { _ in }))
                         .frame(width: 35, height: 35)
                         .disabled(true)
                     TextFieldTitle(placeholder: "작업추가", text: $todoText)
                         .frame(maxWidth: .infinity)
                     BtnActivationImg(
                         action: {
-                            NnLogger.log("Adding todo: \(todoText)", level: .debug)
+                            onFinish(create())
+                            isPresented = false
                         }, isEnabled: $canInput
                     )
                     .frame(width: 35, height: 35)
@@ -40,10 +43,16 @@ struct PopupInputTodo: View {
             }
         )
     }
+    
+    private func create() -> Todo {
+        return ServiceTodo().create(todoText)
+    }
 }
 
 #Preview {
     @Previewable @State var isShowing: Bool = true
     
-    PopupInputTodo(isPresented: $isShowing)
+    PopupInputTodo(isPresented: $isShowing) { todo in
+        NnLogger.log("(preview)Adding todo: \(todo)", level: .debug)
+    }
 }

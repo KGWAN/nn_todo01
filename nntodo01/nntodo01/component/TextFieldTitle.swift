@@ -20,7 +20,6 @@ struct TextFieldTitle: View {
     
     var body: some View {
         TextField(placeholder, text: $text)
-            .font(.title)
             .padding(10)
     }
 }

@@ -15,7 +15,7 @@ struct Todo: Identifiable, Codable {
     init(_ title: String, isDone: Bool = false) {
         self.id = UUID()
         self.title = title
-        self.isDone = false
+        self.isDone = isDone
     }
 }
 

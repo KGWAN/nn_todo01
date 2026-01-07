@@ -9,7 +9,12 @@ import SwiftUI
 
 struct ViewMain: View {
     var body: some View {
-        Text("Main")
+        NavigationStack {
+            VStack {
+                ViewListTodo()
+            }
+        }
+        .navigationTitle("Todo List")
     }
 }
 
