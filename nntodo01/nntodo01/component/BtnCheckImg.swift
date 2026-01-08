@@ -28,21 +28,11 @@ struct BtnCheckImg: View {
         Button {
             isChecked.toggle()
         } label: {
-            if isChecked {
-                if let uiImg = UIImage(named: activatedImgName) {
-                    Image(uiImage: uiImg)
-                } else {
-                    Circle()
-                        .fill(Color.cyan)
-                }
-            } else {
-                if let uiImg = UIImage(named: activatedImgName) {
-                    Image(uiImage: uiImg)
-                } else {
-                    Circle()
-                        .stroke(Color.gray, lineWidth: 3)
-                }
-            }
+            ImgShift(
+                $isChecked,
+                imgY: activatedImgName,
+                imgN: deactivatedImgName
+            )
         }
     }
 }

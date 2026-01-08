@@ -46,6 +46,7 @@ struct ViewDetailTodo: View {
                 }
                 .padding(.horizontal, 20)
             }
+            .navigationBarBackButtonHidden()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     HStack {
@@ -54,7 +55,6 @@ struct ViewDetailTodo: View {
                             dismiss()
                         }
                         .frame(width: 35, height: 35)
-                        
                         TextFieldTitle(placeholder: "작업이름을 바꾸어 보세요.", text: $todoText)
                             .frame(maxWidth: .infinity)
                     }
@@ -70,6 +70,7 @@ struct ViewDetailTodo: View {
                 }
             }
         }
+        
     }
 }
 

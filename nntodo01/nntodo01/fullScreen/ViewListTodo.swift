@@ -22,9 +22,7 @@ struct ViewListTodo: View {
     // state
     @State private var isShowingPopupInputTodo: Bool = false
     // value
-    let service: ServiceTodo = ServiceTodo()
-    // environment
-    @Environment(\.dismiss) private var dismiss
+    private let service: ServiceTodo = ServiceTodo()
     
     var body: some View {
         NavigationStack {
@@ -34,7 +32,9 @@ struct ViewListTodo: View {
                         List {
                             ForEach(list) { i in
                                 NavigationLink(
-                                    destination: ViewDetailTodo(i, onUpdate: { new in
+                                    destination: ViewDetailTodo(
+                                        i,
+                                        onUpdate: { new in
                                             update(new)
                                         }, onDelete: { item in
                                             delete(item)
@@ -46,20 +46,14 @@ struct ViewListTodo: View {
                                     }
                                 }
                             }
+                            .onMove(perform: move)
                             .onDelete(perform: delete)
                         }
                     } else {
                         Text("할 일 목록이 여기에 나타납니다.")
                     }
                 } labelBtn: {
-                    Group {
-                        if let uiImg = UIImage(named: "no_img") {
-                            Image(uiImage: uiImg)
-                        } else {
-                            Circle()
-                                .fill(Color.cyan)
-                        }
-                    }
+                    ImgSafe("")
                     .frame(width: 65, height: 65)
                     .padding(20)
                     .opacity(isShowingPopupInputTodo ? 0 : 1)
@@ -73,18 +67,7 @@ struct ViewListTodo: View {
                     }
                 }
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    HStack {
-                        BtnImg("") {
-                            dismiss()
-                        }
-                        .frame(width: 35, height: 35)
-                        
-                        Text("작업 목록")
-                    }
-                }
-            }
+            .nnToolbar("작업 목록")
         }
     }
     
@@ -116,6 +99,14 @@ struct ViewListTodo: View {
         }
         list[idx] = item
         service.save(list)
+    }
+    
+    private func move(from source: IndexSet, to destination: Int) {
+        NnLogger.log("Todo reordered", level: .info)
+        withAnimation {
+            list.move(fromOffsets: source, toOffset: destination)
+            service.save(list)
+        }
     }
 }
 

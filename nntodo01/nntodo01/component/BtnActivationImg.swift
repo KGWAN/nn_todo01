@@ -32,21 +32,11 @@ struct BtnActivationImg: View {
                 action()
             }
         } label: {
-            if isEnabled {
-                if let uiImg = UIImage(named: activatedImgName) {
-                    Image(uiImage: uiImg)
-                } else {
-                    Rectangle()
-                        .fill(Color.cyan)
-                }
-            } else {
-                if let uiImg = UIImage(named: deactivatedImgName) {
-                    Image(uiImage: uiImg)
-                } else {
-                    Rectangle()
-                        .stroke(Color.gray, lineWidth: 3)
-                }
-            }
+            ImgShift(
+                $isEnabled,
+                imgY: "",
+                imgN: ""
+            )
         }
         .disabled(!isEnabled)
     }

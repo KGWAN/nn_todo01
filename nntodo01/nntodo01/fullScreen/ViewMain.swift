@@ -11,10 +11,26 @@ struct ViewMain: View {
     var body: some View {
         NavigationStack {
             VStack {
-                ViewListTodo()
+                HStack {
+                    Spacer()
+                    NavigationLink(
+                        destination: ViewSearchTodo()
+                    ) {
+                        // 검색
+                        ImgSafe("")
+                            .frame(width: 35, height: 35)
+                    }
+                }
+                .padding(.horizontal, 20)
+                
+                NavigationLink(
+                    destination: ViewListTodo()
+                ) {
+                    ItemInventory("작업", imgName: "")
+                }
+                Spacer()
             }
         }
-        .navigationTitle("Todo List")
     }
 }
 

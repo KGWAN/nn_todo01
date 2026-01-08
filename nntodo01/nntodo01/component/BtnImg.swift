@@ -22,12 +22,7 @@ struct BtnImg: View {
         Button {
             action()
         } label: {
-            if let uiImg = UIImage(named: imgName) {
-                Image(uiImage: uiImg)
-            } else {
-                Circle()
-                    .fill(Color.cyan)
-            }
+            ImgSafe(imgName)
         }
     }
 }
