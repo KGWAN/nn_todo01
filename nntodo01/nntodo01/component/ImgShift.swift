@@ -28,14 +28,14 @@ struct ImgShift: View {
             if let uiImg = UIImage(named: imgY) {
                 Image(uiImage: uiImg)
             } else {
-                Rectangle()
+                Circle()
                     .fill(Color.cyan)
             }
         } else {
             if let uiImg = UIImage(named: imgN) {
                 Image(uiImage: uiImg)
             } else {
-                Rectangle()
+                Circle()
                     .stroke(Color.gray, lineWidth: 3)
             }
         }

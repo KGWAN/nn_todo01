@@ -31,10 +31,24 @@ struct ViewSearchTodo: View {
                         .padding(20)
                     Text("검색어를 포함하는 작업을 찾을 수 없습니다.")
                 } else {
-                    ForEach(listFiltered) { i in
-                        ItemTodo(i) { todo in
-                            update(todo)
+                    List {
+                        ForEach(listFiltered) { i in
+                            NavigationLink(
+                                destination: ViewDetailTodo(
+                                    i,
+                                    onUpdate: { new in
+                                        update(new)
+                                    }, onDelete: { item in
+                                        delete(item)
+                                    }
+                                )
+                            ) {
+                                ItemTodo(i) { new in
+                                    update(new)
+                                }
+                            }
                         }
+                        .onDelete(perform: delete)
                     }
                     Spacer()
                 }
@@ -56,10 +70,12 @@ struct ViewSearchTodo: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack {
                         // 검색어 지우기
-                        BtnImg("") {
-                            textSearch = ""
+                        if !textSearch.isEmpty {
+                            BtnImg("") {
+                                textSearch = ""
+                            }
+                            .frame(width: 35, height: 35)
                         }
-                        .frame(width: 35, height: 35)
                     }
                 }
             }
@@ -70,12 +86,7 @@ struct ViewSearchTodo: View {
     }
     
     private func update(_ item: Todo) {
-        guard let idx = listFiltered.firstIndex(where: { $0.id == item.id }) else {
-            NnLogger.log("It's failed to find the index of the item(\(item).", level: .error)
-            return
-        }
-        listFiltered[idx] = item
-        service.save(listFiltered)
+        
     }
     
     private func search(_ text: String) -> [Todo] {
@@ -86,6 +97,14 @@ struct ViewSearchTodo: View {
         return ServiceTodo().loadAll().filter {
             $0.title.localizedCaseInsensitiveContains(textSearch)
         }
+    }
+    
+    private func delete(at offsets: IndexSet) {
+        
+    }
+    
+    private func delete(_ item: Todo) {
+       
     }
 }
 
