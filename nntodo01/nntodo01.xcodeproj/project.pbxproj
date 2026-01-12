@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A32A67B82F14E541001C55B7 /* NnModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = A32A67B62F14E541001C55B7 /* NnModel.xcdatamodeld */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		A32A65B32F0B8B05001C55B7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		A32A65A52F0B8B04001C55B7 /* nntodo01.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = nntodo01.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A32A65B22F0B8B05001C55B7 /* nntodo01Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = nntodo01Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A32A65BC2F0B8B05001C55B7 /* nntodo01UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = nntodo01UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A32A67B72F14E541001C55B7 /* NnModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = NnModel.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -88,6 +93,7 @@
 		A32A659C2F0B8B04001C55B7 = {
 			isa = PBXGroup;
 			children = (
+				A32A67B62F14E541001C55B7 /* NnModel.xcdatamodeld */,
 				A32A65A72F0B8B04001C55B7 /* nntodo01 */,
 				A32A65B52F0B8B05001C55B7 /* nntodo01Tests */,
 				A32A65BF2F0B8B05001C55B7 /* nntodo01UITests */,
@@ -249,6 +255,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A32A67B82F14E541001C55B7 /* NnModel.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -581,6 +588,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		A32A67B62F14E541001C55B7 /* NnModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				A32A67B72F14E541001C55B7 /* NnModel.xcdatamodel */,
+			);
+			currentVersion = A32A67B72F14E541001C55B7 /* NnModel.xcdatamodel */;
+			path = NnModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = A32A659D2F0B8B04001C55B7 /* Project object */;
 }

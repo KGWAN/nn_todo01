@@ -9,7 +9,10 @@ import SwiftUI
 
 @main
 struct nntodo01App: App {
+    // state
     @State private var isShowingMain = false
+    // constant
+    let persistenceController = PersistenceController.shared
     
     var body: some Scene {
         WindowGroup {
@@ -21,5 +24,6 @@ struct nntodo01App: App {
                 }
             }
         }
+        .environment(\.managedObjectContext, persistenceController.container.viewContext)
     }
 }
