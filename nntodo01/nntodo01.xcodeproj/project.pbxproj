@@ -35,7 +35,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		A32A65DD2F0B9E54001C55B7 /* Exceptions for "nntodo01" folder in "nntodo01" target */ = {
+		A32A68932F28AF87001C55B7 /* Exceptions for "nntodo01" folder in "nntodo01" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -45,14 +45,6 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		A32A65A72F0B8B04001C55B7 /* nntodo01 */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				A32A65DD2F0B9E54001C55B7 /* Exceptions for "nntodo01" folder in "nntodo01" target */,
-			);
-			path = nntodo01;
-			sourceTree = "<group>";
-		};
 		A32A65B52F0B8B05001C55B7 /* nntodo01Tests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = nntodo01Tests;
@@ -61,6 +53,14 @@
 		A32A65BF2F0B8B05001C55B7 /* nntodo01UITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = nntodo01UITests;
+			sourceTree = "<group>";
+		};
+		A32A68762F28AF87001C55B7 /* nntodo01 */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A32A68932F28AF87001C55B7 /* Exceptions for "nntodo01" folder in "nntodo01" target */,
+			);
+			path = nntodo01;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -93,8 +93,8 @@
 		A32A659C2F0B8B04001C55B7 = {
 			isa = PBXGroup;
 			children = (
+				A32A68762F28AF87001C55B7 /* nntodo01 */,
 				A32A67B62F14E541001C55B7 /* NnModel.xcdatamodeld */,
-				A32A65A72F0B8B04001C55B7 /* nntodo01 */,
 				A32A65B52F0B8B05001C55B7 /* nntodo01Tests */,
 				A32A65BF2F0B8B05001C55B7 /* nntodo01UITests */,
 				A32A65A62F0B8B04001C55B7 /* Products */,
@@ -127,7 +127,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				A32A65A72F0B8B04001C55B7 /* nntodo01 */,
+				A32A68762F28AF87001C55B7 /* nntodo01 */,
 			);
 			name = nntodo01;
 			packageProductDependencies = (

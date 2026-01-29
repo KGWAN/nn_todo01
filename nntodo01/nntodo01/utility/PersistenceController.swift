@@ -18,31 +18,32 @@ struct PersistenceController {
     // init
     let container: NSPersistentContainer
     
-    init(inMemory: Bool = false) {
+    init() {
         container = NSPersistentContainer(name: "NnModel")
-        
-        if isPreview {
-            container.persistentStoreDescriptions.first?.url = URL(filePath: "/dev/null")
-        } else {
-            if inMemory {
-                container.persistentStoreDescriptions.first?.url = URL(filePath: "/dev/null")
+        if let description = container.persistentStoreDescriptions.first {
+            description.shouldMigrateStoreAutomatically = true
+            description.shouldInferMappingModelAutomatically = true
+            if isPreview {
+                description.type = NSInMemoryStoreType
             }
-            
-            container.loadPersistentStores { _, error in
-                if let e = error {
-                    fatalError("CoreData load failed: \(e)")
-                }
+        }
+        container.loadPersistentStores { storeDescription, error in
+            NnLogger.log("CoreData load storeDescription: \(storeDescription)", level: .info)
+            if let e = error {
+                fatalError("CoreData load failed: \(e)")
             }
         }
     }
     
     // func
-    func save() {
+    func save() -> Result {
         do {
             try container.viewContext.save()
+            return Result(code: "0000", msg: "성공")
         } catch {
             let nsError = error as NSError
             NnLogger.log("CoreData save failed: \(nsError)", level: .error)
+            return Result(code: "9999", msg: "실패")
         }
     }
 }

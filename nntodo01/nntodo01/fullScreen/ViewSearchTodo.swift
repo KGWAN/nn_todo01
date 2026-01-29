@@ -10,10 +10,10 @@ import SwiftUI
 struct ViewSearchTodo: View {
     // state
     @State private var textSearch: String = ""
-    @State private var listFiltered: [Todo] = []
+    @State private var listFiltered: [Work] = []
+    @State private var idRefresh: UUID = UUID()
     // value
-    private let service: ServiceTodo = ServiceTodo()
-    // environment
+    private let service: ServiceWork = ServiceWork()    // environment
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -34,22 +34,18 @@ struct ViewSearchTodo: View {
                     List {
                         ForEach(listFiltered) { i in
                             NavigationLink(
-                                destination: ViewDetailTodo(
-                                    i,
-                                    onUpdate: { new in
-                                        update(new)
-                                    }, onDelete: { item in
-                                        delete(item)
-                                    }
-                                )
+                                destination: ViewDetailTodo(i) {_ in 
+                                    reload()
+                                }
                             ) {
-                                ItemTodo(i) { new in
-                                    update(new)
+                                ItemTodo(i) {
+                                    onUpdate(i, key: $0, value: $1)
                                 }
                             }
                         }
                         .onDelete(perform: delete)
                     }
+                    .id(idRefresh)
                     Spacer()
                 }
             }
@@ -85,26 +81,39 @@ struct ViewSearchTodo: View {
         }
     }
     
-    private func update(_ item: Todo) {
-        
+    
+    //MARK: func
+    private func reload() {
+        listFiltered = search(textSearch)
+        idRefresh = UUID()
     }
     
-    private func search(_ text: String) -> [Todo] {
+    private func search(_ text: String) -> [Work] {
         if textSearch.isEmpty {
             return []
         }
-
-        return ServiceTodo().loadAll().filter {
-            $0.title.localizedCaseInsensitiveContains(textSearch)
-        }
+        return service.fetchList(
+            NSPredicate(format: "title CONTAINS[c] %@", text),
+            sort: [NSSortDescriptor(keyPath: \Work.createdDate, ascending: true)]
+        )
     }
     
     private func delete(at offsets: IndexSet) {
-        
+        if let idx = offsets.first {
+            let work = listFiltered[idx]
+            listFiltered.remove(at: idx)
+            if !service.delete(work).isSuccess {
+                //TODO: 토스트 띄우기 : 작업 삭제에 실패
+            }
+        }
     }
     
-    private func delete(_ item: Todo) {
-       
+    private func onUpdate(_ item: Work, key: String, value: Any) {
+        if !service.update(item, key: key, value: value).isSuccess {
+            //TODO: 토스트 띄우기 : 작업 수정에 실패
+        }
+        // 화면 갱신
+        reload()
     }
 }
 

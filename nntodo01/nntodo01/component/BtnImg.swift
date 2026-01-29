@@ -1,5 +1,5 @@
 //
-//  BtnCheck.swift
+//  BtnImg.swift
 //  nntodo01
 //
 //  Created by JUNGGWAN KIM on 1/6/26.

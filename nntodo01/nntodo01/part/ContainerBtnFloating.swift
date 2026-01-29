@@ -12,31 +12,34 @@ struct ContainerBtnFloating<C: View, B: View>: View {
     private let content: C
     private let labelBtn: B
     private let action: () -> Void
+    private let alignment: HorizontalAlignment
     
     init(
+        alignment: HorizontalAlignment = .trailing,
         @ViewBuilder content: () -> C,
         @ViewBuilder labelBtn: () -> B,
         action: @escaping () -> Void
     ) {
+        self.alignment = alignment
         self.content = content()
         self.labelBtn = labelBtn()
         self.action = action
     }
     
     var body: some View {
-        ZStack {
+        ContainerFloating {
             content
-            VStack {
+        } label: {
+            if alignment == .trailing {
                 Spacer()
-                HStack {
-                    Spacer()
-                    Button {
-                        action()
-                    } label: {
-                        labelBtn
-                    }
-
-                }
+            }
+            Button {
+                action()
+            } label: {
+                labelBtn
+            }
+            if alignment == .leading {
+                Spacer()
             }
         }
     }

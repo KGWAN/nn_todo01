@@ -9,107 +9,182 @@ import SwiftUI
 
 struct ViewListTodo: View {
     // init
-    @State private var list: [Todo]
+    let templete: Templete
     
-    init() {
-        if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" {
-            let listDummy: [Todo] = [Todo("작업 1"), Todo("작업 2"), Todo("작업 3", isDone: true)]
-            self._list = State(initialValue: listDummy)
+    init(_ templete: Templete = .nomal) {
+        self.templete = templete
+        
+        if templete == .today {
+            self.title = "\(templete.rawValue) (\(Date().getStrDate(format: "MM월dd일")))"
         } else {
-            self._list = State(initialValue: service.loadAll())
+            self.title = templete.rawValue
         }
+        self.predicate = templete.predicate
+        
+        self._list = State(initialValue: service.fetchList(predicate))
+    }
+    init(_ kategory: Kategory) {
+        self.templete = .nomal
+        
+        self.kategory = kategory
+        self.title = kategory.title ?? ""
+        self.predicate = NSPredicate(format: "kategory == %@", kategory)
+        self._list = State(initialValue: service.fetchList(predicate))
     }
     // state
+    @State private var list: [Work]
+    @State private var idRefresh: UUID = UUID()
     @State private var isShowingPopupInputTodo: Bool = false
+    @State private var isShowingPopupAddTodo: Bool = false
+    @State private var kategory: Kategory? = nil
+    // constant
+    private let title: String
+    private let service: ServiceWork = ServiceWork()
     // value
-    private let service: ServiceTodo = ServiceTodo()
+    private var predicate: NSPredicate? = nil
     
     var body: some View {
         NavigationStack {
             ZStack {
-                ContainerBtnFloating {
+                ContainerFloating {
+                    // list
                     if !list.isEmpty {
                         List {
                             ForEach(list) { i in
                                 NavigationLink(
-                                    destination: ViewDetailTodo(
-                                        i,
-                                        onUpdate: { new in
-                                            update(new)
-                                        }, onDelete: { item in
-                                            delete(item)
-                                        }
-                                    )
+                                    destination: ViewDetailTodo(i) {_ in
+                                        reload()
+                                    }
                                 ) {
-                                    ItemTodo(i) { new in
-                                        update(new)
+                                    ItemTodo(i) {
+                                        onUpdate(i, key: $0, value: $1)
                                     }
                                 }
                             }
-                            .onMove(perform: move)
+//                            .onMove(perform: move)
                             .onDelete(perform: delete)
                         }
+                        .id(idRefresh)
                     } else {
                         Text("할 일 목록이 여기에 나타납니다.")
                     }
-                } labelBtn: {
-                    ImgSafe("")
-                    .frame(width: 65, height: 65)
-                    .padding(20)
-                    .opacity(isShowingPopupInputTodo ? 0 : 1)
-                } action: {
-    //                NnLogger.log("move to add todo.", level: .debug)
-                    isShowingPopupInputTodo = true
+                } label: {
+                    if !isShowingPopupInputTodo &&
+                        !isShowingPopupAddTodo
+                    {
+                        ZStack {
+                            if templete == .today {
+                                // todo 추가 버튼
+                                Button {
+                                    isShowingPopupAddTodo = true
+                                } label: {
+                                    HStack {
+                                        ImgSafe("")
+                                            .frame(width: 25, height: 25)
+                                        Text("일정 추가")
+                                            .foregroundStyle(Color.black)
+                                    }
+                                    .frame(minHeight: 45)
+                                    .padding(.horizontal, 20)
+                                    .background(Color.cyan)
+                                    .cornerRadius(55)
+                                }
+                            }
+                            
+                            // new todo 생성 버튼
+                            HStack {
+                                Spacer()
+                                Button {
+                                    isShowingPopupInputTodo = true
+                                } label: {
+                                    ImgSafe("")
+                                        .frame(width: 55, height: 55)
+                                        .padding(20)
+                                }
+                            }
+                        }
+                    }
                 }
+                
                 if isShowingPopupInputTodo {
-                    PopupInputTodo(isPresented: $isShowingPopupInputTodo) { new in
-                        add(new)
+                    // new todo 생성 팝업
+                    PopupInputTodo(
+                        isPresented: $isShowingPopupInputTodo,
+                        templete: templete,
+                        kategorie: kategory
+                    ) { result in
+                        onAdd(result)
+                    }
+                }
+                if isShowingPopupAddTodo {
+                    // todo 추가 팝업
+                    PopupAddTodo(isPresented: $isShowingPopupAddTodo) { result in
+                        onUpdate(result: result)
                     }
                 }
             }
-            .nnToolbar("작업 목록")
+            .nnToolbar(title)
         }
     }
+    
     
     //func
-    private func add(_ item: Todo) {
-        list.append(item)
-        service.save(list)
+    private func reload() {
+        list = service.fetchList(predicate)
+        idRefresh = UUID()
     }
+    
+    private func onAdd(_ result: Result) {
+        if !result.isSuccess {
+            //TODO: 토스트 띄우기 : 작업 생성에 실패
+        }
+        // 화면 갱신
+        reload()
+    }
+    
+    private func onUpdate(_ item: Work, key: String, value: Any) {
+        if !service
+            .update(item, key: key, value: value)
+            .isSuccess {
+            //TODO: 토스트 띄우기 : 작업 수정에 실패
+        }
+        // 화면 갱신
+        reload()
+    }
+    
+    private func onUpdate(result: Result) {
+        if !result.isSuccess {
+            //TODO: 토스트 띄우기 : 작업 수정에 실패
+        }
+        // 화면 갱신
+        reload()
+    }
+    
+//    private func move(from source: IndexSet, to destination: Int) {
+//        withAnimation {
+//            list.move(fromOffsets: source, toOffset: destination)
+//        }
+//    }
     
     private func delete(at offsets: IndexSet) {
-        list.remove(atOffsets: offsets)
-        service.save(list)
-    }
-    
-    private func delete(_ item: Todo) {
-        guard let idx = list.firstIndex(where: { $0.id == item.id }) else {
-            NnLogger.log("It's failed to find the index of the item(\(item).", level: .error)
-            return
-        }
-        
-        list.remove(at: idx)
-        service.save(list)
-    }
-    
-    private func update(_ item: Todo) {
-        guard let idx = list.firstIndex(where: { $0.id == item.id }) else {
-            NnLogger.log("It's failed to find the index of the item(\(item).", level: .error)
-            return
-        }
-        list[idx] = item
-        service.save(list)
-    }
-    
-    private func move(from source: IndexSet, to destination: Int) {
-        NnLogger.log("Todo reordered", level: .info)
-        withAnimation {
-            list.move(fromOffsets: source, toOffset: destination)
-            service.save(list)
+        if let idx = offsets.first {
+            let work = list[idx]
+            list.remove(at: idx)
+            if !service
+                .delete(work)
+                .isSuccess {
+                //TODO: 토스트 띄우기 : 작업 삭제에 실패
+            }
         }
     }
 }
 
 #Preview {
-    ViewListTodo()
+    let kategory: Kategory = ServiceKategory().getNew("kate_preview")
+    
+//    ViewListTodo()
+//    ViewListTodo(.today)
+//    ViewListTodo(.marked)
+//    ViewListTodo(.plan)
+    ViewListTodo(kategory)
 }

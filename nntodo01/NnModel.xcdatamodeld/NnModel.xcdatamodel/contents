@@ -1,11 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788.4" systemVersion="24E263" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Kategory" representedClassName="Kategory" syncable="YES" codeGenerationType="class">
+        <attribute name="color" attributeType="String"/>
+        <attribute name="createdDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="markType" attributeType="String" defaultValueString="color"/>
+        <attribute name="title" attributeType="String"/>
+        <attribute name="updatedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="works" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Work" inverseName="kategory" inverseEntity="Work"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
     <entity name="Work" representedClassName="Work" syncable="YES" codeGenerationType="class">
         <attribute name="createdDate" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isDone" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isMarked" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isToday" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="title" attributeType="String"/>
         <attribute name="updatedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="kategory" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Kategory" inverseName="works" inverseEntity="Kategory"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>

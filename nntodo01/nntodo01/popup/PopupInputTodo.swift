@@ -10,10 +10,24 @@ import SwiftUI
 struct PopupInputTodo: View {
     //init
     @Binding var isPresented: Bool
-    let onFinish: (Todo) -> Void
+    let templete: Templete
+    let kategorie: Kategory?
+    let onFinish: (Result) -> Void
+    
+    init(
+        isPresented: Binding<Bool>,
+        templete: Templete,
+        kategorie: Kategory? = nil,
+        onFinish: @escaping (Result) -> Void
+    ) {
+        self._isPresented = isPresented
+        self.templete = templete
+        self.kategorie = kategorie
+        self.onFinish = onFinish
+    }
     // state
     @State private var canInput: Bool = false
-    @State private var todoText: String = ""
+    @State private var text: String = ""
     
     var body: some View {
         ContainerPopup(
@@ -24,11 +38,11 @@ struct PopupInputTodo: View {
                     BtnCheckImg(Binding(get: { false }, set: { _ in }))
                         .frame(width: 35, height: 35)
                         .disabled(true)
-                    TextFieldTitle(placeholder: "작업추가", text: $todoText)
+                    TextFieldTitle(placeholder: "작업추가", text: $text)
                         .frame(maxWidth: .infinity)
                     BtnActivationImg(
                         action: {
-                            onFinish(create())
+                            onFinish(create(text))
                             isPresented = false
                         }, isEnabled: $canInput
                     )
@@ -36,23 +50,42 @@ struct PopupInputTodo: View {
                 }
                 .padding(.vertical, 10)
                 .padding(.horizontal, 30)
-                .onChange(of: todoText) { o, n in
-                    canInput = !todoText.isEmpty
+                .onChange(of: text) { _, _ in
+                    checkCanInput()
                 }
                 .background(Color.white)
             }
         )
     }
     
-    private func create() -> Todo {
-        return ServiceTodo().create(todoText)
+    
+    // MARK: func
+    private func checkCanInput() {
+        canInput = !text.isEmpty
+    }
+    
+    private func create(_ title: String) -> Result {
+        return ServiceWork().create(
+            title,
+            isMarked: templete == .marked,
+            isToday: templete == .today,
+            kategory: kategorie
+        )
     }
 }
 
 #Preview {
     @Previewable @State var isShowing: Bool = true
+//    let templete: Templete = .nomal
+    let templete: Templete = .today
+//    let kategory: Kategory? = nil
+    let kategory: Kategory = ServiceKategory().getNew("kate_preview")
     
-    PopupInputTodo(isPresented: $isShowing) { todo in
-        NnLogger.log("(preview)Adding todo: \(todo)", level: .debug)
+    PopupInputTodo(
+        isPresented: $isShowing,
+        templete: templete,
+        kategorie: kategory
+    ) { result in
+        NnLogger.log("(preview)Try to add new todo (result: \(result))", level: .debug)
     }
 }

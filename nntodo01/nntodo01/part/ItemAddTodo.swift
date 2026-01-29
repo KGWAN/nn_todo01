@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-struct ItemTodo: View {
+struct ItemAddTodo: View {
+    // init
     let onUpdate: (String, Any) -> Void
     
     init(
@@ -16,14 +17,11 @@ struct ItemTodo: View {
     ) {
         self.title = inf.title ?? ""
         self.isDone = inf.isDone
-        self.isMarked = inf.isMarked
         self.onUpdate = onUpdate
-//        self.stateSubwork = "\(inf.subwork.count))"
     }
-    
+    // state
     @State private var title: String
     @State private var isDone: Bool
-    @State private var isMarked: Bool
 //    @State private var stateSubwork: State
     
     var body: some View {
@@ -37,17 +35,12 @@ struct ItemTodo: View {
                     .foregroundStyle(Color.black)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.leading, 10)
-//                if !stateSubwork.isEmpty {
-//                    Text(stateSubwork)
-//                        .font(.callout)
-//                        .foregroundStyle(Color.black)
-//                        .frame(maxWidth: .infinity, alignment: .leading)
-//                        .padding(.leading, 10)
-//                }
             }
-            BtnCheckImg($isMarked)
-                .frame(width: 35, height: 35)
-                .buttonStyle(.borderless)
+            BtnImg("", action: {
+                onUpdate("isToday", true)
+            })
+            .frame(width: 35, height: 35)
+            .buttonStyle(.borderless)
         }
         .padding(.vertical, 20)
         .padding(.horizontal, 15)
@@ -55,16 +48,13 @@ struct ItemTodo: View {
         .onChange(of: isDone) { _, new in
             onUpdate("isDone", new)
         }
-        .onChange(of: isMarked) { _, new in
-            onUpdate("isMarked", new)
-        }
     }
 }
 
 #Preview {
     let item = ServiceWork().getNewWork("todo")
     
-    ItemTodo(item) { key, value in
+    ItemAddTodo(item) { key, value in
         NnLogger.log("Todo(\(item.title ?? "")) was changed. (key:\(key), value:\(value))", level: .debug)
         
         switch key {
@@ -72,6 +62,8 @@ struct ItemTodo: View {
             item.isDone = value as! Bool
         case "isMarked":
             item.isMarked = value as! Bool
+        case "isToday":
+            item.isToday = value as! Bool
         default:
             NnLogger.log("\(key) was not existed.")
         }

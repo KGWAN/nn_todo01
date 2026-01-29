@@ -30,6 +30,7 @@ struct ContainerPopup<Content: View>: View {
         ZStack(alignment: alignment) {
             ViewDim(isShowingPopup: $isPresented, opacity: opacity)
             content
+            
         }
     }
 }
