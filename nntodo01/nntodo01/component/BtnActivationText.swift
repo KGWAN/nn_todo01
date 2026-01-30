@@ -24,7 +24,7 @@ struct BtnActivationText: View {
         } label: {
             Text(text)
                 .font(Font.system(size: 20))
-                .foregroundColor(isEnabled ? .black : .gray)
+                .foregroundColor(isEnabled ? .blue : .gray)
                 .padding(.vertical, 10)
         }
         .disabled(!isEnabled)

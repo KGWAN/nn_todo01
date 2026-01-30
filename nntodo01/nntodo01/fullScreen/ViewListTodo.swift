@@ -37,8 +37,9 @@ struct ViewListTodo: View {
     @State private var isShowingPopupInputTodo: Bool = false
     @State private var isShowingPopupAddTodo: Bool = false
     @State private var kategory: Kategory? = nil
+    @State private var isShowingPopupModifyKategory: Bool = false
+    @State private var title: String
     // constant
-    private let title: String
     private let service: ServiceWork = ServiceWork()
     // value
     private var predicate: NSPredicate? = nil
@@ -64,7 +65,6 @@ struct ViewListTodo: View {
 //                            .onMove(perform: move)
                             .onDelete(perform: delete)
                         }
-                        .id(idRefresh)
                     } else {
                         Text("할 일 목록이 여기에 나타납니다.")
                     }
@@ -122,14 +122,36 @@ struct ViewListTodo: View {
                         onUpdate(result: result)
                     }
                 }
+                if kategory != nil && isShowingPopupModifyKategory {
+                    // kategory 수정 팝업
+                    PopupInputKategory(isPresented: $isShowingPopupModifyKategory, origin: kategory) { result in
+                        onUpdateKategory(result: result)
+                    }
+                }
             }
             .nnToolbar(title)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    HStack {
+                        // 카테고리 수정 버튼
+                        BtnImg("") {
+                            isShowingPopupModifyKategory = true
+                        }
+                        .frame(width: 35, height: 35)
+                    }
+                }
+            }
         }
+        .id(idRefresh)
     }
     
     
     //func
     private func reload() {
+        if let kate = kategory {
+            title = kate.title ?? ""
+        }
+        
         list = service.fetchList(predicate)
         idRefresh = UUID()
     }
@@ -153,6 +175,14 @@ struct ViewListTodo: View {
     }
     
     private func onUpdate(result: Result) {
+        if !result.isSuccess {
+            //TODO: 토스트 띄우기 : 작업 수정에 실패
+        }
+        // 화면 갱신
+        reload()
+    }
+    
+    private func onUpdateKategory(result: Result) {
         if !result.isSuccess {
             //TODO: 토스트 띄우기 : 작업 수정에 실패
         }

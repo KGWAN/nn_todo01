@@ -22,13 +22,16 @@ struct NnToolbarModifier<R: View>: ViewModifier {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     HStack {
+                        // 뒤로가기 버튼
                         BtnImg("") {
                             onDismiss()
                             dismiss()
                         }
                         .frame(width: 35, height: 35)
-                        
+                        // 제목
                         Text(title)
+                        // 기타 메뉴
+                        
                     }
                 }
                 

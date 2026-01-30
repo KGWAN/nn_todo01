@@ -4,19 +4,36 @@
 //
 //  Created by JUNGGWAN KIM on 1/6/26.
 //
+//  Kategory's insert/update
 
 import SwiftUI
 
 struct PopupInputKategory: View {
     //init
     @Binding var isPresented: Bool
+    var origin: Kategory? = nil
     let onFinish: (Result) -> Void
+    
+    init(
+        isPresented: Binding<Bool>,
+        origin: Kategory? = nil,
+        onFinish: @escaping (Result) -> Void
+    ) {
+        self._isPresented = isPresented
+        self.origin = origin
+        self.onFinish = onFinish
+        
+        self._text = State(initialValue: "")
+        self._selectedRadio = State(initialValue: .color)
+        self._selectedColor = State(initialValue: ColorMarkKategory.allCases[0])
+    }
     // state
     @State private var canInput: Bool = false
-    @State private var text: String = ""
-    @State private var selectedRadio: TypeMarkKategory = .color
-    
-    @State private var selectedColor: ColorMarkKategory = ColorMarkKategory.allCases[0]
+    @State private var text: String
+    @State private var selectedRadio: TypeMarkKategory
+    @State private var selectedColor: ColorMarkKategory
+    // value
+    let service: ServiceKategory = ServiceKategory()
     
     
     var body: some View {
@@ -27,7 +44,7 @@ struct PopupInputKategory: View {
                 HStack {
                     VStack(spacing: 20) {
                         // popup title
-                        Text("새 목록")
+                        Text(origin == nil ? "새 목록" : "목록 수정")
                             .frame(maxWidth: .infinity, alignment: .leading)
                         // title
                         HStack {
@@ -80,8 +97,12 @@ struct PopupInputKategory: View {
                             BtnText("취소") {
                                 isPresented = false
                             }
-                            BtnActivationText("목록 만들기", isEnabled: $canInput) {
-                                onFinish(create(text))
+                            BtnActivationText(origin == nil ? "목록 만들기" : "저장", isEnabled: $canInput) {
+                                if origin == nil {
+                                    create()
+                                } else {
+                                    update()
+                                }
                                 isPresented = false
                             }
                         }
@@ -93,6 +114,21 @@ struct PopupInputKategory: View {
                 .padding(.horizontal, 40)
             }
         )
+        .onAppear {
+            if let kategory = origin {
+                text = kategory.title ?? ""
+                TypeMarkKategory.allCases.forEach { typeMark in
+                    if typeMark.rawValue == kategory.markType {
+                        selectedRadio = typeMark
+                    }
+                }
+                ColorMarkKategory.allCases.forEach { colorMark in
+                    if colorMark.rawValue == kategory.color {
+                        selectedColor = colorMark
+                    }
+                }
+            }
+        }
     }
     
     
@@ -101,20 +137,44 @@ struct PopupInputKategory: View {
         canInput = !text.isEmpty
     }
     
-    private func create(_ title: String) -> Result {
-        return ServiceKategory().create(
-            title,
-            markType: selectedRadio.rawValue,
-            color: selectedColor.rawValue
+    private func create() {
+        onFinish(
+            service.create(
+                text,
+                markType: selectedRadio.rawValue,
+                color: selectedColor.rawValue
+            )
         )
+    }
+    
+    private func update(){
+        if let new = origin {
+            new.title = text
+            new.markType = selectedRadio.rawValue
+            new.color = selectedColor.rawValue
+            
+            onFinish(service.update(new))
+        } else {
+            NnLogger.log("update error: target kategorie not found.", level: .error)
+            onFinish(Result(code: "9999", msg: "Invalid path: target kategorie not found."))
+        }
     }
 }
 
 #Preview {
     @Previewable @State var isShowing: Bool = true
+    let kategory: Kategory = ServiceKategory().getNew("kate_preview")
     
+    // insert
     PopupInputKategory(
         isPresented: $isShowing,
+    ) { result in
+        
+    }
+    // update
+    PopupInputKategory(
+        isPresented: $isShowing,
+        origin: kategory
     ) { result in
         
     }

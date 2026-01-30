@@ -32,14 +32,16 @@ class ServiceKategory: NnService {
         markType: String = "color",
         color: String = ColorMarkKategory.allCases[0].rawValue
     ) -> Result {
-        let kate = Kategory(context: context)
+        let new = Kategory(context: context)
         // auto
-        kate.id = UUID()
-        kate.createdDate = Date()
+        new.id = UUID()
+        new.createdDate = Date()
         // user's input
-        kate.title = title
-        kate.markType = markType
-        kate.color = color
+        new.title = title
+        new.markType = markType
+        new.color = color
+        // log
+        NnLogger.log("on insert kategory. : \(new)", level: .info)
         // save
         return save()
     }
@@ -95,6 +97,8 @@ class ServiceKategory: NnService {
     func update(_ new: Kategory) -> Result {
         // auto
         new.updatedDate = Date()
+        // log
+        NnLogger.log("on updated kategory. : \(new)", level: .info)
         // save
         return save()
     }
