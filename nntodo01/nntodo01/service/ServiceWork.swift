@@ -26,7 +26,7 @@ class ServiceWork: NnService {
         work.isMarked = isMarked
         
         return work
-    }
+    }   
     
     func create(
         _ title: String,
@@ -123,6 +123,11 @@ class ServiceWork: NnService {
     
     func delete(_ work: Work) -> Result {
         context.delete(work)
+        return save()
+    }
+    
+    func addChild(_ name: String, isDone: Bool = false, target: Work) -> Result  {
+        target.addToSubworks(ServiceSubwork().getNew(name, isDone: isDone))
         return save()
     }
 }
