@@ -37,12 +37,12 @@ struct BtnCheckFullWidth: View {
                 )
                 .frame(width: 20, height: 20)
                 Text(isChecked ? strOn : strOff)
-                    .font(Font.system(size: 25, weight: .light))
-                    .padding(.leading, 30)
+                    .font(Font.system(size: 18, weight: .light))
+                    .padding(.leading, 10)
                     .foregroundColor(isChecked ? Color.blue : Color.black)
                 Spacer()
             }
-            .padding(.horizontal, 30)
+            .padding(.horizontal, 20)
             .padding(.vertical, 20)
         }
     }

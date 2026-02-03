@@ -18,9 +18,11 @@ struct ItemSubwork: View {
         self.isDone = inf.isDone
         self.onUpdate = onUpdate
     }
-    
+    // state
     @State private var title: String
     @State private var isDone: Bool
+    // const
+    private let placeholer: String = "서브 작업 이름 바꾸기"
     
     
     var body: some View {
@@ -31,10 +33,11 @@ struct ItemSubwork: View {
                 .padding(.vertical, 10)
             VStack {
                 HStack {
-                    TextFieldTitle(placeholder: "서브 작업 이름 바꾸기", text: $title)
+                    TextField(placeholer, text: $title)
                         .font(Font.system(size: 20, weight: .light))
                         .foregroundStyle(Color.black)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(10)
                     // 삭제 버튼
 //                    BtnImg("") {
 //                        
@@ -46,7 +49,8 @@ struct ItemSubwork: View {
                     .padding(.horizontal, 10)
             }
         }
-        .background(Color.white)
+        .frame(height: 60)
+        .background(Color.clear)
         .onChange(of: isDone) { _, new in
             onUpdate("isDone", new)
         }
@@ -54,7 +58,8 @@ struct ItemSubwork: View {
 }
 
 #Preview {
-    let item = ServiceSubwork().getNew("todo's subwork")
+    let work = ServiceWork().getNewWork("todo")
+    let item = ServiceSubwork().getNew("todo's subwork", parent: work)
     
     ItemSubwork(item) { key, value in
         NnLogger.log("Todo(\(item.title ?? "")) was changed. (key:\(key), value:\(value))", level: .debug)

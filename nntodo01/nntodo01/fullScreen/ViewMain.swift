@@ -39,9 +39,17 @@ struct ViewMain: View {
                         VStack(spacing: 20) {
                             ForEach(Templete.allCases) { templete in
                                 NavigationLink(
-                                    destination: ViewListTodo(templete)
+                                    destination: ViewListTodo(
+                                        templete,
+                                        onDismiss: {
+                                            reload()
+                                        }
+                                    )
                                 ) {
-                                    ItemInventory(templete.rawValue, imgName: "")
+                                    ItemInventory(
+                                        templete.rawValue,
+                                        imgName: templete.nameIcon,
+                                        cnt: ServiceWork().getCnt(templete.predicate))
                                 }
                             }
                         }
@@ -51,7 +59,12 @@ struct ViewMain: View {
                         VStack(spacing: 20) {
                             ForEach(list) { kate in
                                 NavigationLink(
-                                    destination: ViewListTodo(kate)
+                                    destination: ViewListTodo(
+                                        kate,
+                                        onDismiss: {
+                                            reload()
+                                        }
+                                    )
                                 ) {
                                     ItemInventory(kate.title ?? "", imgName: "")
                                 }
@@ -82,6 +95,7 @@ struct ViewMain: View {
                 }
             }
         }
+        .id(idRefresh)
     }
     
     // func

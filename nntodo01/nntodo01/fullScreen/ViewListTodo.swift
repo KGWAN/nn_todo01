@@ -10,9 +10,11 @@ import SwiftUI
 struct ViewListTodo: View {
     // init
     let templete: Templete
+    let onDismiss: () -> Void
     
-    init(_ templete: Templete = .nomal) {
+    init(_ templete: Templete = .nomal, onDismiss: @escaping () -> Void) {
         self.templete = templete
+        self.onDismiss = onDismiss
         
         if templete == .today {
             self.title = "\(templete.rawValue) (\(Date().getStrDate(format: "MM월dd일")))"
@@ -23,8 +25,9 @@ struct ViewListTodo: View {
         
         self._list = State(initialValue: service.fetchList(predicate))
     }
-    init(_ kategory: Kategory) {
+    init(_ kategory: Kategory, onDismiss: @escaping () -> Void) {
         self.templete = .nomal
+        self.onDismiss = onDismiss
         
         self.kategory = kategory
         self.title = kategory.title ?? ""
@@ -129,7 +132,7 @@ struct ViewListTodo: View {
                     }
                 }
             }
-            .nnToolbar(title)
+            .nnToolbar(title, onDismiss: { onDismiss() })
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack {
@@ -151,7 +154,6 @@ struct ViewListTodo: View {
         if let kate = kategory {
             title = kate.title ?? ""
         }
-        
         list = service.fetchList(predicate)
         idRefresh = UUID()
     }
@@ -216,5 +218,7 @@ struct ViewListTodo: View {
 //    ViewListTodo(.today)
 //    ViewListTodo(.marked)
 //    ViewListTodo(.plan)
-    ViewListTodo(kategory)
+    ViewListTodo(kategory, onDismiss: {
+        
+    })
 }

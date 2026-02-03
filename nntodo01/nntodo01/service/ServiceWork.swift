@@ -111,8 +111,14 @@ class ServiceWork: NnService {
             if let newValue = value as? Bool { work.isDone = newValue }
         case "isMarked":
             if let newValue = value as? Bool { work.isMarked = newValue }
-        case "is Today":
+        case "isToday":
             if let newValue = value as? Bool { work.isToday = newValue }
+        case "subworks":
+            if let newValue = value as? [Subwork] {
+                for i in newValue.indices {
+                    newValue[i].sortNum = "\(i)"
+                }
+            }
         default:
             NnLogger.log("\(key) was not existed.")
             return Result(code: "9999", msg: "업데이트 실패")
@@ -127,7 +133,17 @@ class ServiceWork: NnService {
     }
     
     func addChild(_ name: String, isDone: Bool = false, target: Work) -> Result  {
-        target.addToSubworks(ServiceSubwork().getNew(name, isDone: isDone))
+        target.addToSubworks(ServiceSubwork().getNew(name, isDone: isDone, parent: target))
+        NnLogger.log("New subwork added. (subwork's count: \(target.subworks?.count ?? 0))", level: .info)
         return save()
+    }
+    
+    func removeChild(_ subwork: Subwork, target: Work) -> Result {
+        target.removeFromSubworks(subwork)
+        return save()
+    }
+    
+    func getCnt(_ predicate: NSPredicate? = nil) -> Int{
+        return fetchList(predicate).count
     }
 }

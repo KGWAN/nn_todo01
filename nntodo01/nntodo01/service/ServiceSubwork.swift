@@ -13,7 +13,8 @@ class ServiceSubwork: NnService {
     
     func getNew(
         _ title: String,
-        isDone: Bool = false
+        isDone: Bool = false,
+        parent: Work,
     ) -> Subwork {
         let subwork = Subwork(context: context)
         // auto
@@ -22,6 +23,8 @@ class ServiceSubwork: NnService {
         // user's input
         subwork.title = title
         subwork.isDone = isDone
+        subwork.work = parent
+        subwork.sortNum = String(parent.subworks?.count ?? 0)
         
         return subwork
     }
@@ -29,7 +32,7 @@ class ServiceSubwork: NnService {
     func create(
         _ title: String,
         isDone: Bool = false,
-        parent: Work
+        parent: Work,
     ) -> Result {
         let subwork = Subwork(context: context)
         // auto
@@ -39,6 +42,7 @@ class ServiceSubwork: NnService {
         subwork.title = title
         subwork.isDone = isDone
         subwork.work = parent
+        subwork.sortNum = String(parent.subworks?.count ?? 0)
         // save
         NnLogger.log("New Work was created. (work: \(subwork))", level: .info)
         return save()
