@@ -26,12 +26,16 @@ struct PopupInputKategory: View {
         self._text = State(initialValue: "")
         self._selectedRadio = State(initialValue: .color)
         self._selectedColor = State(initialValue: ColorMarkKategory.allCases[0])
+        self._selectedPhoto = State(initialValue: PhotoMarkKategory.allCases[0])
+        self._selectedUserPhoto = State(initialValue: origin?.userPhoto)
     }
     // state
     @State private var canInput: Bool = false
     @State private var text: String
     @State private var selectedRadio: TypeMarkKategory
     @State private var selectedColor: ColorMarkKategory
+    @State private var selectedPhoto: PhotoMarkKategory
+    @State private var selectedUserPhoto: UserPhoto? = nil
     // value
     let service: ServiceKategory = ServiceKategory()
     
@@ -78,15 +82,11 @@ struct PopupInputKategory: View {
                             Group {
                                 switch selectedRadio {
                                 case .color:
-                                    ViewSeletColorMarkKategory(selectedColor: $selectedColor)
+                                    ViewSelectColorMarkKategory(selectedOne: $selectedColor)
                                 case .photo:
-                                    Text("사진 선택 (미구현)")
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                        .background(Color.gray)
+                                    ViewSelectPhotoMarkKategory(selectedOne: $selectedPhoto)
                                 case .user:
-                                    Text("사용자 지정 (미구현)")
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                        .background(Color.gray)
+                                    ViewSelectUserMarkKategory(for: $selectedUserPhoto)
                                 }
                             }
                             .frame(maxWidth: .infinity, maxHeight: 40)
@@ -142,7 +142,8 @@ struct PopupInputKategory: View {
             service.create(
                 text,
                 markType: selectedRadio.rawValue,
-                color: selectedColor.rawValue
+                color: selectedColor.rawValue,
+                photo: selectedPhoto.rawValue
             )
         )
     }

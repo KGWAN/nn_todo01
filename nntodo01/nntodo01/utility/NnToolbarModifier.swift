@@ -21,7 +21,7 @@ struct NnToolbarModifier<R: View>: ViewModifier {
             .navigationBarBackButtonHidden()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    HStack {
+                    HStack(spacing: 10){
                         // 뒤로가기 버튼
                         BtnImg("") {
                             onDismiss()
@@ -30,6 +30,8 @@ struct NnToolbarModifier<R: View>: ViewModifier {
                         .frame(width: 35, height: 35)
                         // 제목
                         Text(title)
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundStyle(Color.white)
                         // 기타 메뉴
                         
                     }

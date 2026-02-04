@@ -64,10 +64,18 @@ struct ViewListTodo: View {
                                         onUpdate(i, key: $0, value: $1)
                                     }
                                 }
+                                .listRowInsets(.init(top: 0, leading: 10, bottom: 0, trailing: 0))
+                                .listRowSpacing(0)
+                                .listRowSeparator(.hidden)
                             }
 //                            .onMove(perform: move)
                             .onDelete(perform: delete)
                         }
+                        .listStyle(.plain)
+                        .listSectionSpacing(0)
+                        .listSectionSeparator(.hidden)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 20)
                     } else {
                         Text("할 일 목록이 여기에 나타납니다.")
                     }
@@ -85,7 +93,7 @@ struct ViewListTodo: View {
                                         ImgSafe("")
                                             .frame(width: 25, height: 25)
                                         Text("일정 추가")
-                                            .foregroundStyle(Color.black)
+                                            .foregroundStyle(Color.white)
                                     }
                                     .frame(minHeight: 45)
                                     .padding(.horizontal, 20)
@@ -132,6 +140,9 @@ struct ViewListTodo: View {
                     }
                 }
             }
+            .background(
+                Color(hex: kategory?.color ?? templete.hexColor)
+            )
             .nnToolbar(title, onDismiss: { onDismiss() })
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -214,11 +225,9 @@ struct ViewListTodo: View {
 #Preview {
     let kategory: Kategory = ServiceKategory().getNew("kate_preview")
     
-//    ViewListTodo()
-//    ViewListTodo(.today)
-//    ViewListTodo(.marked)
+//    ViewListTodo(){}
+//    ViewListTodo(.today){}
+//    ViewListTodo(.marked){}
 //    ViewListTodo(.plan)
-    ViewListTodo(kategory, onDismiss: {
-        
-    })
+    ViewListTodo(kategory, onDismiss: {})
 }

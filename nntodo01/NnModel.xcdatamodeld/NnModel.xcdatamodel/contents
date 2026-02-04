@@ -5,8 +5,10 @@
         <attribute name="createdDate" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="markType" attributeType="String" defaultValueString="color"/>
+        <attribute name="photo" attributeType="String"/>
         <attribute name="title" attributeType="String"/>
         <attribute name="updatedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="userPhoto" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserPhoto" inverseName="kategories" inverseEntity="UserPhoto"/>
         <relationship name="works" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Work" inverseName="kategory" inverseEntity="Work"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
@@ -22,6 +24,17 @@
         <attribute name="title" attributeType="String"/>
         <attribute name="updatedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="work" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Work" inverseName="subworks" inverseEntity="Work"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="UserPhoto" representedClassName="UserPhoto" syncable="YES" codeGenerationType="class">
+        <attribute name="createdDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="path" attributeType="String"/>
+        <relationship name="kategories" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Kategory" inverseName="userPhoto" inverseEntity="Kategory"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>

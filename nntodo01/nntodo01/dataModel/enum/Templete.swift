@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUICore
 
 enum Templete: String, CaseIterable, Identifiable {
     case today = "오늘 할 일"
@@ -34,6 +35,15 @@ enum Templete: String, CaseIterable, Identifiable {
         case .today: return ""
         case .marked: return ""
 //        case .plan: return ""
+        }
+    }
+    
+    var hexColor: String {
+        switch self {
+        case .nomal: return "#696969"
+        case .today: return "#1E90FF"
+        case .marked: return "#FF8C00"
+            //        case .plan: return ""
         }
     }
 }

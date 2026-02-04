@@ -15,7 +15,8 @@ struct ImgSafe: View {
     }
     
     var body: some View {
-        if let uiImg = UIImage(named: imgName) {
+        if !(imgName.isEmpty || imgName == "no_img"),
+           let uiImg = UIImage(named: imgName) {
             Image(uiImage: uiImg)
         } else {
             Circle()

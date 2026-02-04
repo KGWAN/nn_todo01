@@ -13,7 +13,8 @@ class ServiceKategory: NnService {
     func getNew(
         _ title: String,
         markType: String = "color",
-        color: String = ColorMarkKategory.allCases[0].rawValue
+        color: String = ColorMarkKategory.allCases[0].rawValue,
+        photo: String = ColorMarkKategory.allCases[0].rawValue
     ) -> Kategory {
         let kate = Kategory(context: context)
         // auto
@@ -23,6 +24,7 @@ class ServiceKategory: NnService {
         kate.title = title
         kate.markType = markType
         kate.color = color
+        kate.photo = photo
         
         return kate
     }
@@ -30,7 +32,8 @@ class ServiceKategory: NnService {
     func create(
         _ title: String,
         markType: String = "color",
-        color: String = ColorMarkKategory.allCases[0].rawValue
+        color: String = ColorMarkKategory.allCases[0].rawValue,
+        photo: String = ColorMarkKategory.allCases[0].rawValue
     ) -> Result {
         let new = Kategory(context: context)
         // auto
@@ -40,6 +43,7 @@ class ServiceKategory: NnService {
         new.title = title
         new.markType = markType
         new.color = color
+        new.photo = photo
         // log
         NnLogger.log("on insert kategory. : \(new)", level: .info)
         // save
