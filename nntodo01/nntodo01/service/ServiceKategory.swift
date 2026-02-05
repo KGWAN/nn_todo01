@@ -14,7 +14,8 @@ class ServiceKategory: NnService {
         _ title: String,
         markType: String = "color",
         color: String = ColorMarkKategory.allCases[0].rawValue,
-        photo: String = ColorMarkKategory.allCases[0].rawValue
+        photo: String = PhotoMarkKategory.allCases[0].rawValue,
+        userPhoto: UserPhoto? = nil
     ) -> Kategory {
         let kate = Kategory(context: context)
         // auto
@@ -25,7 +26,9 @@ class ServiceKategory: NnService {
         kate.markType = markType
         kate.color = color
         kate.photo = photo
-        
+        kate.userPhoto = userPhoto
+        // log
+        NnLogger.log("on create kategory. : \(kate)", level: .info)
         return kate
     }
     
@@ -33,7 +36,8 @@ class ServiceKategory: NnService {
         _ title: String,
         markType: String = "color",
         color: String = ColorMarkKategory.allCases[0].rawValue,
-        photo: String = ColorMarkKategory.allCases[0].rawValue
+        photo: String = PhotoMarkKategory.allCases[0].rawValue,
+        userPhoto: UserPhoto? = nil
     ) -> Result {
         let new = Kategory(context: context)
         // auto
@@ -44,6 +48,7 @@ class ServiceKategory: NnService {
         new.markType = markType
         new.color = color
         new.photo = photo
+        new.userPhoto = userPhoto
         // log
         NnLogger.log("on insert kategory. : \(new)", level: .info)
         // save

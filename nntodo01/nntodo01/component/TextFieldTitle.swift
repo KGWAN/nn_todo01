@@ -11,6 +11,13 @@ struct TextFieldTitle: View {
     // init
     let placeholder: String
     @Binding var text: String
+    let color: Color?
+    
+    init(placeholder: String, text: Binding<String>, color: Color? = nil) {
+        self.placeholder = placeholder
+        self._text = text
+        self.color = color
+    }
     // value
     
     // environment
@@ -19,12 +26,19 @@ struct TextFieldTitle: View {
     
     
     var body: some View {
-        TextField(placeholder, text: $text)
-            .padding(10)
+        VStack {
+            TextField(placeholder, text: $text)
+            if let color {
+                Divider()
+                    .frame(height: 1)
+                    .background(color)
+            }
+        }
+        .padding(10)
     }
 }
 
 #Preview {
     @Previewable @State var text: String = ""
-    TextFieldTitle(placeholder: "placeholder.", text: $text)
+    TextFieldTitle(placeholder: "placeholder.", text: $text, color: .blue)
 }

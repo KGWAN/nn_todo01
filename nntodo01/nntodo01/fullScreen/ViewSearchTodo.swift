@@ -54,10 +54,10 @@ struct ViewSearchTodo: View {
                 ToolbarItem(placement: .topBarLeading) {
                     HStack {
                         // back button
-                        BtnImg("") {
+                        BtnImg("btnBack") {
                             dismiss()
                         }
-                        .frame(width: 35, height: 35)
+                        .frame(width: 40, height: 40)
                         // search text
                         TextFieldTitle(placeholder: "검색어를 입력하세요.", text: $textSearch)
                             .frame(maxWidth: .infinity)
@@ -67,7 +67,7 @@ struct ViewSearchTodo: View {
                     HStack {
                         // 검색어 지우기
                         if !textSearch.isEmpty {
-                            BtnImg("") {
+                            BtnImg("iconX") {
                                 textSearch = ""
                             }
                             .frame(width: 35, height: 35)

@@ -8,9 +8,9 @@
 import SwiftUI
 
 enum TypeMarkKategory: String, CaseIterable, Identifiable {
-    case color = "color"
-    case photo = "photo"
-    case user = "user"
+    case color = "색"
+    case photo = "사진"
+    case user = "사용자 지정"
     
     var id: Self { self }
     

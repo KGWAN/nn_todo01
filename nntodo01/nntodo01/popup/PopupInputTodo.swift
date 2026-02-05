@@ -40,13 +40,18 @@ struct PopupInputTodo: View {
                         .disabled(true)
                     TextFieldTitle(placeholder: "작업추가", text: $text)
                         .frame(maxWidth: .infinity)
-                    BtnActivationImg(
-                        action: {
+                    Button {
+                        if canInput {
                             onFinish(create(text))
                             isPresented = false
-                        }, isEnabled: $canInput
-                    )
-                    .frame(width: 35, height: 35)
+                        }
+                    } label: {
+                        ImgSafe("btnInputTodo", color: Color.white)
+                    }
+                    .frame(width: 40, height: 40)
+                    .background(canInput ? Color.cyan: Color.gray)
+                    .cornerRadius(10)
+                    
                 }
                 .padding(.vertical, 10)
                 .padding(.horizontal, 30)

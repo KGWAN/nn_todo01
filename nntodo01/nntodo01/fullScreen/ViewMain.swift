@@ -29,7 +29,7 @@ struct ViewMain: View {
                             destination: ViewSearchTodo()
                         ) {
                             // 검색
-                            ImgSafe("")
+                            ImgSafe("btnSearch", color: .blue)
                                 .frame(width: 35, height: 35)
                         }
                     }
@@ -48,7 +48,8 @@ struct ViewMain: View {
                                 ) {
                                     ItemInventory(
                                         templete.rawValue,
-                                        imgName: templete.nameIcon,
+                                        nameImg: templete.nameIcon,
+                                        color: templete.color,
                                         cnt: ServiceWork().getCnt(templete.predicate))
                                 }
                             }
@@ -66,7 +67,12 @@ struct ViewMain: View {
                                         }
                                     )
                                 ) {
-                                    ItemInventory(kate.title ?? "", imgName: "")
+                                    if kate.markType == TypeMarkKategory.color.rawValue,
+                                       let color = kate.color {
+                                        ItemInventory(kate.title ?? "", nameImg: "iconTempNomal", color: Color(hex: color))
+                                    } else {
+                                        ItemInventory(kate.title ?? "", nameImg: "iconTempNomal")
+                                    }
                                 }
                             }
                         }
@@ -77,9 +83,12 @@ struct ViewMain: View {
                         isShowingPopupInputKategory = true
                     } label: {
                         HStack {
-                            ImgSafe("")
-                                .frame(width: 40, height: 40)
+                            Image(systemName: "plus")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
                             Text("새 목록")
+                                .font(.system(size: 18))
                                 .foregroundStyle(Color.blue)
                                 .padding(.horizontal, 10)
                         }

@@ -50,6 +50,41 @@ struct ViewListTodo: View {
     var body: some View {
         NavigationStack {
             ZStack {
+                // 배경
+                if let kate = kategory {
+                    switch kate.markType {
+                    case TypeMarkKategory.photo.rawValue:
+                        if let name = kate.photo,
+                            let img = UIImage(named: name) {
+                            Image(uiImage: img)
+                                .resizable()
+                                .ignoresSafeArea()
+                                .scaledToFill()
+                        } else {
+                            Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
+                                .ignoresSafeArea()
+                        }
+                    case TypeMarkKategory.user.rawValue:
+                        if let path = kate.userPhoto?.path,
+                            let url = URL(string: path),
+                            let img = UIImage(contentsOfFile: url.path()) {
+                            Image(uiImage: img)
+                                .resizable()
+                                .ignoresSafeArea()
+                                .scaledToFill()
+                        } else {
+                            Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
+                                .ignoresSafeArea()
+                        }
+                    default:
+                        Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
+                            .ignoresSafeArea()
+                    }
+                } else {
+                    Color(hex: templete.hexColor)
+                        .ignoresSafeArea()
+                }
+                // 내용
                 ContainerFloating {
                     // list
                     if !list.isEmpty {
@@ -67,6 +102,7 @@ struct ViewListTodo: View {
                                 .listRowInsets(.init(top: 0, leading: 10, bottom: 0, trailing: 0))
                                 .listRowSpacing(0)
                                 .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
                             }
 //                            .onMove(perform: move)
                             .onDelete(perform: delete)
@@ -76,6 +112,8 @@ struct ViewListTodo: View {
                         .listSectionSeparator(.hidden)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 20)
+                        .scrollContentBackground(.hidden)
+                        .background(Color.clear)
                     } else {
                         Text("할 일 목록이 여기에 나타납니다.")
                     }
@@ -90,14 +128,15 @@ struct ViewListTodo: View {
                                     isShowingPopupAddTodo = true
                                 } label: {
                                     HStack {
-                                        ImgSafe("")
+                                        ImgSafe("iconAddPlan", color: .blue)
                                             .frame(width: 25, height: 25)
                                         Text("일정 추가")
-                                            .foregroundStyle(Color.white)
+                                            .font(.system(size: 17, weight: .medium))
+                                            .foregroundStyle(Color.blue)
                                     }
                                     .frame(minHeight: 45)
                                     .padding(.horizontal, 20)
-                                    .background(Color.cyan)
+                                    .background(Color.white)
                                     .cornerRadius(55)
                                 }
                             }
@@ -108,8 +147,13 @@ struct ViewListTodo: View {
                                 Button {
                                     isShowingPopupInputTodo = true
                                 } label: {
-                                    ImgSafe("")
-                                        .frame(width: 55, height: 55)
+                                    Image(systemName: "plus")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 30, height: 30)
+                                        .padding(20)
+                                        .background(Color.white)
+                                        .cornerRadius(35)
                                         .padding(20)
                                 }
                             }
@@ -140,21 +184,24 @@ struct ViewListTodo: View {
                     }
                 }
             }
-            .background(
-                Color(hex: kategory?.color ?? templete.hexColor)
-            )
-            .nnToolbar(title, onDismiss: { onDismiss() })
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .nnToolbar(
+                title,
+                onDismiss: { onDismiss() },
+                contentTrailing: {
                     HStack {
-                        // 카테고리 수정 버튼
-                        BtnImg("") {
-                            isShowingPopupModifyKategory = true
+                        if kategory != nil {
+                            // 카테고리 수정 버튼
+                            BtnImg("btnX") {
+                                isShowingPopupModifyKategory = true
+                            }
+                            .frame(width: 40, height: 40)
+                            .background(Color.white)
+                            .cornerRadius(20)
                         }
-                        .frame(width: 35, height: 35)
                     }
                 }
-            }
+            )
         }
         .id(idRefresh)
     }
@@ -223,7 +270,7 @@ struct ViewListTodo: View {
 }
 
 #Preview {
-    let kategory: Kategory = ServiceKategory().getNew("kate_preview")
+    let kategory: Kategory = ServiceKategory().getNew("kate_preview", markType: TypeMarkKategory.photo.rawValue, photo: "bgKate00")
     
 //    ViewListTodo(){}
 //    ViewListTodo(.today){}

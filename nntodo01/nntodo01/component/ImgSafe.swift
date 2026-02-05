@@ -8,23 +8,30 @@
 import SwiftUI
 
 struct ImgSafe: View {
-    private let imgName: String
+    private let nameImg: String
+    private let color: Color
     
-    init(_ imgName: String = "no_img") {
-        self.imgName = imgName
+    init(_ nameImg: String = "", color: Color = .black) {
+        self.nameImg = nameImg
+        self.color = color
     }
     
     var body: some View {
-        if !(imgName.isEmpty || imgName == "no_img"),
-           let uiImg = UIImage(named: imgName) {
+        if !(nameImg.isEmpty),
+           let uiImg = UIImage(named: nameImg) {
             Image(uiImage: uiImg)
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(color)
+                
         } else {
             Circle()
-                .fill(Color.cyan)
+                .fill(.gray)
         }
     }
 }
 
 #Preview {
+    ImgSafe("iconTempNomal")
     ImgSafe()
 }

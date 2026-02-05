@@ -12,7 +12,7 @@ struct BtnImg: View {
     private let imgName: String
     private let action: () -> Void
     
-    init(_ imgName: String = "no_img",
+    init(_ imgName: String = "",
          action: @escaping () -> Void) {
         self.imgName = imgName
         self.action = action

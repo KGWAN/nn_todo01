@@ -29,19 +29,11 @@ struct ViewSelectUserMarkKategory: View {
             HStack(spacing: 20) {
                 // 추가 버튼
                 PhotosPicker(selection: $selectedItem, matching: .images, photoLibrary: .shared()) {
-                    ImgSafe("")
-                        .frame(width: radius*2, height: radius*2, alignment: .center)
-                        .cornerRadius(radius)
+                    Image(systemName: "plus")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: radius*1.2, alignment: .center)
                 }
-                
-//                if let selectedImg {
-//                    selectedImg
-//                        .resizable()
-//                        .aspectRatio(contentMode: .fill)
-//                        .frame(width: radius*2, height: radius*2, alignment: .center)
-//                        .cornerRadius(radius)
-//                }
-                
                 if !list.isEmpty {
                     ForEach(list, id: \.id) { userPhoto in
                         ZStack {
@@ -52,7 +44,7 @@ struct ViewSelectUserMarkKategory: View {
                                     print("userPhoto.path : \(path)")
                                     print("userPhoto.url : \(url)")
                                     print("userPhoto.url.path : \(url.path())")
-                                    print("img : \(UIImage(contentsOfFile: url.path()))")
+                                    print("img : \(String(describing: UIImage(contentsOfFile: url.path())))")
                                     print("file exists:", FileManager.default.fileExists(atPath: url.path()))
                                 }
                             } label: {
@@ -120,9 +112,12 @@ struct ViewSelectUserMarkKategory: View {
             let url = getUrl()
             if let data = try? await item.loadTransferable(type: Data.self),
                let img = UIImage(data: data),
-               saveImgFile(img, location: url).isSuccess,
-               createUserPhoto(path: url).isSuccess {
-                reload()
+               saveImgFile(img, location: url).isSuccess {
+                let new = service.getNew(url.absoluteString)
+                if service.save().isSuccess {
+                    selectedOne = new
+                    reload()
+                }
             }
         }
     }

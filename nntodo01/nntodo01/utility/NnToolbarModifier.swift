@@ -23,18 +23,22 @@ struct NnToolbarModifier<R: View>: ViewModifier {
                 ToolbarItem(placement: .topBarLeading) {
                     HStack(spacing: 10){
                         // 뒤로가기 버튼
-                        BtnImg("") {
+                        BtnImg("btnBack") {
                             onDismiss()
                             dismiss()
                         }
-                        .frame(width: 35, height: 35)
+                        .frame(width: 40, height: 40, alignment: .center)
+                        .background(Color.red)
                         // 제목
                         Text(title)
                             .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(Color.white)
+                            .foregroundStyle(Color.black)
+                            .padding(.trailing, 10)
                         // 기타 메뉴
-                        
                     }
+                    .padding(.horizontal, 10)
+                    .background(Color.white)
+                    .cornerRadius(20)
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {

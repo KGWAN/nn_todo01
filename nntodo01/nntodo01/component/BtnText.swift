@@ -21,7 +21,7 @@ struct BtnText: View {
             action()
         } label: {
             Text(text)
-                .font(Font.system(size: 20))
+                .font(Font.system(size: 20, weight: .medium))
                 .foregroundColor(.black)
                 .padding(.vertical, 10)
         }

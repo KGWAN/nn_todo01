@@ -31,9 +31,9 @@ enum Templete: String, CaseIterable, Identifiable {
     
     var nameIcon: String {
         switch self {
-        case .nomal: return ""
-        case .today: return ""
-        case .marked: return ""
+        case .nomal: return "iconTempAll"
+        case .today: return "iconTempToday"
+        case .marked: return "iconTempStar"
 //        case .plan: return ""
         }
     }
@@ -45,5 +45,9 @@ enum Templete: String, CaseIterable, Identifiable {
         case .marked: return "#FF8C00"
             //        case .plan: return ""
         }
+    }
+    
+    var color: Color {
+        Color(hex: self.hexColor) 
     }
 }

@@ -52,9 +52,9 @@ struct PopupInputKategory: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                         // title
                         HStack {
-                            ImgSafe("")
+                            ImgSafe("iconTempNomal", color: selectedColor.color)
                                 .frame(width: 40, height: 40)
-                            TextFieldTitle(placeholder: "목록 제목", text: $text)
+                            TextFieldTitle(placeholder: "목록 제목", text: $text, color: selectedColor.color)
                                 .frame(maxWidth: .infinity)
                         }
                         .padding(.top, 10)
@@ -70,11 +70,11 @@ struct PopupInputKategory: View {
                                     } label: {
                                         Text(mark.rawValue)
                                             .font(.system(size: 17, weight: .bold))
-                                            .foregroundStyle(mark == selectedRadio ? Color.white : Color.gray)
+                                            .foregroundStyle(mark == selectedRadio ? Color.white : selectedColor.color)
                                             .padding(.vertical, 8)
                                             .padding(.horizontal, 15)
-                                            .background(mark == selectedRadio ? Color.cyan : Color.white)
-                                            .border(mark == selectedRadio ? Color.cyan : Color.gray, width: 3)
+                                            .background(mark == selectedRadio ? selectedColor.color : Color.white)
+                                            .border(selectedColor.color, width: 1)
                                     }
                                 }
                                 Spacer()
@@ -143,17 +143,21 @@ struct PopupInputKategory: View {
                 text,
                 markType: selectedRadio.rawValue,
                 color: selectedColor.rawValue,
-                photo: selectedPhoto.rawValue
+                photo: selectedPhoto.rawValue,
+                userPhoto: selectedUserPhoto
             )
         )
     }
     
     private func update(){
         if let new = origin {
+            // set
             new.title = text
             new.markType = selectedRadio.rawValue
             new.color = selectedColor.rawValue
-            
+            new.photo = selectedPhoto.rawValue
+            new.userPhoto = selectedUserPhoto
+            // end
             onFinish(service.update(new))
         } else {
             NnLogger.log("update error: target kategorie not found.", level: .error)
