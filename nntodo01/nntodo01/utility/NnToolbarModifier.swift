@@ -28,7 +28,6 @@ struct NnToolbarModifier<R: View>: ViewModifier {
                             dismiss()
                         }
                         .frame(width: 40, height: 40, alignment: .center)
-                        .background(Color.red)
                         // 제목
                         Text(title)
                             .font(.system(size: 20, weight: .bold))

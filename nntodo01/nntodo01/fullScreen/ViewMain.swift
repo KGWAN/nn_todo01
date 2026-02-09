@@ -22,9 +22,28 @@ struct ViewMain: View {
     var body: some View {
         ZStack {
             NavigationStack {
-                VStack {
+                VStack(spacing: 30) {
                     HStack {
-                        Spacer()
+                        // 프로필
+                        NavigationLink(
+                            destination: ViewProfile()
+                        ) {
+                            HStack(alignment: .top, spacing: 5) {
+                                ImgSafe("profile", color: .gray)
+                                    .frame(width: 20, height: 20)
+                                    .padding(.horizontal, 5)
+                                VStack(alignment: .leading, spacing: 0) {
+                                    Text("이름")
+                                        .font(.system(size: 14))
+                                        .foregroundStyle(.black)
+                                        .padding(.horizontal, 5)
+                                        .padding(.vertical, 3)
+                                    Divider()
+                                        .padding(.horizontal, 5)
+                                }
+                            }
+                            .padding(5)
+                        }
                         NavigationLink(
                             destination: ViewSearchTodo()
                         ) {
