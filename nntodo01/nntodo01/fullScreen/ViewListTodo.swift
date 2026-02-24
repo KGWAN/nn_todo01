@@ -8,44 +8,49 @@
 import SwiftUI
 
 struct ViewListTodo: View {
-    // init
-    let templete: Templete
-    let onDismiss: () -> Void
-    
-    init(_ templete: Templete = .nomal, onDismiss: @escaping () -> Void) {
-        self.templete = templete
-        self.onDismiss = onDismiss
-        
-        if templete == .today {
-            self.title = "\(templete.rawValue) (\(Date().getStrDate(format: "MM월dd일")))"
-        } else {
-            self.title = templete.rawValue
-        }
-        self.predicate = templete.predicate
-        
-        self._list = State(initialValue: service.fetchList(predicate))
-    }
-    init(_ kategory: Kategory, onDismiss: @escaping () -> Void) {
-        self.templete = .nomal
-        self.onDismiss = onDismiss
-        
-        self.kategory = kategory
-        self.title = kategory.title ?? ""
-        self.predicate = NSPredicate(format: "kategory == %@", kategory)
-        self._list = State(initialValue: service.fetchList(predicate))
-    }
+    // common
     // state
-    @State private var list: [Work]
+    @State private var list: [Work] = []
     @State private var idRefresh: UUID = UUID()
     @State private var isShowingPopupInputTodo: Bool = false
-    @State private var isShowingPopupAddTodo: Bool = false
-    @State private var kategory: Kategory? = nil
-    @State private var isShowingPopupModifyKategory: Bool = false
     @State private var title: String
+    @State private var isShowingPopupAddTodo: Bool = false
     // constant
     private let service: ServiceWork = ServiceWork()
-    // value
-    private var predicate: NSPredicate? = nil
+    private let predicate: NSPredicate?
+    // init
+    let onDismiss: () -> Void
+    
+    // case: .nomal, .marked
+    init(_ templete: Templete = .nomal, onDismiss: @escaping () -> Void) {
+        self.onDismiss = onDismiss
+        self.templete = templete
+        
+        self._title = State(initialValue: templete.rawValue)
+        self.predicate = templete.predicate
+        if predicate != nil {
+            self._list = State(initialValue: service.fetchList(predicate!))
+        } else {
+            self._list = State(initialValue: service.fetchAll())
+        }
+    }
+    // constant
+    private let templete: Templete
+
+    // case: kategory
+    init(_ kategory: Kategory, onDismiss: @escaping () -> Void) {
+        self.onDismiss = onDismiss
+        self.templete = .nomal
+        self.kategory = kategory
+        
+        self._title = State(initialValue: kategory.title ?? "")
+        self.predicate = NSPredicate(format: "kategory == %@", kategory)
+        self._list = State(initialValue: service.fetchList(predicate!))
+    }
+    // state
+    @State private var kategory: Kategory? = nil
+    @State private var isShowingPopupModifyKategory: Bool = false
+    
     
     var body: some View {
         NavigationStack {
@@ -122,24 +127,24 @@ struct ViewListTodo: View {
                         !isShowingPopupAddTodo
                     {
                         ZStack {
-                            if templete == .today {
-                                // todo 추가 버튼
-                                Button {
-                                    isShowingPopupAddTodo = true
-                                } label: {
-                                    HStack {
-                                        ImgSafe("iconAddPlan", color: .blue)
-                                            .frame(width: 25, height: 25)
-                                        Text("일정 추가")
-                                            .font(.system(size: 17, weight: .medium))
-                                            .foregroundStyle(Color.blue)
-                                    }
-                                    .frame(minHeight: 45)
-                                    .padding(.horizontal, 20)
-                                    .background(Color.white)
-                                    .cornerRadius(55)
-                                }
-                            }
+//                            if templete == .today {
+//                                // todo 추가 버튼
+//                                Button {
+//                                    isShowingPopupAddTodo = true
+//                                } label: {
+//                                    HStack {
+//                                        ImgSafe("iconAddPlan", color: .blue)
+//                                            .frame(width: 25, height: 25)
+//                                        Text("일정 추가")
+//                                            .font(.system(size: 17, weight: .medium))
+//                                            .foregroundStyle(Color.blue)
+//                                    }
+//                                    .frame(minHeight: 45)
+//                                    .padding(.horizontal, 20)
+//                                    .background(Color.white)
+//                                    .cornerRadius(55)
+//                                }
+//                            }
                             
                             // new todo 생성 버튼
                             HStack {
@@ -164,9 +169,8 @@ struct ViewListTodo: View {
                 if isShowingPopupInputTodo {
                     // new todo 생성 팝업
                     PopupInputTodo(
-                        isPresented: $isShowingPopupInputTodo,
                         templete: templete,
-                        kategorie: kategory
+                        isPresented: $isShowingPopupInputTodo
                     ) { result in
                         onAdd(result)
                     }
@@ -209,10 +213,15 @@ struct ViewListTodo: View {
     
     //func
     private func reload() {
+        if predicate != nil {
+            list = service.fetchList(predicate!)
+        } else {
+            list = service.fetchAll()
+        }
         if let kate = kategory {
             title = kate.title ?? ""
         }
-        list = service.fetchList(predicate)
+        // view refresh trager
         idRefresh = UUID()
     }
     
@@ -272,9 +281,8 @@ struct ViewListTodo: View {
 #Preview {
     let kategory: Kategory = ServiceKategory().getNew("kate_preview", markType: TypeMarkKategory.photo.rawValue, photo: "bgKate00")
     
-//    ViewListTodo(){}
+    ViewListTodo(){}
 //    ViewListTodo(.today){}
 //    ViewListTodo(.marked){}
-//    ViewListTodo(.plan)
-    ViewListTodo(kategory, onDismiss: {})
+//    ViewListTodo(kategory, onDismiss: {})
 }

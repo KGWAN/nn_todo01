@@ -9,31 +9,46 @@ import SwiftUI
 
 struct ViewDetailTodo: View {
     // init
-    @State private var item: Work
+    @State var item: Work
     let onFinish: (Result) -> Void
     
     init(_ item: Work, onFinish: @escaping (Result) -> Void) {
         self._item = State(initialValue: item)
         self.onFinish = onFinish
-        
+        // 기본
         self._textTitle = State(initialValue: item.title ?? "")
         self._isDone = State(initialValue: item.isDone)
-        self._isMarked = State(initialValue: item.isMarked)
-        self._isToday = State(initialValue: item.isToday)
-        self._listSubwork = State(initialValue: (item.subworks as? Set<Subwork>)?.sorted(by: {
-            $0.sortNum ?? "0" < $1.sortNum ?? "0"
-        } ) ?? [])
+        // 추가
         self._textMemo = State(initialValue: item.memo ?? "")
+        self._listSubwork = State(initialValue: service.getChildren(item))
+        // 분류
+        self._isMarked = State(initialValue: item.isMarked)
+        self._planType = State(initialValue: item.listTypePlan)
+        self._planedDay = State(initialValue: Int(item.planedDay))
+        self._planedWeek = State(initialValue: Int(item.planedWeek))
+        self._planedMonth = State(initialValue: Int(item.planedMonth))
+        self._planedYear = State(initialValue: Int(item.planedYear))
+        self._kategory = State(initialValue: item.kategory)
     }
     
     // state
-    @State private var idRefresh: UUID = UUID()
+    // work member
+    // 기본
     @State private var textTitle: String
     @State private var isDone: Bool
-    @State private var isMarked: Bool
-    @State private var isToday: Bool
-    @State private var listSubwork: [Subwork]
+    // 추가
     @State private var textMemo: String
+    @State private var listSubwork: [Work]
+    // 분류
+    @State private var isMarked: Bool
+    @State private var planType: TypePlan
+    @State private var planedDay: Int
+    @State private var planedWeek: Int
+    @State private var planedMonth: Int
+    @State private var planedYear: Int
+    @State private var kategory: Kategory?
+    // 기타
+    @State private var idRefresh: UUID = UUID()
     @State private var isEditingSubwork: Bool = false
     @State private var textTitleSub: String = ""
     @FocusState private var isFocusedSub: Bool
@@ -51,14 +66,14 @@ struct ViewDetailTodo: View {
                     // 서브 작업 리스트
                     List {
                         ForEach(listSubwork) { subwork in
-                            ItemSubwork(subwork) {_, _ in
+                            ItemSubwork(subwork) {key, value in
+                                update(child: subwork, key: key, value: value)
                             }
                             .listRowInsets(.init(top: 0, leading: 10, bottom: 0, trailing: 0))
                             .listRowSpacing(0)
                             .listRowSeparator(.hidden)
                         }
-                        .onMove(perform: move)
-                        .onDelete(perform: delete)
+                        .onDelete(perform: deleteChild)
                     }
                     .frame(height: CGFloat(listSubwork.count * 60))
                     .listStyle(.plain)
@@ -108,8 +123,8 @@ struct ViewDetailTodo: View {
                 // 중단
                 VStack {
                     // 오늘 할일 추가 버튼
-                    BtnCheckFullWidth($isToday, strOn: "오늘 할 일에 추가됨", strOff: "오늘 할 일에 추가")
-                        .background(Color.white)
+//                    BtnCheckFullWidth($isToday, strOn: "오늘 할 일에 추가됨", strOff: "오늘 할 일에 추가")
+//                        .background(Color.white)
                     // 메모 입력
                     ZStack(alignment: .topLeading) {
                         TextEditor(text: $textMemo)
@@ -180,50 +195,41 @@ struct ViewDetailTodo: View {
     
     
     //MARK: func
+    // 리로드
     private func reload() {
         if let i = item.id,
         let new = service.fetchOne(i) {
             item = new
         }
-        listSubwork = (item.subworks as? Set<Subwork>)?.sorted(by: {
-            $0.sortNum ?? "0" < $1.sortNum ?? "0"
-        }) ?? []
+        listSubwork = service.getChildren(item)
         idRefresh = UUID()
     }
-    
-    // Subwork
-    private func move(from source: IndexSet, to destination: Int) {
-        withAnimation {
-            listSubwork.move(fromOffsets: source, toOffset: destination)
-        }
-        
-        if !service.update(item, key: "subworks", value: listSubwork)
-            .isSuccess {
-            //TODO: 토스트 띄우기 : 서브 작업 수정에 실패
-        }
-
-        reload()
+    // 일괄 수정
+    private func onUpdate() {
+        // 기본
+        item.title = textTitle
+        item.isDone = isDone
+        item.memo = textMemo
+//        item.children = listSubwork
+        item.isMarked = isMarked
+        item.listTypePlan = planType
+        item.planedDay = Int64(planedDay)
+        item.planedWeek = Int64(planedWeek)
+        item.planedMonth = Int64(planedMonth)
+        item.planedYear = Int64(planedYear)
+        item.kategory = kategory
+        onFinish(service.update(item))
     }
-    
-    private func delete(at offsets: IndexSet) {
-        if let idx = offsets.first {
-            let subwork = listSubwork[idx]
-            listSubwork.remove(at: idx)
-            if !service.removeChild(subwork, target: item)
-                .isSuccess {
-                //TODO: 토스트 띄우기 : 서브 작업 삭제에 실패
-            }
-        }
-    }
-    
-    private func update(_ target: Subwork, key: String, value: Any) {
-        if !ServiceSubwork().update(target, key: key, value: value).isSuccess {
-            //TODO: 토스트 띄우기 : 서브 작업 수정 실패
+    // 요소 수정
+    private func update(_ target: Work, key: String, value: Any) {
+        if !ServiceWork().update(target, key: key, value: value).isSuccess {
+            //TODO: 토스트 띄우기 : 작업 수정 실패
         }
         // 화면 갱신
         reload()
     }
-    
+    // Subwork
+    // subwork 추가
     private func addSubwork(_ title: String) {
         if !service.addChild(title, target: item).isSuccess {
             //TODO: 토스트 띄우기 : 서브 작업 추가 실패
@@ -231,24 +237,36 @@ struct ViewDetailTodo: View {
         // 화면 갱신
         reload()
     }
-    
-    private func onDelete() {
-        onFinish(service.delete(item))
+    // subwork 수정
+    private func update(child: Work, key: String, value: Any) {
+        if !ServiceWork().update(child, key: key, value: value).isSuccess {
+            //TODO: 토스트 띄우기 : 서브 작업 수정 실패
+        }
+        // 화면 갱신
+        reload()
+    }
+    // subwork 삭제
+    private func deleteChild(at offsets: IndexSet) {
+        if let idx = offsets.first {
+            let subwork = listSubwork[idx]
+            listSubwork.remove(at: idx)
+            if !service.delete(subwork).isSuccess {
+                //TODO: 토스트 띄우기 : 서브 작업 삭제 실패
+            }
+        }
+        // 화면 갱신
+        reload()
     }
     
-    private func onUpdate() {
-        item.title = self.textTitle
-        item.isDone = self.isDone
-        item.isMarked = self.isMarked
-        item.isToday = self.isToday
-        item.memo = self.textMemo
-        
-        onFinish(service.update(item))
+
+    // 삭제
+    private func onDelete() {
+        onFinish(service.delete(item))
     }
 }
 
 #Preview {
-    let item = ServiceWork().getNewWork("todo example", isDone: false, isMarked: true)
+    let item = ServiceWork().getNew("todo example", isDone: false, isMarked: true)
     
     ViewDetailTodo(item) {
         NnLogger.log("result code: \($0)", level: .debug)

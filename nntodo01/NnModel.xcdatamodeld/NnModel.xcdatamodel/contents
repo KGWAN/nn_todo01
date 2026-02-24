@@ -48,9 +48,16 @@
         <attribute name="isMarked" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isToday" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="memo" optional="YES" attributeType="String"/>
+        <attribute name="planedDay" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="planedMonth" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="planedWeek" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="planedYear" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="planType" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="title" attributeType="String"/>
         <attribute name="updatedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="children" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Work" inverseName="parent" inverseEntity="Work"/>
         <relationship name="kategory" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Kategory" inverseName="works" inverseEntity="Kategory"/>
+        <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Work" inverseName="children" inverseEntity="Work"/>
         <relationship name="subworks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Subwork" inverseName="work" inverseEntity="Subwork"/>
         <uniquenessConstraints>
             <uniquenessConstraint>

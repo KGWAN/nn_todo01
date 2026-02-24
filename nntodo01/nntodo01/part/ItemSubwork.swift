@@ -11,11 +11,11 @@ struct ItemSubwork: View {
     let onUpdate: (String, Any) -> Void
     
     init(
-        _ inf: Subwork,
+        _ inf: Work,
         onUpdate: @escaping (String, Any) -> Void
     ) {
-        self.title = inf.title ?? ""
-        self.isDone = inf.isDone
+        self._title = State(initialValue: inf.title ?? "")
+        self._isDone = State(initialValue: inf.isDone)
         self.onUpdate = onUpdate
     }
     // state
@@ -58,8 +58,8 @@ struct ItemSubwork: View {
 }
 
 #Preview {
-    let work = ServiceWork().getNewWork("todo")
-    let item = ServiceSubwork().getNew("todo's subwork", parent: work)
+    let parent = ServiceWork().getNew("parent todo")
+    let item = ServiceWork().getNew("child todo", parent: parent)
     
     ItemSubwork(item) { key, value in
         NnLogger.log("Todo(\(item.title ?? "")) was changed. (key:\(key), value:\(value))", level: .debug)

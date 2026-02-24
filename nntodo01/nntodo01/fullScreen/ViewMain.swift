@@ -69,7 +69,8 @@ struct ViewMain: View {
                                         templete.rawValue,
                                         nameImg: templete.nameIcon,
                                         color: templete.color,
-                                        cnt: ServiceWork().getCnt(templete.predicate))
+                                        cnt: ServiceWork().getCnt(templete)
+                                    )
                                 }
                             }
                         }

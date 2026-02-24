@@ -52,7 +52,7 @@ struct ItemAddTodo: View {
 }
 
 #Preview {
-    let item = ServiceWork().getNewWork("todo")
+    let item = ServiceWork().getNew("todo")
     
     ItemAddTodo(item) { key, value in
         NnLogger.log("Todo(\(item.title ?? "")) was changed. (key:\(key), value:\(value))", level: .debug)
