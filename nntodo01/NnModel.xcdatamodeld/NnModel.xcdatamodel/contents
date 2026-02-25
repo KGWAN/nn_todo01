@@ -5,6 +5,7 @@
         <attribute name="createdDate" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="markType" attributeType="String" defaultValueString="color"/>
+        <attribute name="memo" optional="YES" attributeType="String"/>
         <attribute name="photo" attributeType="String"/>
         <attribute name="title" attributeType="String"/>
         <attribute name="updatedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
