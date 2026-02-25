@@ -10,7 +10,7 @@ import SwiftUI
 enum TypeMarkKategory: String, CaseIterable, Identifiable {
     case color = "색"
     case photo = "사진"
-    case user = "사용자 지정"
+//    case user = "사용자 지정"
     
     var id: Self { self }
     
@@ -20,8 +20,8 @@ enum TypeMarkKategory: String, CaseIterable, Identifiable {
             return "색"
         case .photo:
             return "사진"
-        case .user:
-            return "사용자 지정"
+//        case .user:
+//            return "사용자 지정"
         }
     }
 }

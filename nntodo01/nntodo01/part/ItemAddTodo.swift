@@ -26,7 +26,7 @@ struct ItemAddTodo: View {
     
     var body: some View {
         HStack(alignment: .center, spacing: 10) {
-            BtnCheckImg($isDone)
+            BtnCheckImg(isChecked: $isDone)
                 .frame(width: 35, height: 35)
                 .buttonStyle(.borderless)
             VStack {

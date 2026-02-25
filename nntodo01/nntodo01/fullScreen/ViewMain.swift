@@ -24,26 +24,27 @@ struct ViewMain: View {
             NavigationStack {
                 VStack(spacing: 30) {
                     HStack {
-                        // 프로필
-                        NavigationLink(
-                            destination: ViewProfile()
-                        ) {
-                            HStack(alignment: .top, spacing: 5) {
-                                ImgSafe("profile", color: .gray)
-                                    .frame(width: 20, height: 20)
-                                    .padding(.horizontal, 5)
-                                VStack(alignment: .leading, spacing: 0) {
-                                    Text("이름")
-                                        .font(.system(size: 14))
-                                        .foregroundStyle(.black)
-                                        .padding(.horizontal, 5)
-                                        .padding(.vertical, 3)
-                                    Divider()
-                                        .padding(.horizontal, 5)
-                                }
-                            }
-                            .padding(5)
-                        }
+//                        // 프로필
+//                        NavigationLink(
+//                            destination: ViewProfile()
+//                        ) {
+//                            HStack(alignment: .top, spacing: 5) {
+//                                ImgSafe("profile", color: .gray)
+//                                    .frame(width: 20, height: 20)
+//                                    .padding(.horizontal, 5)
+//                                VStack(alignment: .leading, spacing: 0) {
+//                                    Text("이름")
+//                                        .font(.system(size: 14))
+//                                        .foregroundStyle(.black)
+//                                        .padding(.horizontal, 5)
+//                                        .padding(.vertical, 3)
+//                                    Divider()
+//                                        .padding(.horizontal, 5)
+//                                }
+//                            }
+//                            .padding(5)
+//                        }
+                        Spacer()
                         NavigationLink(
                             destination: ViewSearchTodo()
                         ) {
@@ -69,7 +70,7 @@ struct ViewMain: View {
                                         templete.rawValue,
                                         nameImg: templete.nameIcon,
                                         color: templete.color,
-                                        cnt: ServiceWork().getCnt(templete)
+                                        cnt: templete.cntNotDoneWorks
                                     )
                                 }
                             }
@@ -89,9 +90,14 @@ struct ViewMain: View {
                                 ) {
                                     if kate.markType == TypeMarkKategory.color.rawValue,
                                        let color = kate.color {
-                                        ItemInventory(kate.title ?? "", nameImg: "iconTempNomal", color: Color(hex: color))
+                                        ItemInventory(
+                                            kate.title ?? "",
+                                            nameImg: "iconTempNomal",
+                                            color: Color(hex: color),
+                                            cnt: service.getCntNotDoneWorks(kate)
+                                        )
                                     } else {
-                                        ItemInventory(kate.title ?? "", nameImg: "iconTempNomal")
+                                        ItemInventory(kate.title ?? "", nameImg: "iconTempNomal", cnt: service.getCntNotDoneWorks(kate))
                                     }
                                 }
                             }
@@ -112,7 +118,6 @@ struct ViewMain: View {
                                 .foregroundStyle(Color.blue)
                                 .padding(.horizontal, 10)
                         }
-                        Spacer()
                     }
                     .padding(.horizontal, 20)
                 }

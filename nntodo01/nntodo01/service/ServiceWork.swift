@@ -252,6 +252,7 @@ class ServiceWork: NnService {
     // MARK: read
     // constant
     private let sortDefalt: [NSSortDescriptor] = [NSSortDescriptor(keyPath: \Work.createdDate, ascending: true)]
+    // common func
     private func fetch<Work>(_ request: NSFetchRequest<Work>) -> [Work] {
         do {
             return try context.fetch(request)
@@ -277,18 +278,14 @@ class ServiceWork: NnService {
         let request: NSFetchRequest<Work> = Work.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         request.fetchLimit = 1
-        
-        do {
-            return try context.fetch(request).first
-        } catch {
-            fatalError("Fetching Failed: \(error)")
-        }
+        return fetch(request).first
     }
-    func getCnt(_ templete: Templete) -> Int {
+    // 작업 수
+    func getCntNotDone(templete: Templete) -> Int {
         if let predicate = templete.predicate {
-            return fetchList(predicate).count
+            return fetchList(predicate).filter { !$0.isDone }.count
         } else {
-            return fetchAll().count
+            return fetchAll().filter { !$0.isDone }.count
         }
     }
 

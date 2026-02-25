@@ -28,7 +28,10 @@ struct ItemTodo: View {
     
     var body: some View {
         HStack(alignment: .center, spacing: 10) {
-            BtnCheckImg($isDone)
+            BtnCheckImg(
+                "btnDone",
+                colorY: .blue,
+                isChecked: $isDone)
                 .frame(width: 35, height: 35)
                 .buttonStyle(.borderless)
             VStack {
@@ -45,9 +48,13 @@ struct ItemTodo: View {
 //                        .padding(.leading, 10)
 //                }
             }
-            BtnCheckImg($isMarked)
-                .frame(width: 35, height: 35)
-                .buttonStyle(.borderless)
+            BtnCheckImg(
+                "btnStar",
+                colorY: .yellow,
+                isChecked: $isMarked
+            )
+            .frame(width: 35, height: 35)
+            .buttonStyle(.borderless)
         }
         .padding(.vertical, 20)
         .padding(.horizontal, 15)

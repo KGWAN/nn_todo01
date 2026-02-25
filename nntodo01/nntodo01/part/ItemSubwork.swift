@@ -27,7 +27,7 @@ struct ItemSubwork: View {
     
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
-            BtnCheckImg($isDone)
+            BtnCheckImg("btnDone", isChecked: $isDone)
                 .frame(width: 25, height: 25)
                 .buttonStyle(.borderless)
                 .padding(.vertical, 10)

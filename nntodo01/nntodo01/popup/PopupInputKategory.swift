@@ -15,8 +15,8 @@ struct PopupInputKategory: View {
     let onFinish: (Result) -> Void
     
     init(
-        isPresented: Binding<Bool>,
         origin: Kategory? = nil,
+        isPresented: Binding<Bool>,
         onFinish: @escaping (Result) -> Void
     ) {
         self._isPresented = isPresented
@@ -48,8 +48,16 @@ struct PopupInputKategory: View {
                 HStack {
                     VStack(spacing: 20) {
                         // popup title
-                        Text(origin == nil ? "새 목록" : "목록 수정")
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        HStack {
+                            Text(origin == nil ? "새 목록" : "목록 수정")
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            if origin != nil {
+                                BtnImg("btnDelete", color: .red) {
+                                    delete()
+                                }
+                                .frame(width: 30, height: 30)
+                            }
+                        }
                         // title
                         HStack {
                             ImgSafe("iconTempNomal", color: selectedColor.color)
@@ -85,8 +93,8 @@ struct PopupInputKategory: View {
                                     ViewSelectColorMarkKategory(selectedOne: $selectedColor)
                                 case .photo:
                                     ViewSelectPhotoMarkKategory(selectedOne: $selectedPhoto)
-                                case .user:
-                                    ViewSelectUserMarkKategory(for: $selectedUserPhoto)
+//                                case .user:
+//                                    ViewSelectUserMarkKategory(for: $selectedUserPhoto)
                                 }
                             }
                             .frame(maxWidth: .infinity, maxHeight: 40)
@@ -141,6 +149,7 @@ struct PopupInputKategory: View {
         onFinish(
             service.create(
                 text,
+                description: nil,
                 markType: selectedRadio.rawValue,
                 color: selectedColor.rawValue,
                 photo: selectedPhoto.rawValue,
@@ -164,6 +173,12 @@ struct PopupInputKategory: View {
             onFinish(Result(code: "9999", msg: "Invalid path: target kategorie not found."))
         }
     }
+    
+    private func delete() {
+        if let kate = origin {
+            onFinish(service.delete(kate))
+        }
+    }
 }
 
 #Preview {
@@ -178,8 +193,8 @@ struct PopupInputKategory: View {
     }
     // update
     PopupInputKategory(
-        isPresented: $isShowing,
-        origin: kategory
+        origin: kategory,
+        isPresented: $isShowing
     ) { result in
         
     }

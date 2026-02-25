@@ -69,18 +69,18 @@ struct ViewListTodo: View {
                             Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
                                 .ignoresSafeArea()
                         }
-                    case TypeMarkKategory.user.rawValue:
-                        if let path = kate.userPhoto?.path,
-                            let url = URL(string: path),
-                            let img = UIImage(contentsOfFile: url.path()) {
-                            Image(uiImage: img)
-                                .resizable()
-                                .ignoresSafeArea()
-                                .scaledToFill()
-                        } else {
-                            Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
-                                .ignoresSafeArea()
-                        }
+//                    case TypeMarkKategory.user.rawValue:
+//                        if let path = kate.userPhoto?.path,
+//                            let url = URL(string: path),
+//                            let img = UIImage(contentsOfFile: url.path()) {
+//                            Image(uiImage: img)
+//                                .resizable()
+//                                .ignoresSafeArea()
+//                                .scaledToFill()
+//                        } else {
+//                            Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
+//                                .ignoresSafeArea()
+//                        }
                     default:
                         Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
                             .ignoresSafeArea()
@@ -149,30 +149,39 @@ struct ViewListTodo: View {
                             // new todo 생성 버튼
                             HStack {
                                 Spacer()
-                                Button {
+                                BtnImg(
+                                    "iconPlus",
+                                    color: .white
+                                ) {
                                     isShowingPopupInputTodo = true
-                                } label: {
-                                    Image(systemName: "plus")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 30, height: 30)
-                                        .padding(20)
-                                        .background(Color.white)
-                                        .cornerRadius(35)
-                                        .padding(20)
                                 }
+                                .frame(width: 30, height: 30)
+                                .padding(20)
+                                .background(Color.cyan)
+                                .cornerRadius(25)
                             }
+                            .padding(.horizontal, 20)
                         }
                     }
                 }
-                
+                // new todo 생성 팝업
                 if isShowingPopupInputTodo {
-                    // new todo 생성 팝업
-                    PopupInputTodo(
-                        templete: templete,
-                        isPresented: $isShowingPopupInputTodo
-                    ) { result in
-                        onAdd(result)
+                    if let kate = kategory {
+                        // case kategory
+                        PopupInputTodo(
+                            kategory: kate,
+                            isPresented: $isShowingPopupInputTodo
+                        ) { result in
+                            onAdd(result)
+                        }
+                    } else {
+                        // case templete
+                        PopupInputTodo(
+                            templete: templete,
+                            isPresented: $isShowingPopupInputTodo
+                        ) { result in
+                            onAdd(result)
+                        }
                     }
                 }
                 if isShowingPopupAddTodo {
@@ -183,7 +192,7 @@ struct ViewListTodo: View {
                 }
                 if kategory != nil && isShowingPopupModifyKategory {
                     // kategory 수정 팝업
-                    PopupInputKategory(isPresented: $isShowingPopupModifyKategory, origin: kategory) { result in
+                    PopupInputKategory(origin: kategory, isPresented: $isShowingPopupModifyKategory) { result in
                         onUpdateKategory(result: result)
                     }
                 }
@@ -196,12 +205,10 @@ struct ViewListTodo: View {
                     HStack {
                         if kategory != nil {
                             // 카테고리 수정 버튼
-                            BtnImg("btnX") {
+                            BtnImg("btnSetting") {
                                 isShowingPopupModifyKategory = true
                             }
                             .frame(width: 40, height: 40)
-                            .background(Color.white)
-                            .cornerRadius(20)
                         }
                     }
                 }
@@ -281,8 +288,8 @@ struct ViewListTodo: View {
 #Preview {
     let kategory: Kategory = ServiceKategory().getNew("kate_preview", markType: TypeMarkKategory.photo.rawValue, photo: "bgKate00")
     
-    ViewListTodo(){}
+//    ViewListTodo(){}
 //    ViewListTodo(.today){}
 //    ViewListTodo(.marked){}
-//    ViewListTodo(kategory, onDismiss: {})
+    ViewListTodo(kategory, onDismiss: {})
 }

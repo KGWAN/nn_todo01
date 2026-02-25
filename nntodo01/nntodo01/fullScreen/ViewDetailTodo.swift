@@ -83,7 +83,7 @@ struct ViewDetailTodo: View {
                     if isEditingSubwork {
                         // 서브 작업 작성 영역
                         HStack {
-                            BtnCheckImg(Binding(get: { false }, set: { _ in }))
+                            BtnCheckImg("btnDone", isChecked: Binding(get: { false }, set: { _ in }))
                                 .frame(width: 25, height: 25)
                                 .disabled(true)
                             TextFieldTitle(placeholder: "서브 작업의 이름을 입력하세요.", text: $textTitleSub)
@@ -105,12 +105,12 @@ struct ViewDetailTodo: View {
                             isFocusedSub = true
                         } label: {
                             HStack {
-                                ImgSafe()
+                                ImgSafe("iconPlus", color: .cyan)
                                     .frame(width: 25, height: 25)
                                 Text("서브 작업 추가")
+                                    .foregroundStyle(Color.cyan)
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 10)
-                                Spacer()
                             }
                             .padding(.horizontal, 10)
                         }
@@ -153,7 +153,7 @@ struct ViewDetailTodo: View {
                     }
                     Spacer()
                     // 삭제 버튼
-                    BtnImg("") {
+                    BtnImg("btnDelete", color: .red) {
                         onDelete()
                         dismiss()
                     }
@@ -169,7 +169,7 @@ struct ViewDetailTodo: View {
                 ToolbarItem(placement: .topBarLeading) {
                     HStack {
                         // 뒤로가기 버튼
-                        BtnImg("") {
+                        BtnImg("btnBack") {
                             onUpdate()
                             dismiss()
                         }
@@ -181,10 +181,10 @@ struct ViewDetailTodo: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack {
                         // 완료 체크 버튼
-                        BtnCheckImg($isDone)
+                        BtnCheckImg("btnDone", isChecked: $isDone)
                             .frame(width: 35, height: 35)
                         // 별표 체크 버튼
-                        BtnCheckImg($isMarked)
+                        BtnCheckImg("btnStar", colorY: .yellow, isChecked: $isMarked)
                             .frame(width: 35, height: 35)
                     }
                 }
@@ -266,7 +266,7 @@ struct ViewDetailTodo: View {
 }
 
 #Preview {
-    let item = ServiceWork().getNew("todo example", isDone: false, isMarked: true)
+    let item = ServiceWork().getNew("todo example", isDone: true, isMarked: true)
     
     ViewDetailTodo(item) {
         NnLogger.log("result code: \($0)", level: .debug)

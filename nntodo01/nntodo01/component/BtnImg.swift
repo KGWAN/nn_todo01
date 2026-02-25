@@ -10,11 +10,14 @@ import SwiftUI
 struct BtnImg: View {
     //init
     private let imgName: String
+    private let color: Color
     private let action: () -> Void
     
     init(_ imgName: String = "",
+         color: Color = .black,
          action: @escaping () -> Void) {
         self.imgName = imgName
+        self.color = color
         self.action = action
     }
     
@@ -22,7 +25,7 @@ struct BtnImg: View {
         Button {
             action()
         } label: {
-            ImgSafe(imgName)
+            ImgSafe(imgName, color: color)
         }
     }
 }

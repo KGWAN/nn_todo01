@@ -45,4 +45,8 @@ enum Templete: String, CaseIterable, Identifiable {
     var color: Color {
         Color(hex: self.hexColor) 
     }
+    
+    var cntNotDoneWorks: Int {
+        ServiceWork().getCntNotDone(templete: self)
+    }
 }

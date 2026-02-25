@@ -147,8 +147,8 @@ struct PopupInputTodo: View {
             isPresented: $isPresented,
             content: {
                 HStack(alignment: .center, spacing: 10) {
-                    BtnCheckImg(Binding(get: { false }, set: { _ in }))
-                        .frame(width: 35, height: 35)
+                    BtnCheckImg("btnDone", isChecked: Binding(get: { false }, set: { _ in }))
+                        .frame(width: 25, height: 25)
                         .disabled(true)
                     TextFieldTitle(placeholder: "작업추가", text: $text)
                         .frame(maxWidth: .infinity)
@@ -160,13 +160,13 @@ struct PopupInputTodo: View {
                     } label: {
                         ImgSafe("btnInputTodo", color: Color.white)
                     }
-                    .frame(width: 40, height: 40)
+                    .frame(width: 30, height: 30)
                     .background(canInput ? Color.cyan: Color.gray)
                     .cornerRadius(10)
                     
                 }
                 .padding(.vertical, 10)
-                .padding(.horizontal, 30)
+                .padding(.horizontal, 20)
                 .onChange(of: text) { _, _ in
                     checkCanInput()
                 }

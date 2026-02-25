@@ -33,9 +33,7 @@ struct BtnActivationImg: View {
             }
         } label: {
             ImgShift(
-                $isEnabled,
-                imgY: "",
-                imgN: ""
+                isY: $isEnabled
             )
         }
         .disabled(!isEnabled)

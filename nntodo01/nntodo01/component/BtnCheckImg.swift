@@ -9,18 +9,21 @@ import SwiftUI
 
 struct BtnCheckImg: View {
     // init
-    let activatedImgName: String
-    let deactivatedImgName: String
+    let nameImg: String
+    let colorY: Color
+    let colorN: Color
     @Binding var isChecked: Bool
     
     init(
-        _ isChecked: Binding<Bool>,
-        activatedImgName: String = "no_img",
-        deactivatedImgName: String = "no_img"
+        _ nameImg: String = "noImg",
+        colorY: Color = .cyan,
+        colorN: Color = .gray,
+        isChecked: Binding<Bool>
     ) {
-        self.activatedImgName = activatedImgName
-        self.deactivatedImgName = deactivatedImgName
         self._isChecked = isChecked
+        self.nameImg = nameImg
+        self.colorY = colorY
+        self.colorN = colorN
     }
     
     
@@ -29,9 +32,10 @@ struct BtnCheckImg: View {
             isChecked.toggle()
         } label: {
             ImgShift(
-                $isChecked,
-                imgY: activatedImgName,
-                imgN: deactivatedImgName
+                nameImg,
+                colorY: colorY,
+                colorN: colorN,
+                isY: $isChecked
             )
         }
     }
@@ -40,5 +44,5 @@ struct BtnCheckImg: View {
 #Preview {
     @Previewable @State var isChecked: Bool = false
     
-    BtnCheckImg($isChecked)
+    BtnCheckImg(isChecked: $isChecked)
 }

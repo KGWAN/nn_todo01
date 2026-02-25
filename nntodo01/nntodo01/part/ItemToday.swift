@@ -27,7 +27,7 @@ struct ItemToday: View {
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
                     .background(Color.orange.opacity(0.2))
-                ImgShift($isOpend, imgY: "", imgN: "")
+                ImgShift(isY: $isOpend)
                     .frame(width: 20, height: 20)
                     .background(Color.orange.opacity(0.2))
                 Spacer()
