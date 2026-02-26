@@ -52,6 +52,8 @@ struct ViewDetailTodo: View {
     @State private var isEditingSubwork: Bool = false
     @State private var textTitleSub: String = ""
     @FocusState private var isFocusedSub: Bool
+    @State private var isShowingToast: Bool = false
+    @State private var msgToast: String = ""
     // environment
     @Environment(\.dismiss) private var dismiss
     // constant
@@ -189,12 +191,19 @@ struct ViewDetailTodo: View {
                     }
                 }
             }
+            .toast(msgToast, isPresented: $isShowingToast)
         }
         .id(idRefresh)
     }
     
     
     //MARK: func
+    func showToast(_ msg: String) {
+        msgToast = msg
+        isShowingToast = true
+        print(msg)
+        print(isShowingToast)
+    }
     // 리로드
     private func reload() {
         if let i = item.id,
@@ -220,19 +229,11 @@ struct ViewDetailTodo: View {
         item.kategory = kategory
         onFinish(service.update(item))
     }
-    // 요소 수정
-    private func update(_ target: Work, key: String, value: Any) {
-        if !ServiceWork().update(target, key: key, value: value).isSuccess {
-            //TODO: 토스트 띄우기 : 작업 수정 실패
-        }
-        // 화면 갱신
-        reload()
-    }
     // Subwork
     // subwork 추가
     private func addSubwork(_ title: String) {
         if !service.addChild(title, target: item).isSuccess {
-            //TODO: 토스트 띄우기 : 서브 작업 추가 실패
+            showToast("서브 작업 생성에 실패했습니다.")
         }
         // 화면 갱신
         reload()
@@ -240,7 +241,7 @@ struct ViewDetailTodo: View {
     // subwork 수정
     private func update(child: Work, key: String, value: Any) {
         if !ServiceWork().update(child, key: key, value: value).isSuccess {
-            //TODO: 토스트 띄우기 : 서브 작업 수정 실패
+            showToast("서브 작업 수정에 실패했습니다.")
         }
         // 화면 갱신
         reload()
@@ -251,7 +252,7 @@ struct ViewDetailTodo: View {
             let subwork = listSubwork[idx]
             listSubwork.remove(at: idx)
             if !service.delete(subwork).isSuccess {
-                //TODO: 토스트 띄우기 : 서브 작업 삭제 실패
+                showToast("서브 작업 삭제에 실패했습니다.")
             }
         }
         // 화면 갱신

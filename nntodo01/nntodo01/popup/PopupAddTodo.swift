@@ -23,6 +23,8 @@ struct PopupAddTodo: View {
     @State private var text: String = ""
     @State private var list: [Work]
     @State private var idRefresh: UUID = UUID()
+    @State private var isShowingToast: Bool = false
+    @State private var msgToast: String = ""
     // value
     private let service: ServiceWork = ServiceWork()
     private let predicate: NSPredicate = NSPredicate(format: "isDone != %@ AND isToday != %@", NSNumber(value: true), NSNumber(value: true))
@@ -43,7 +45,7 @@ struct PopupAddTodo: View {
                                     }
                                 ) {
                                     ItemAddTodo(i) {
-                                        onUpdate(i, key: $0, value: $1)
+                                        update(i, key: $0, value: $1)
                                     }
                                 }
                             }
@@ -66,6 +68,13 @@ struct PopupAddTodo: View {
     
     
     //func
+    func showToast(_ msg: String) {
+        msgToast = msg
+        isShowingToast = true
+        print(msg)
+        print(isShowingToast)
+    }
+    
     private func reload() {
         list = service.fetchList(predicate)
         idRefresh = UUID()
@@ -78,15 +87,15 @@ struct PopupAddTodo: View {
             if !service
                 .delete(work)
                 .isSuccess {
-                //TODO: 토스트 띄우기 : 작업 삭제에 실패
+                showToast("작업 삭제에 실패했습니다.")
             }
         }
     }
     
-    private func onUpdate(_ item: Work, key: String, value: Any) {
+    private func update(_ item: Work, key: String, value: Any) {
         let result = service.update(item, key: key, value: value)
         if !result.isSuccess {
-            //TODO: 토스트 띄우기 : 작업 수정에 실패
+            showToast("작업 수정에 실패했습니다.")
         } else {
             onUpdate(result)
         }

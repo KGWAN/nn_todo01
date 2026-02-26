@@ -17,6 +17,8 @@ struct ViewYear: View {
     @State private var isShowingPopupInputTodo: Bool = false
     @State private var idRefresh: UUID = UUID()
     @State private var list: [Work] = []
+    @State private var isShowingToast: Bool = false
+    @State private var msgToast: String = ""
     // constant
     private let service: ServiceWork = ServiceWork()
     private let year: Int
@@ -53,6 +55,7 @@ struct ViewYear: View {
             } action: {
                 isShowingPopupInputTodo = true
             }
+            .toast(msgToast, isPresented: $isShowingToast)
             
             if isShowingPopupInputTodo {
                 // new todo 생성 팝업
@@ -69,6 +72,13 @@ struct ViewYear: View {
     
     
     //func
+    func showToast(_ msg: String) {
+        msgToast = msg
+        isShowingToast = true
+        print(msg)
+        print(isShowingToast)
+    }
+    
     private func reload() {
         list = service.fetchList(predicate)
         idRefresh = UUID()
@@ -76,7 +86,7 @@ struct ViewYear: View {
     
     private func onAdd(_ result: Result) {
         if !result.isSuccess {
-            //TODO: 토스트 띄우기 : 작업 생성에 실패
+            showToast("작업 생성에 실패했습니다.")
         }
         // 화면 갱신
         reload()

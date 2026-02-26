@@ -67,7 +67,7 @@ extension View {
         _ title: String,
         onDismiss: @escaping () -> Void = {}
     ) -> some View {
-        self.modifier(NnToolbarModifier(title: title, onDismiss: onDismiss, contentTrailing: { EmptyView() }))
+        self.modifier(ModifierToolbar(title: title, onDismiss: onDismiss, contentTrailing: { EmptyView() }))
     }
     
     func nnToolbar<R: View>(
@@ -75,6 +75,10 @@ extension View {
         onDismiss: @escaping () -> Void = {},
         contentTrailing: @escaping () -> R
     ) -> some View {
-        self.modifier(NnToolbarModifier(title: title, onDismiss: onDismiss, contentTrailing: contentTrailing))
+        self.modifier(ModifierToolbar(title: title, onDismiss: onDismiss, contentTrailing: contentTrailing))
+    }
+    
+    func toast(_ msg: String, isPresented: Binding<Bool>) -> some View {
+        self.modifier(ModifierToast(msg, isPresented: isPresented))
     }
 }

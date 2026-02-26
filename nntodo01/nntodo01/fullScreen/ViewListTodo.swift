@@ -15,6 +15,8 @@ struct ViewListTodo: View {
     @State private var isShowingPopupInputTodo: Bool = false
     @State private var title: String
     @State private var isShowingPopupAddTodo: Bool = false
+    @State private var isShowingToast: Bool = false
+    @State private var msgToast: String = ""
     // constant
     private let service: ServiceWork = ServiceWork()
     private let predicate: NSPredicate?
@@ -96,12 +98,12 @@ struct ViewListTodo: View {
                         List {
                             ForEach(list) { i in
                                 NavigationLink(
-                                    destination: ViewDetailTodo(i) {_ in
-                                        reload()
+                                    destination: ViewDetailTodo(i) {result in
+                                        onUpdate(result: result)
                                     }
                                 ) {
                                     ItemTodo(i) {
-                                        onUpdate(i, key: $0, value: $1)
+                                        update(i, key: $0, value: $1)
                                     }
                                 }
                                 .listRowInsets(.init(top: 0, leading: 10, bottom: 0, trailing: 0))
@@ -194,6 +196,8 @@ struct ViewListTodo: View {
                     // kategory 수정 팝업
                     PopupInputKategory(origin: kategory, isPresented: $isShowingPopupModifyKategory) { result in
                         onUpdateKategory(result: result)
+                    } onDelete: { result in
+                        onDeleteKategory(result: result)
                     }
                 }
             }
@@ -213,12 +217,20 @@ struct ViewListTodo: View {
                     }
                 }
             )
+            .toast(msgToast, isPresented: $isShowingToast)
         }
         .id(idRefresh)
     }
     
     
     //func
+    func showToast(_ msg: String) {
+        msgToast = msg
+        isShowingToast = true
+        print(msg)
+        print(isShowingToast)
+    }
+    
     private func reload() {
         if predicate != nil {
             list = service.fetchList(predicate!)
@@ -234,17 +246,17 @@ struct ViewListTodo: View {
     
     private func onAdd(_ result: Result) {
         if !result.isSuccess {
-            //TODO: 토스트 띄우기 : 작업 생성에 실패
+            showToast("작업 생성에 실패했습니다.")
         }
         // 화면 갱신
         reload()
     }
     
-    private func onUpdate(_ item: Work, key: String, value: Any) {
+    private func update(_ item: Work, key: String, value: Any) {
         if !service
             .update(item, key: key, value: value)
             .isSuccess {
-            //TODO: 토스트 띄우기 : 작업 수정에 실패
+            showToast("작업이 수정에 실패했습니다.")
         }
         // 화면 갱신
         reload()
@@ -252,7 +264,7 @@ struct ViewListTodo: View {
     
     private func onUpdate(result: Result) {
         if !result.isSuccess {
-            //TODO: 토스트 띄우기 : 작업 수정에 실패
+            showToast("작업이 수정에 실패했습니다.")
         }
         // 화면 갱신
         reload()
@@ -260,10 +272,20 @@ struct ViewListTodo: View {
     
     private func onUpdateKategory(result: Result) {
         if !result.isSuccess {
-            //TODO: 토스트 띄우기 : 작업 수정에 실패
+            showToast("케테고리 수정에 실패했습니다.")
         }
         // 화면 갱신
         reload()
+    }
+    
+    private func onDeleteKategory(result: Result) {
+        if result.isSuccess {
+            onDismiss()
+        } else {
+            showToast("카테고리 삭제에 실패했습니다.")
+            // 화면 갱신
+            reload()
+        }
     }
     
 //    private func move(from source: IndexSet, to destination: Int) {
@@ -279,7 +301,7 @@ struct ViewListTodo: View {
             if !service
                 .delete(work)
                 .isSuccess {
-                //TODO: 토스트 띄우기 : 작업 삭제에 실패
+                showToast("작업 삭제에 실패했습니다.")
             }
         }
     }

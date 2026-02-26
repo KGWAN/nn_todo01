@@ -16,6 +16,8 @@ struct ViewMain: View {
     @State private var isShowingPopupInputKategory: Bool = false
     @State private var list: [Kategory]
     @State private var idRefresh: UUID = UUID()
+    @State private var isShowingToast: Bool = false
+    @State private var msgToast: String = ""
     // constatn
     private let service: ServiceKategory = ServiceKategory()
     
@@ -122,6 +124,7 @@ struct ViewMain: View {
                     .padding(.horizontal, 20)
                 }
             }
+            .toast(msgToast, isPresented: $isShowingToast)
             
             if isShowingPopupInputKategory {
                 PopupInputKategory(isPresented: $isShowingPopupInputKategory) { result in
@@ -133,6 +136,13 @@ struct ViewMain: View {
     }
     
     // func
+    func showToast(_ msg: String) {
+        msgToast = msg
+        isShowingToast = true
+        print(msg)
+        print(isShowingToast)
+    }
+    
     private func reload() {
         list = service.fetchAll()
         idRefresh = UUID()
@@ -140,7 +150,7 @@ struct ViewMain: View {
     
     private func onCreateKategory(_ result: Result) {
         if !result.isSuccess {
-            //TODO: 토스트 띄우기 : 작업 생성에 실패
+            showToast("카테고리 생성에 실패했습니다.")
         }
         // 화면 갱신
         reload()

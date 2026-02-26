@@ -12,6 +12,8 @@ struct ViewSearchTodo: View {
     @State private var textSearch: String = ""
     @State private var listFiltered: [Work] = []
     @State private var idRefresh: UUID = UUID()
+    @State private var isShowingToast: Bool = false
+    @State private var msgToast: String = ""
     // value
     private let service: ServiceWork = ServiceWork()    // environment
     @Environment(\.dismiss) private var dismiss
@@ -75,6 +77,7 @@ struct ViewSearchTodo: View {
                     }
                 }
             }
+            .toast(msgToast, isPresented: $isShowingToast)
         }
         .onChange(of: textSearch) { _, value in
             listFiltered = search(value)
@@ -83,6 +86,13 @@ struct ViewSearchTodo: View {
     
     
     //MARK: func
+    func showToast(_ msg: String) {
+        msgToast = msg
+        isShowingToast = true
+        print(msg)
+        print(isShowingToast)
+    }
+    
     private func reload() {
         listFiltered = search(textSearch)
         idRefresh = UUID()
@@ -103,14 +113,14 @@ struct ViewSearchTodo: View {
             let work = listFiltered[idx]
             listFiltered.remove(at: idx)
             if !service.delete(work).isSuccess {
-                //TODO: 토스트 띄우기 : 작업 삭제에 실패
+                showToast("작업 삭제에 실패했습니다.")
             }
         }
     }
     
     private func onUpdate(_ item: Work, key: String, value: Any) {
         if !service.update(item, key: key, value: value).isSuccess {
-            //TODO: 토스트 띄우기 : 작업 수정에 실패
+            showToast("작업 수정에 실패했습니다.")
         }
         // 화면 갱신
         reload()

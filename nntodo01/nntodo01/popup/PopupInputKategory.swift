@@ -11,17 +11,20 @@ import SwiftUI
 struct PopupInputKategory: View {
     //init
     @Binding var isPresented: Bool
-    var origin: Kategory? = nil
+    let origin: Kategory?
     let onFinish: (Result) -> Void
+    let onDelete: ((Result) -> Void)?
     
     init(
         origin: Kategory? = nil,
         isPresented: Binding<Bool>,
-        onFinish: @escaping (Result) -> Void
+        onFinish: @escaping (Result) -> Void,
+        onDelete: ((Result) -> Void)? = nil
     ) {
         self._isPresented = isPresented
         self.origin = origin
         self.onFinish = onFinish
+        self.onDelete = onDelete
         
         self._text = State(initialValue: "")
         self._selectedRadio = State(initialValue: .color)
@@ -175,8 +178,9 @@ struct PopupInputKategory: View {
     }
     
     private func delete() {
-        if let kate = origin {
-            onFinish(service.delete(kate))
+        if let kate = origin,
+            let excute = onDelete {
+            excute(service.delete(kate))
         }
     }
 }
