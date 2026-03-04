@@ -9,13 +9,11 @@ import SwiftUI
 
 struct ViewShell: View {
     @State private var tabShowing = 1
+    @State private var idRefresh: UUID = UUID()
     
     var body: some View {
         TabView(selection: $tabShowing) {
-            Text("ViewCalendar, todo by calendar")
-                .font(.system(size: 20, weight: .bold))
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.red.opacity(0.2))
+            ViewCalendar()
                 .tag(0)
             ViewToday()
                 .tag(1)
@@ -25,6 +23,10 @@ struct ViewShell: View {
         .tabViewStyle(PageTabViewStyle())
         .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
         .ignoresSafeArea()
+        .onChange(of: tabShowing) { oldValue, newValue in
+            idRefresh = UUID()
+        }
+        .id(idRefresh)
     }
 }
 

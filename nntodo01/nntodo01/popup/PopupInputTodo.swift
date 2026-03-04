@@ -131,7 +131,7 @@ struct PopupInputTodo: View {
         self._isPresented = isPresented
         self.onFinish = onFinish
         self.templete = .nomal
-        self.typePlan = .month
+        self.typePlan = .year
         self.year = year
         // dummy
         self.month = 0

@@ -41,15 +41,15 @@ struct PopupAddTodo: View {
                     if !list.isEmpty {
                         List {
                             ForEach(list) { i in
-                                NavigationLink(
-                                    destination: ViewDetailTodo(i) {_ in
-                                        reload()
-                                    }
-                                ) {
+//                                NavigationLink(
+//                                    destination: ViewDetailTodo(i) {_ in
+//                                        reload()
+//                                    }
+//                                ) {
                                     ItemAddTodo(i) {
                                         update(i, key: $0, value: $1)
                                     }
-                                }
+//                                }
                             }
                             .onDelete(perform: delete)
                         }

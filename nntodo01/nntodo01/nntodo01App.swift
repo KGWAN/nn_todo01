@@ -17,7 +17,7 @@ struct nntodo01App: App {
     var body: some Scene {
         WindowGroup {
             if isShowingMain {
-                ViewMain()
+                ViewShell()
             } else {
                 ViewIntro {
                     isShowingMain = true

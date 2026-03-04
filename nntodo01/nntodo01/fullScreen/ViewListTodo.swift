@@ -324,7 +324,7 @@ struct ViewListTodo: View {
 }
 
 #Preview {
-    let kategory: Kategory = ServiceKategory().getNew("kate_preview", markType: TypeMarkKategory.photo.rawValue, photo: "bgKate00")
+//    let kategory: Kategory = ServiceKategory().getNew("kate_preview", markType: TypeMarkKategory.photo.rawValue, photo: "bgKate00")
     
 //    ViewListTodo(){}
     ViewListTodo(.marked){}
