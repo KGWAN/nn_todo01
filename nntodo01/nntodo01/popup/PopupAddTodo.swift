@@ -9,13 +9,15 @@ import SwiftUI
 
 struct PopupAddTodo: View {
     //init
+    let predicate: NSPredicate
     @Binding var isPresented: Bool
     let onUpdate: (Result) -> Void
     
-    init(isPresented: Binding<Bool>, onUpdate: @escaping (Result) -> Void) {
-        
+    init(predicate: NSPredicate, isPresented: Binding<Bool>, onUpdate: @escaping (Result) -> Void) {
         self._isPresented = isPresented
         self.onUpdate = onUpdate
+        
+        self.predicate = predicate
         
         self._list = State(initialValue: service.fetchList(predicate))
     }
@@ -27,7 +29,7 @@ struct PopupAddTodo: View {
     @State private var msgToast: String = ""
     // value
     private let service: ServiceWork = ServiceWork()
-    private let predicate: NSPredicate = NSPredicate(format: "isDone != %@ AND isToday != %@", NSNumber(value: true), NSNumber(value: true))
+    
     
     var body: some View {
         ContainerPopup(
@@ -108,7 +110,7 @@ struct PopupAddTodo: View {
 #Preview {
     @Previewable @State var isShowing: Bool = true
     
-    PopupAddTodo(isPresented: $isShowing) { todo in
+    PopupAddTodo(predicate: Templete.marked.predicateComplementary!, isPresented: $isShowing) { todo in
         NnLogger.log("(preview)Adding todo: \(todo)", level: .debug)
     }
 }

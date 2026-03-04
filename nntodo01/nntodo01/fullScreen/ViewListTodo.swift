@@ -129,24 +129,24 @@ struct ViewListTodo: View {
                         !isShowingPopupAddTodo
                     {
                         ZStack {
-//                            if templete == .today {
-//                                // todo 추가 버튼
-//                                Button {
-//                                    isShowingPopupAddTodo = true
-//                                } label: {
-//                                    HStack {
+                            if !(templete == .nomal && kategory == nil) {
+                                // todo 추가 버튼
+                                Button {
+                                    isShowingPopupAddTodo = true
+                                } label: {
+                                    HStack {
 //                                        ImgSafe("iconAddPlan", color: .blue)
 //                                            .frame(width: 25, height: 25)
-//                                        Text("일정 추가")
-//                                            .font(.system(size: 17, weight: .medium))
-//                                            .foregroundStyle(Color.blue)
-//                                    }
-//                                    .frame(minHeight: 45)
-//                                    .padding(.horizontal, 20)
-//                                    .background(Color.white)
-//                                    .cornerRadius(55)
-//                                }
-//                            }
+                                        Text("기존 작업에서 추가")
+                                            .font(.system(size: 17, weight: .medium))
+                                            .foregroundStyle(Color.blue)
+                                    }
+                                    .frame(minHeight: 45)
+                                    .padding(.horizontal, 20)
+                                    .background(Color.white)
+                                    .cornerRadius(55)
+                                }
+                            }
                             
                             // new todo 생성 버튼
                             HStack {
@@ -188,8 +188,24 @@ struct ViewListTodo: View {
                 }
                 if isShowingPopupAddTodo {
                     // todo 추가 팝업
-                    PopupAddTodo(isPresented: $isShowingPopupAddTodo) { result in
-                        onUpdate(result: result)
+                    if kategory == nil,
+                       templete != .nomal,
+                       let predicate = templete.predicateComplementary {
+                        // .nomal 이외의 templete의 경우
+                        PopupAddTodo(
+                            predicate: predicate,
+                            isPresented: $isShowingPopupAddTodo
+                        ) { result in
+                            onUpdate(result: result)
+                        }
+                    } else if kategory != nil {
+                        // kategory의 경우
+                        PopupAddTodo(
+                            predicate: NSPredicate(format: "kategory == nil"),
+                            isPresented: $isShowingPopupAddTodo
+                        ) { result in
+                            onUpdate(result: result)
+                        }
                     }
                 }
                 if kategory != nil && isShowingPopupModifyKategory {
@@ -311,7 +327,6 @@ struct ViewListTodo: View {
     let kategory: Kategory = ServiceKategory().getNew("kate_preview", markType: TypeMarkKategory.photo.rawValue, photo: "bgKate00")
     
 //    ViewListTodo(){}
-//    ViewListTodo(.today){}
-//    ViewListTodo(.marked){}
-    ViewListTodo(kategory, onDismiss: {})
+    ViewListTodo(.marked){}
+//    ViewListTodo(kategory, onDismiss: {})
 }

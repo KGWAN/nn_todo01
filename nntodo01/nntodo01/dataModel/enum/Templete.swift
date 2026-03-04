@@ -49,4 +49,13 @@ enum Templete: String, CaseIterable, Identifiable {
     var cntNotDoneWorks: Int {
         ServiceWork().getCntNotDone(templete: self)
     }
+    
+    var predicateComplementary: NSPredicate? {
+        switch self {
+        case .marked:
+            return NSPredicate(format: "isMarked == %@", NSNumber(value: false))
+        default :
+            return nil
+        }
+    }
 }
