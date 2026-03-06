@@ -28,6 +28,8 @@ struct TextFieldTitle: View {
     var body: some View {
         VStack {
             TextField(placeholder, text: $text)
+                .textFieldStyle(.plain)
+                .font(.system(size: 16, weight: .medium))
             if let color {
                 Divider()
                     .frame(height: 1)

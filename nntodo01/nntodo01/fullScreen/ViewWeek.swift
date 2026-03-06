@@ -1,46 +1,51 @@
 //
-//  ViewMonth.swift
+//  ViewWeek.swift
 //  nntodo01
 //
-//  Created by JUNGGWAN KIM on 2/9/26.
+//  Created by JUNGGWAN KIM on 3/5/26.
 //
 
 import SwiftUI
 
-struct ViewMonth: View {
+struct ViewWeek: View {
     // state
     @State private var idRefresh: UUID = UUID()
     @State private var list: [Work] = []
     @State private var listGrouped: [Int: [Work]] = [:]
+    // showing toast
     @State private var isShowingToast: Bool = false
     @State private var msgToast: String = ""
+    // writing work
     @State private var isEditing: Bool = false
     @FocusState private var isFocusedSub: Bool
     @State private var textTitle: String = ""
-    @State private var targetMonth: Int? = nil
-    // value
-    private var predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d", TypePlan.month.rawValue, Calendar.current.component(.year, from: Date()))
+    @State private var targetNum: Int? = nil
     // constant
-    private let listSection: [Int] = Array(1...12)
-    private let year: Int = Calendar.current.component(.year, from: Date())
     private let service: ServiceWork = ServiceWork()
+    private let year: Int = Calendar.current.component(.year, from: Date())
+    private let month: Int = Calendar.current.component(.month, from: Date())
+    private let listSection: [Calendar.Week]
+    private let predicate: NSPredicate
+    
     
     // init
     init () {
-        self._list = State(initialValue: service.fetchList(predicate))
-        self._listGrouped = State(initialValue: Dictionary(grouping: list, by: { Int($0.planedMonth) }))
+        // 연산 및 저장
+        self.listSection = Calendar.current.getWeeksInMonth(month: month, year: year)
+        self.predicate = NSPredicate(format: "(planType & %d) != 0 AND planedMonth == %d AND planedYear = %d", TypePlan.week.rawValue, month, year)
+//        self._list = State(initialValue: service.fetchList(predicate))
+//        self._listGrouped = State(initialValue: Dictionary(grouping: list, by: { Int($0.planedMonth) }))
     }
     
     
     var body: some View {
         ZStack {
             ScrollView {
-                ForEach(listSection, id: \.self) { m in
-                    // header
+                ForEach(listSection) { w in
                     Section {
                         VStack {
                             // 월별 리스트
-                            if let listTodo = listGrouped[Int(m)] {
+                            if let listTodo = listGrouped[w.num] {
                                 ForEach(listTodo, id: \.id) { todo in
                                     ItemTodo(todo) {
                                         update(todo, key: $0, value: $1)
@@ -67,7 +72,7 @@ struct ViewMonth: View {
                             }
                             
                             // 할 일 작성
-                            if isEditing && targetMonth == m {
+                            if isEditing && targetNum == w.num {
                                 HStack {
                                     ImgSafe("btnDone", color: .gray)
                                         .frame(width: 25, height: 25)
@@ -78,7 +83,7 @@ struct ViewMonth: View {
                                         }
                                         .submitLabel(.done)
                                         .onSubmit {
-                                            if !textTitle.isEmpty { write(m) }
+                                            if !textTitle.isEmpty { write(numWeek: w.num) }
                                             // text 초기화
                                             textTitle = ""
                                         }
@@ -91,7 +96,7 @@ struct ViewMonth: View {
                         }
                         .padding(.bottom, 30)
                     } header: {
-                        viewHeader(m)
+                        viewHeader(w)
                     }
                     .padding(.horizontal, 10)
                 }
@@ -111,17 +116,18 @@ struct ViewMonth: View {
     }
     
     // viewBuilder
-    private func viewHeader(_ month: Int) -> some View {
+    private func viewHeader(_ week: Calendar.Week) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack {
-                Text("\(month) 월")
+                // 제목
+                Text("\(week.num)주차 (\(week.startDate.getStrDate(format: "MM.dd")) - \(week.endDate.getStrDate(format: "MM.dd")))")
                     .font(.system(size: 20, weight: .medium))
                     .frame(maxWidth: .infinity, alignment: .leading)
-                
+                // 생성 버튼
                 Button {
                     isEditing = true
                     isFocusedSub = true
-                    targetMonth = month
+                    targetNum = week.num
                 } label: {
                     ImgSafe("iconPlus", color: .cyan)
                         .frame(width: 15, height: 15)
@@ -129,7 +135,7 @@ struct ViewMonth: View {
                         .border(.cyan)
                 }
             }
-            
+            // 구분선
             Divider()
                 .frame(height: 0.5)
                 .background(.black)
@@ -146,12 +152,12 @@ struct ViewMonth: View {
     
     private func reload() {
         list = service.fetchList(predicate)
-        listGrouped = Dictionary(grouping: list, by: { Int($0.planedMonth) })
+        listGrouped = Dictionary(grouping: list, by: { Int($0.planedWeek) })
         idRefresh = UUID()
     }
     
-    private func write(_ month: Int) {
-        if !service.create(textTitle, listTypePlan: .month, planedMonth: month, planedYear: year).isSuccess {
+    private func write(numWeek num: Int) {
+        if !service.create(textTitle, listTypePlan: .week, planedWeek: num, planedMonth: month, planedYear: year).isSuccess {
             showToast("할 일이 작성되지 않았습니다.")
         }
         // 화면 갱신
@@ -180,5 +186,5 @@ struct ViewMonth: View {
 }
 
 #Preview {
-    ViewMonth()
+    ViewWeek()
 }

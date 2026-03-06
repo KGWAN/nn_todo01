@@ -18,47 +18,40 @@ struct ItemTodo: View {
         self.isDone = inf.isDone
         self.isMarked = inf.isMarked
         self.onUpdate = onUpdate
-//        self.stateSubwork = "\(inf.subwork.count))"
     }
     
     @State private var title: String
     @State private var isDone: Bool
     @State private var isMarked: Bool
-//    @State private var stateSubwork: State
     
     var body: some View {
-        HStack(alignment: .center, spacing: 10) {
+        HStack(alignment: .center) {
+            // 완료 여부 체크 버튼
             BtnCheckImg(
                 "btnDone",
                 colorY: .blue,
                 isChecked: $isDone)
-                .frame(width: 35, height: 35)
+                .frame(width: 25, height: 25)
                 .buttonStyle(.borderless)
-            VStack {
-                Text(title)
-                    .font(.title)
-                    .foregroundStyle(Color.black)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 10)
-//                if !stateSubwork.isEmpty {
-//                    Text(stateSubwork)
-//                        .font(.callout)
-//                        .foregroundStyle(Color.black)
-//                        .frame(maxWidth: .infinity, alignment: .leading)
-//                        .padding(.leading, 10)
-//                }
-            }
+            // 이름
+            Text(title)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(Color.black)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 10)
+            // 즐겨찾기 여부 체크 버튼
             BtnCheckImg(
                 "btnStar",
                 colorY: .yellow,
                 isChecked: $isMarked
             )
-            .frame(width: 35, height: 35)
+            .frame(width: 25, height: 25)
             .buttonStyle(.borderless)
         }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 15)
-        .background(Color.white)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 10)
+        .frame(maxWidth: .infinity, maxHeight: 40)
+        .border(.gray)
         .onChange(of: isDone) { _, new in
             onUpdate("isDone", new)
         }

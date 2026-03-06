@@ -82,3 +82,50 @@ extension View {
         self.modifier(ModifierToast(msg, isPresented: isPresented))
     }
 }
+
+// MARK: Calendar
+extension Calendar {
+    // 주에 대한 정보
+    struct Week: Identifiable {
+        let id: UUID = UUID()
+        let num: Int
+        let startDate: Date
+        let endDate: Date
+    }
+    
+    // 월의 주들을 반환하는 함수
+    func getWeeksInMonth(month: Int, year: Int) -> [Week] {
+        // components 생성
+        var componentsTarget = DateComponents()
+        componentsTarget.year = year
+        componentsTarget.month = month
+        componentsTarget.day = 1
+        // 해달 월의 처음 날짜
+        guard let dateStart = self.date(from: componentsTarget) else {return []}
+        // 일수
+        guard let range = self.range(of: .day, in: .month, for: dateStart) else {return []}
+        // 해당 월의 마지막 날짜
+        guard let dateEnd = self.date(byAdding: .day, value: range.count - 1, to: dateStart) else {return []}
+        // 첫째주
+        // yearForWeekOfYear: 주를 단위로 할때 해당 주가 몇 년도인지를 반환
+        // weekOfYear: 몇 번째 주인지를 반환
+        // >>> dateWeekStart는 yearForWeekOfYear의 연도에 weekOfYear 번째 주의 첫번째 날짜
+        let componentsWeekFirst = self.dateComponents([.yearForWeekOfYear, .weekOfYear], from: dateStart)
+        guard var dateWeekStart = self.date(from: componentsWeekFirst) else {return []}
+        // 초기 값
+        var listWeek: [Week] = []
+        var cntWeek: Int = 1
+        // 연산
+        while dateWeekStart <= dateEnd {
+            // week 생성 및 추가
+            guard let dateWeekEnd = self.date(byAdding: .day, value: 6, to: dateWeekStart) else {break}
+            listWeek.append(Week(num: cntWeek, startDate: dateWeekStart, endDate: dateWeekEnd))
+            // 다음주로 이동
+            guard let dateWeekStartNext = self.date(byAdding: .day, value: 7, to: dateWeekStart) else {break}
+            dateWeekStart = dateWeekStartNext
+            cntWeek += 1
+        }
+        // return
+        return listWeek
+    }
+}

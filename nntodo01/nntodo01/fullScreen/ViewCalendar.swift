@@ -13,66 +13,71 @@ struct ViewCalendar: View {
     
     var body: some View {
         VStack {
-            HStack(spacing: 10) {
+            HStack(spacing: 0) {
                 Button{
                     withAnimation {
                         idxSelectedTab = 0
                     }
                 } label: {
-                    Text("년")
+                    Text("Year")
                         .fontWeight(idxSelectedTab == 0 ? .bold : .regular)
+                        .foregroundStyle(idxSelectedTab == 0 ? .cyan : .gray)
                 }
+                .frame(maxWidth: .infinity)
+                .background(idxSelectedTab == 0 ? .white : .clear)
+                
                 Button{
                     withAnimation {
                         idxSelectedTab = 1
                     }
                 } label: {
-                    Text("월")
+                    Text("Month")
                         .fontWeight(idxSelectedTab == 1 ? .bold : .regular)
+                        .foregroundStyle(idxSelectedTab == 1 ? .cyan : .gray)
                 }
+                .frame(maxWidth: .infinity)
+                .background(idxSelectedTab == 1 ? .white : .clear)
+                
                 Button{
                     withAnimation {
                         idxSelectedTab = 2
                     }
                 } label: {
-                    Text("주")
+                    Text("Week")
                         .fontWeight(idxSelectedTab == 2 ? .bold : .regular)
+                        .foregroundStyle(idxSelectedTab == 2 ? .cyan : .gray)
                 }
+                .frame(maxWidth: .infinity)
+                .background(idxSelectedTab == 2 ? .white : .clear)
+                
                 Button{
                     withAnimation {
                         idxSelectedTab = 3
                     }
                 } label: {
-                    Text("일")
+                    Text("Day")
                         .fontWeight(idxSelectedTab == 3 ? .bold : .regular)
+                        .foregroundStyle(idxSelectedTab == 3 ? .cyan : .gray)
                 }
+                .frame(maxWidth: .infinity)
+                .background(idxSelectedTab == 3 ? .white : .clear)
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
+            .padding(.top, 5)
+            .background(.gray.opacity(0.3))
             
             TabView(selection: $idxSelectedTab) {
-//                Text("ViewYear")
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                    .background(.red.opacity(0.2))
-//                    .tag(0)
                 ViewYear()
                     .tag(0)
-//                Text("ViewMonth")
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                    .background(.orange.opacity(0.2))
-//                    .tag(1)
                 ViewMonth()
                     .tag(1)
-                Text("ViewWeek")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(.yellow.opacity(0.2))
+                ViewWeek()
                     .tag(2)
                 Text("ViewDay")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(.green.opacity(0.2))
                     .tag(3)
             }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            .tabViewStyle(.tabBarOnly)
         }
     }
 }
