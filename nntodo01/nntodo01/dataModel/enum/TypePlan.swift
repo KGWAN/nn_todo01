@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TypePlan: OptionSet, Codable {
+struct TypePlan: OptionSet, Codable, Hashable {
     let rawValue: Int64
     
     static let year = TypePlan(rawValue: 1 << 0) // 0001

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftUICore
+import SwiftUI
 import UIKit
 
 enum ColorMarkKategory: String, CaseIterable, Identifiable {

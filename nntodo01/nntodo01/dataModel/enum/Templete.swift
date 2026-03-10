@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftUICore
+import SwiftUI
 
 enum Templete: String, CaseIterable, Identifiable {
 //    case today = "오늘 할 일"

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftUICore
+import SwiftUI
 
 // MARK: Color
 extension Color {
@@ -85,6 +85,12 @@ extension View {
 
 // MARK: Calendar
 extension Calendar {
+    static var nn: Calendar {
+        var cal = Calendar.current
+        // 공통적인 설정
+        return cal
+    }
+    
     // 주에 대한 정보
     struct Week: Identifiable {
         let id: UUID = UUID()
@@ -127,5 +133,34 @@ extension Calendar {
         }
         // return
         return listWeek
+    }
+    
+    func getDaysInCurrentMonth() -> [Date] {
+        let now = Date()
+        
+        // 1. 이번 달의 시작일 구하기 (예: 2026년 3월 1일)
+        guard let startOfMonth = self.date(from: self.dateComponents([.year, .month], from: now)) else {
+            return []
+        }
+        
+        // 2. 이번 달이 총 며칠인지 확인 (28, 30, 31일 등)
+        let range = self.range(of: .day, in: .month, for: startOfMonth)!
+        
+        // 3. 시작일부터 끝일까지 날짜 배열 생성
+        return range.compactMap { day -> Date? in
+            return self.date(byAdding: .day, value: day - 1, to: startOfMonth)
+        }
+    }
+    
+    func getDay(_ date: Date) -> Int {
+        return self.component(.day, from: date)
+    }
+    
+    func getMonth(_ date: Date) -> Int {
+        return self.component(.month, from: date)
+    }
+    
+    func getYear(_ date: Date) -> Int {
+        return self.component(.year, from: date)
     }
 }

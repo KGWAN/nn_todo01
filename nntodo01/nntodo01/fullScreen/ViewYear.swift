@@ -18,7 +18,7 @@ struct ViewYear: View {
     @State private var list: [Work] = []
     @State private var isShowingToast: Bool = false
     @State private var msgToast: String = ""
-    @State private var year: Int = Calendar.current.component(.year, from: Date())
+    @State private var year: Int = Calendar.nn.getYear(Date())
     @State private var isShowingPopupAddTodo: Bool = false
     @State private var isEditing: Bool = false
     @FocusState private var isFocusedSub: Bool
@@ -26,7 +26,7 @@ struct ViewYear: View {
     // constant
     private let service: ServiceWork = ServiceWork()
     // value
-    private var predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d", TypePlan.year.rawValue, Calendar.current.component(.year, from: Date()))
+    private var predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d", TypePlan.year.rawValue, Calendar.nn.getYear(Date()))
     
     
     

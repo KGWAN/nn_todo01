@@ -19,10 +19,10 @@ struct ViewMonth: View {
     @State private var textTitle: String = ""
     @State private var targetMonth: Int? = nil
     // value
-    private var predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d", TypePlan.month.rawValue, Calendar.current.component(.year, from: Date()))
+    private var predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d", TypePlan.month.rawValue, Calendar.nn.getYear(Date()))
     // constant
     private let listSection: [Int] = Array(1...12)
-    private let year: Int = Calendar.current.component(.year, from: Date())
+    private let year: Int = Calendar.nn.getYear(Date())
     private let service: ServiceWork = ServiceWork()
     
     // init

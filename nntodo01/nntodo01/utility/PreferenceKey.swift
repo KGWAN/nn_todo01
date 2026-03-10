@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftUICore
+import SwiftUI
 
 struct KeyHeight: PreferenceKey {
     static var defaultValue: CGFloat = 0

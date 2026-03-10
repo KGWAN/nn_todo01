@@ -22,8 +22,8 @@ struct ViewWeek: View {
     @State private var targetNum: Int? = nil
     // constant
     private let service: ServiceWork = ServiceWork()
-    private let year: Int = Calendar.current.component(.year, from: Date())
-    private let month: Int = Calendar.current.component(.month, from: Date())
+    private let year: Int = Calendar.nn.getYear(Date())
+    private let month: Int = Calendar.nn.getMonth(Date())
     private let listSection: [Calendar.Week]
     private let predicate: NSPredicate
     
@@ -31,7 +31,7 @@ struct ViewWeek: View {
     // init
     init () {
         // 연산 및 저장
-        self.listSection = Calendar.current.getWeeksInMonth(month: month, year: year)
+        self.listSection = Calendar.nn.getWeeksInMonth(month: month, year: year)
         self.predicate = NSPredicate(format: "(planType & %d) != 0 AND planedMonth == %d AND planedYear = %d", TypePlan.week.rawValue, month, year)
 //        self._list = State(initialValue: service.fetchList(predicate))
 //        self._listGrouped = State(initialValue: Dictionary(grouping: list, by: { Int($0.planedMonth) }))

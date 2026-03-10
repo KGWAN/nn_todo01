@@ -65,19 +65,16 @@ struct ViewCalendar: View {
             .padding(.top, 5)
             .background(.gray.opacity(0.3))
             
-            TabView(selection: $idxSelectedTab) {
-                ViewYear()
-                    .tag(0)
-                ViewMonth()
-                    .tag(1)
-                ViewWeek()
-                    .tag(2)
-                Text("ViewDay")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(.green.opacity(0.2))
-                    .tag(3)
+            // 콘텐츠 영역
+            Group {
+                switch idxSelectedTab {
+                case 0: ViewYear()
+                case 1: ViewMonth()
+                case 2: ViewWeek()
+                case 3: ViewDay()
+                default: EmptyView()
+                }
             }
-            .tabViewStyle(.tabBarOnly)
         }
     }
 }

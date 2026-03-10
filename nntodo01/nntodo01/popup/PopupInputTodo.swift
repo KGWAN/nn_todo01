@@ -72,7 +72,7 @@ struct PopupInputTodo: View {
         self.onFinish = onFinish
         self.templete = .nomal
         self.typePlan = .day
-        let cal = Calendar.current
+        let cal = Calendar.nn
         self.day = cal.component(.day, from: date)
         self.month = cal.component(.month, from: date)
         self.year = cal.component(.year, from: date)
