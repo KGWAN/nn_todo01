@@ -51,6 +51,7 @@ struct ItemTodo: View {
         .padding(.vertical, 10)
         .padding(.horizontal, 10)
         .frame(maxWidth: .infinity, maxHeight: 40)
+        .background(.white.opacity(0.3))
         .border(.gray)
         .onChange(of: isDone) { _, new in
             onUpdate("isDone", new)

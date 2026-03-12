@@ -10,11 +10,12 @@ import SwiftUI
 struct ViewListTodo: View {
     // common
     // state
-    @State private var list: [Work] = []
     @State private var idRefresh: UUID = UUID()
-    @State private var isShowingPopupInputTodo: Bool = false
+    @State private var list: [Work] = []
     @State private var title: String
+    @State private var isEditing: Bool = false
     @State private var isShowingPopupAddTodo: Bool = false
+    // showing toast
     @State private var isShowingToast: Bool = false
     @State private var msgToast: String = ""
     // constant
@@ -23,8 +24,8 @@ struct ViewListTodo: View {
     // init
     let onDismiss: () -> Void
     
-    // case: .nomal, .marked
-    init(_ templete: Templete = .nomal, onDismiss: @escaping () -> Void) {
+    // case: .normal, .marked
+    init(_ templete: Templete = .normal, onDismiss: @escaping () -> Void) {
         self.onDismiss = onDismiss
         self.templete = templete
         
@@ -42,7 +43,7 @@ struct ViewListTodo: View {
     // case: kategory
     init(_ kategory: Kategory, onDismiss: @escaping () -> Void) {
         self.onDismiss = onDismiss
-        self.templete = .nomal
+        self.templete = .normal
         self.kategory = kategory
         
         self._title = State(initialValue: kategory.title ?? "")
@@ -93,43 +94,45 @@ struct ViewListTodo: View {
                 }
                 // 내용
                 ContainerFloating {
-                    // list
-                    if !list.isEmpty {
-                        List {
-                            ForEach(list) { i in
-                                NavigationLink(
-                                    destination: ViewDetailTodo(i) {result in
-                                        onUpdate(result: result)
-                                    }
-                                ) {
-                                    ItemTodo(i) {
-                                        update(i, key: $0, value: $1)
-                                    }
+                    ScrollView {
+                        // 할 일 목록 부분
+                        if isEditing {
+                            // 할 일 작성 부분
+                            if let k = kategory {
+                                ViewCreatingTodo(
+                                    kategory: k,
+                                    isPresented: $isEditing
+                                ) { result in
+                                    onCreate(result)
                                 }
-                                .listRowInsets(.init(top: 0, leading: 10, bottom: 0, trailing: 0))
-                                .listRowSpacing(0)
-                                .listRowSeparator(.hidden)
-                                .listRowBackground(Color.clear)
+                            } else {
+                                ViewCreatingTodo(
+                                    templete: templete,
+                                    isPresented: $isEditing
+                                ) { result in
+                                    onCreate(result)
+                                }
                             }
-//                            .onMove(perform: move)
-                            .onDelete(perform: delete)
+                        } else {
+                            // 생성 버튼
+                            btnCreating
                         }
-                        .listStyle(.plain)
-                        .listSectionSpacing(0)
-                        .listSectionSeparator(.hidden)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 20)
-                        .scrollContentBackground(.hidden)
-                        .background(Color.clear)
-                    } else {
-                        Text("할 일 목록이 여기에 나타납니다.")
+                        if !list.isEmpty {
+                            // 리스트
+                            viewList
+                        } else {
+                            if !(isEditing) {
+                                // 리스트가 빈 경우 _ 가이드
+                                viewEmptyList
+                            }
+                        }
                     }
+                    .padding(.horizontal, 20)
                 } label: {
-                    if !isShowingPopupInputTodo &&
-                        !isShowingPopupAddTodo
+                    if !isShowingPopupAddTodo
                     {
                         ZStack {
-                            if !(templete == .nomal && kategory == nil) {
+                            if !(templete == .normal && kategory == nil) {
                                 // todo 추가 버튼
                                 Button {
                                     isShowingPopupAddTodo = true
@@ -149,49 +152,18 @@ struct ViewListTodo: View {
                             }
                             
                             // new todo 생성 버튼
-                            HStack {
-                                Spacer()
-                                BtnImg(
-                                    "iconPlus",
-                                    color: .white
-                                ) {
-                                    isShowingPopupInputTodo = true
-                                }
-                                .frame(width: 30, height: 30)
-                                .padding(20)
-                                .background(Color.cyan)
-                                .cornerRadius(25)
-                            }
-                            .padding(.horizontal, 20)
                         }
                     }
                 }
                 // new todo 생성 팝업
-                if isShowingPopupInputTodo {
-                    if let kate = kategory {
-                        // case kategory
-                        PopupInputTodo(
-                            kategory: kate,
-                            isPresented: $isShowingPopupInputTodo
-                        ) { result in
-                            onAdd(result)
-                        }
-                    } else {
-                        // case templete
-                        PopupInputTodo(
-                            templete: templete,
-                            isPresented: $isShowingPopupInputTodo
-                        ) { result in
-                            onAdd(result)
-                        }
-                    }
-                }
+                
+                
                 if isShowingPopupAddTodo {
                     // todo 추가 팝업
                     if kategory == nil,
-                       templete != .nomal,
+                       templete != .normal,
                        let predicate = templete.predicateComplementary {
-                        // .nomal 이외의 templete의 경우
+                        // .normal 이외의 templete의 경우
                         PopupAddTodo(
                             predicate: predicate,
                             isPresented: $isShowingPopupAddTodo
@@ -236,10 +208,68 @@ struct ViewListTodo: View {
             .toast(msgToast, isPresented: $isShowingToast)
         }
         .id(idRefresh)
+        .contentShape(Rectangle()) // 빈 공간도 터치 가능하게 설정
+        .onTapGesture {
+            // 키보드를 내리는 코드
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            // 편집 모드 해제
+            isEditing = false
+        }
     }
     
     
-    //func
+    // ViewBuilder
+    // 할 일 작성 버튼
+    @ViewBuilder
+    private var btnCreating: some View {
+        Button {
+            isEditing = true
+        } label: {
+            Text("이 버튼을 눌러 할 일을 작성할 수 있어요.")
+                .foregroundStyle(Color.white)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 10)
+        }
+        .frame(maxWidth: .infinity, maxHeight: 40)
+        .background(.cyan)
+    }
+    
+    @ViewBuilder
+    private var viewList: some View {
+        ForEach(list) { i in
+            NavigationLink(
+                destination: ViewDetailTodo(i) {result in
+                    onUpdate(result: result)
+                }
+            ) {
+                ItemTodo(i) {
+                    update(i, key: $0, value: $1)
+                }
+                .contentShape(Rectangle())
+                .contextMenu {
+                    Button(role: .destructive) {
+                        delete(i)
+                    } label: {
+                        Label("삭제하기", systemImage: "trash")
+                    }
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var viewEmptyList: some View {
+        VStack() {
+            Text("작성된 할 일이 없어요.")
+                .foregroundStyle(Color.gray)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 10)
+        }
+        .frame(maxWidth: .infinity)
+    }
+    
+    
+    // func
     func showToast(_ msg: String) {
         msgToast = msg
         isShowingToast = true
@@ -248,6 +278,9 @@ struct ViewListTodo: View {
     }
     
     private func reload() {
+        // 편집 모드 해제
+        isEditing = false
+        //
         if predicate != nil {
             list = service.fetchList(predicate!)
         } else {
@@ -260,7 +293,7 @@ struct ViewListTodo: View {
         idRefresh = UUID()
     }
     
-    private func onAdd(_ result: Result) {
+    private func onCreate(_ result: Result) {
         if !result.isSuccess {
             showToast("작업 생성에 실패했습니다.")
         }
@@ -310,23 +343,21 @@ struct ViewListTodo: View {
 //        }
 //    }
     
-    private func delete(at offsets: IndexSet) {
-        if let idx = offsets.first {
-            let work = list[idx]
-            list.remove(at: idx)
-            if !service
-                .delete(work)
-                .isSuccess {
-                showToast("작업 삭제에 실패했습니다.")
-            }
+    private func delete(_ target: Work) {
+        if !service
+            .delete(target)
+            .isSuccess {
+            showToast("작업 삭제에 실패했습니다.")
         }
+        // 화면 갱신
+        reload()
     }
 }
 
 #Preview {
-//    let kategory: Kategory = ServiceKategory().getNew("kate_preview", markType: TypeMarkKategory.photo.rawValue, photo: "bgKate00")
+    let kategory: Kategory = ServiceKategory().getNew("kate_preview", markType: TypeMarkKategory.photo.rawValue, photo: "bgKate00")
     
 //    ViewListTodo(){}
-    ViewListTodo(.marked){}
-//    ViewListTodo(kategory, onDismiss: {})
+//    ViewListTodo(.marked){}
+    ViewListTodo(kategory, onDismiss: {})
 }

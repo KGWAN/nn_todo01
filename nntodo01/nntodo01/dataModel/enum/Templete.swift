@@ -11,13 +11,13 @@ import SwiftUI
 enum Templete: String, CaseIterable, Identifiable {
 //    case today = "오늘 할 일"
     case marked = "별표"
-    case nomal = "모두 보기"
+    case normal = "모두 보기"
     
     var id: Self { self }
     
     var predicate: NSPredicate? {
         switch self {
-        case .nomal:
+        case .normal:
             return nil
 //        case .today:
 //            return NSPredicate(format: "isToday == %@", NSNumber(value: true))
@@ -28,7 +28,7 @@ enum Templete: String, CaseIterable, Identifiable {
     
     var nameIcon: String {
         switch self {
-        case .nomal: return "iconTempAll"
+        case .normal: return "iconTempAll"
 //        case .today: return "iconTempToday"
         case .marked: return "iconTempStar"
         }
@@ -36,7 +36,7 @@ enum Templete: String, CaseIterable, Identifiable {
     
     var hexColor: String {
         switch self {
-        case .nomal: return "#696969"
+        case .normal: return "#696969"
 //        case .today: return "#1E90FF"
         case .marked: return "#FF8C00"
         }

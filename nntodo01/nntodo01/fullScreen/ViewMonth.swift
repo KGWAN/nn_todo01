@@ -12,81 +12,38 @@ struct ViewMonth: View {
     @State private var idRefresh: UUID = UUID()
     @State private var list: [Work] = []
     @State private var listGrouped: [Int: [Work]] = [:]
+    // showing toast
     @State private var isShowingToast: Bool = false
     @State private var msgToast: String = ""
+    // writing todo
     @State private var isEditing: Bool = false
-    @FocusState private var isFocusedSub: Bool
-    @State private var textTitle: String = ""
     @State private var targetMonth: Int? = nil
-    // value
-    private var predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d", TypePlan.month.rawValue, Calendar.nn.getYear(Date()))
     // constant
     private let listSection: [Int] = Array(1...12)
     private let year: Int = Calendar.nn.getYear(Date())
     private let service: ServiceWork = ServiceWork()
-    
-    // init
-    init () {
-        self._list = State(initialValue: service.fetchList(predicate))
-        self._listGrouped = State(initialValue: Dictionary(grouping: list, by: { Int($0.planedMonth) }))
-    }
     
     
     var body: some View {
         ZStack {
             ScrollView {
                 ForEach(listSection, id: \.self) { m in
-                    // header
                     Section {
                         VStack {
-                            // 월별 리스트
-                            if let listTodo = listGrouped[Int(m)] {
-                                ForEach(listTodo, id: \.id) { todo in
-                                    ItemTodo(todo) {
-                                        update(todo, key: $0, value: $1)
-                                    }
-                                    .contentShape(Rectangle())
-                                    .contextMenu {
-                                        Button(role: .destructive) {
-                                            delete(todo)
-                                        } label: {
-                                            Label("삭제하기", systemImage: "trash")
-                                        }
-                                    }
+                            if isEditing && targetMonth == m  {
+                                // 할 일 작성 부분
+                                ViewCreatingTodo(month: m, year: year, isPresented: $isEditing) { result in
+                                    onCreate(result)
                                 }
-                            } else {
-                                VStack(spacing: 0) {
-                                    Text("할 일을 추가해주세요.")
-                                        .foregroundStyle(Color.gray)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 10)
-                                    Divider()
-                                        .background(.gray)
-                                }
-                                .frame(maxWidth: .infinity, maxHeight: 40)
                             }
-                            
-                            // 할 일 작성
-                            if isEditing && targetMonth == m {
-                                HStack {
-                                    ImgSafe("btnDone", color: .gray)
-                                        .frame(width: 25, height: 25)
-                                    TextFieldTitle(placeholder: "할 일을 입력하세요.", text: $textTitle)
-                                        .focused($isFocusedSub)
-                                        .onChange(of: isFocusedSub) { _, new in
-                                            isEditing = new
-                                        }
-                                        .submitLabel(.done)
-                                        .onSubmit {
-                                            if !textTitle.isEmpty { write(m) }
-                                            // text 초기화
-                                            textTitle = ""
-                                        }
+                            if let listTodo = listGrouped[Int(m)], !listTodo.isEmpty {
+                                // 할 일 리스트
+                                viewList(listTodo)
+                            } else {
+                                if !(isEditing && targetMonth == m) {
+                                    // 리스트가 빈 경우 _ 가이드
+                                    viewEmptyList
                                 }
-                                .frame(maxWidth: .infinity, maxHeight: 40)
-                                .padding(.horizontal, 10)
-                                .border(Color.gray)
-                   
                             }
                         }
                         .padding(.bottom, 30)
@@ -103,24 +60,27 @@ struct ViewMonth: View {
         .onAppear {
             reload()
         }
-        .contentShape(Rectangle())
+        .contentShape(Rectangle()) // 빈 공간도 터치 가능하게 설정
         .onTapGesture {
-            isFocusedSub = false
+            // 키보드를 내리는 코드
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            // 편집 모드 해제
             isEditing = false
         }
     }
     
+    
     // viewBuilder
+    @ViewBuilder
     private func viewHeader(_ month: Int) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack {
                 Text("\(month) 월")
                     .font(.system(size: 20, weight: .medium))
                     .frame(maxWidth: .infinity, alignment: .leading)
-                
+                // 할 일 작성 버튼
                 Button {
                     isEditing = true
-                    isFocusedSub = true
                     targetMonth = month
                 } label: {
                     ImgSafe("iconPlus", color: .cyan)
@@ -131,10 +91,41 @@ struct ViewMonth: View {
             }
             
             Divider()
-                .frame(height: 0.5)
+                .frame(height: 1)
                 .background(.black)
         }
     }
+    
+    @ViewBuilder
+    private var viewEmptyList: some View {
+        VStack(spacing: 0) {
+            Text("+ 버튼을 눌러 할 일을 작성할 수 있어요.")
+                .foregroundStyle(Color.gray)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 10)
+            Divider()
+                .background(.gray)
+        }
+        .frame(maxWidth: .infinity, maxHeight: 40)
+    }
+    
+    @ViewBuilder
+    private func viewList(_ list: [Work]) -> some View {
+        ForEach(list, id: \.id) { todo in
+            ItemTodo(todo) {
+                update(todo, key: $0, value: $1)
+            }
+            .contentShape(Rectangle())
+            .contextMenu {
+                Button(role: .destructive) {
+                    delete(todo)
+                } label: {
+                    Label("삭제하기", systemImage: "trash")
+                }
+            }
+        }
+    }
+    
     
     // func
     func showToast(_ msg: String) {
@@ -145,13 +136,16 @@ struct ViewMonth: View {
     }
     
     private func reload() {
+        // 편집 모드 해제
+        isEditing = false
+        let predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d", TypePlan.month.rawValue, Calendar.nn.getYear(Date()))
         list = service.fetchList(predicate)
         listGrouped = Dictionary(grouping: list, by: { Int($0.planedMonth) })
         idRefresh = UUID()
     }
     
-    private func write(_ month: Int) {
-        if !service.create(textTitle, listTypePlan: .month, planedMonth: month, planedYear: year).isSuccess {
+    private func onCreate(_ result: Result) {
+        if !result.isSuccess {
             showToast("할 일이 작성되지 않았습니다.")
         }
         // 화면 갱신

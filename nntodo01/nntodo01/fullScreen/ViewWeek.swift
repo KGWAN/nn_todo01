@@ -12,30 +12,17 @@ struct ViewWeek: View {
     @State private var idRefresh: UUID = UUID()
     @State private var list: [Work] = []
     @State private var listGrouped: [Int: [Work]] = [:]
+    @State private var listSection: [Calendar.Week] = []
     // showing toast
     @State private var isShowingToast: Bool = false
     @State private var msgToast: String = ""
     // writing work
     @State private var isEditing: Bool = false
-    @FocusState private var isFocusedSub: Bool
-    @State private var textTitle: String = ""
     @State private var targetNum: Int? = nil
     // constant
     private let service: ServiceWork = ServiceWork()
     private let year: Int = Calendar.nn.getYear(Date())
     private let month: Int = Calendar.nn.getMonth(Date())
-    private let listSection: [Calendar.Week]
-    private let predicate: NSPredicate
-    
-    
-    // init
-    init () {
-        // 연산 및 저장
-        self.listSection = Calendar.nn.getWeeksInMonth(month: month, year: year)
-        self.predicate = NSPredicate(format: "(planType & %d) != 0 AND planedMonth == %d AND planedYear = %d", TypePlan.week.rawValue, month, year)
-//        self._list = State(initialValue: service.fetchList(predicate))
-//        self._listGrouped = State(initialValue: Dictionary(grouping: list, by: { Int($0.planedMonth) }))
-    }
     
     
     var body: some View {
@@ -44,54 +31,26 @@ struct ViewWeek: View {
                 ForEach(listSection) { w in
                     Section {
                         VStack {
-                            // 월별 리스트
-                            if let listTodo = listGrouped[w.num] {
-                                ForEach(listTodo, id: \.id) { todo in
-                                    ItemTodo(todo) {
-                                        update(todo, key: $0, value: $1)
-                                    }
-                                    .contentShape(Rectangle())
-                                    .contextMenu {
-                                        Button(role: .destructive) {
-                                            delete(todo)
-                                        } label: {
-                                            Label("삭제하기", systemImage: "trash")
-                                        }
-                                    }
-                                }
-                            } else {
-                                VStack(spacing: 0) {
-                                    Text("할 일을 추가해주세요.")
-                                        .foregroundStyle(Color.gray)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 10)
-                                    Divider()
-                                        .background(.gray)
-                                }
-                                .frame(maxWidth: .infinity, maxHeight: 40)
-                            }
-                            
-                            // 할 일 작성
                             if isEditing && targetNum == w.num {
-                                HStack {
-                                    ImgSafe("btnDone", color: .gray)
-                                        .frame(width: 25, height: 25)
-                                    TextFieldTitle(placeholder: "할 일을 입력하세요.", text: $textTitle)
-                                        .focused($isFocusedSub)
-                                        .onChange(of: isFocusedSub) { _, new in
-                                            isEditing = new
-                                        }
-                                        .submitLabel(.done)
-                                        .onSubmit {
-                                            if !textTitle.isEmpty { write(numWeek: w.num) }
-                                            // text 초기화
-                                            textTitle = ""
-                                        }
+                                // 할 일 작성 부분
+                                ViewCreatingTodo(
+                                    week: w.num,
+                                    month: month,
+                                    year: year,
+                                    isPresented: $isEditing
+                                ) { result in
+                                    onCreate(result)
                                 }
-                                .frame(maxWidth: .infinity, maxHeight: 40)
-                                .padding(.horizontal, 10)
-                                .border(Color.gray)
-                   
+                            }
+                            if let listTodo = listGrouped[w.num],
+                               !listTodo.isEmpty {
+                                // 할 일 리스트
+                                viewList(listTodo)
+                            } else {
+                                if !(isEditing && targetNum == w.num) {
+                                    // 리스트가 빈 경우 _ 가이드
+                                    viewEmptyList
+                                }
                             }
                         }
                         .padding(.bottom, 30)
@@ -110,11 +69,13 @@ struct ViewWeek: View {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            isFocusedSub = false
+            // 키보드를 내리는 코드
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            // 편집 모드 해제
             isEditing = false
         }
     }
-    
+     
     // viewBuilder
     private func viewHeader(_ week: Calendar.Week) -> some View {
         VStack(alignment: .leading, spacing: 5) {
@@ -125,9 +86,9 @@ struct ViewWeek: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 // 생성 버튼
                 Button {
-                    isEditing = true
-                    isFocusedSub = true
                     targetNum = week.num
+                    // 편집 모드 들어가기
+                    isEditing = true
                 } label: {
                     ImgSafe("iconPlus", color: .cyan)
                         .frame(width: 15, height: 15)
@@ -137,10 +98,41 @@ struct ViewWeek: View {
             }
             // 구분선
             Divider()
-                .frame(height: 0.5)
+                .frame(height: 1)
                 .background(.black)
         }
     }
+    
+    @ViewBuilder
+    private func viewList(_ list: [Work]) -> some View {
+        ForEach(list, id: \.id) { todo in
+            ItemTodo(todo) {
+                update(todo, key: $0, value: $1)
+            }
+            .contentShape(Rectangle())
+            .contextMenu {
+                Button(role: .destructive) {
+                    delete(todo)
+                } label: {
+                    Label("삭제하기", systemImage: "trash")
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var viewEmptyList: some View {
+        VStack(spacing: 10) {
+            Text("+ 버튼을 눌러 할 일을 작성할 수 있어요.")
+                .foregroundStyle(Color.gray)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 10)
+            Divider()
+                .background(.gray)
+        }
+        .frame(maxWidth: .infinity, maxHeight: 40)
+    }
+    
     
     // func
     func showToast(_ msg: String) {
@@ -151,13 +143,17 @@ struct ViewWeek: View {
     }
     
     private func reload() {
+        // 편집 모드 해제
+        isEditing = false
+        listSection = Calendar.nn.getWeeksInMonth(month: month, year: year)
+        let predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedMonth == %d AND planedYear == %d", TypePlan.week.rawValue, month, year)
         list = service.fetchList(predicate)
         listGrouped = Dictionary(grouping: list, by: { Int($0.planedWeek) })
         idRefresh = UUID()
     }
     
-    private func write(numWeek num: Int) {
-        if !service.create(textTitle, listTypePlan: .week, planedWeek: num, planedMonth: month, planedYear: year).isSuccess {
+    private func onCreate(_ result: Result) {
+        if !result.isSuccess {
             showToast("할 일이 작성되지 않았습니다.")
         }
         // 화면 갱신

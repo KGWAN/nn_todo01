@@ -13,6 +13,7 @@ struct nntodo01App: App {
     @State private var isShowingMain = false
     // constant
     let persistenceController = PersistenceController.shared
+    @State private var state = NnState()
     
     var body: some Scene {
         WindowGroup {
@@ -25,5 +26,6 @@ struct nntodo01App: App {
             }
         }
         .environment(\.managedObjectContext, persistenceController.container.viewContext)
+        .environment(state)
     }
 }

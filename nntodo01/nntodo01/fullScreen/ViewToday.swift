@@ -44,29 +44,18 @@ struct ViewToday: View {
             ForEach(listSection, id: \.self) {type in
                 Section {
                     VStack(spacing: 20) {
-                        // list
-                        viewList(type)
-                        // textField
                         if isEditing && targetNum == type {
-                            HStack {
-                                ImgSafe("btnDone", color: .gray)
-                                    .frame(width: 25, height: 25)
-                                TextFieldTitle(placeholder: "할 일을 입력하세요.", text: $textTitle)
-                                    .focused($isFocusedSub)
-                                    .onChange(of: isFocusedSub) { _, new in
-                                        isEditing = new
-                                    }
-                                    .submitLabel(.done)
-                                    .onSubmit {
-                                        if !textTitle.isEmpty { write(on: type) }
-                                        // text 초기화
-                                        textTitle = ""
-                                    }
+                            // 할 일 작성 부분
+                            viewWriting(type)
+                        }
+                        if let list = getList(type),
+                           !list.isEmpty {
+                            // 할 일 리스트
+                            viewList(list)
+                        } else {
+                            if !(isEditing && targetNum == type) {
+                                viewEmptyList
                             }
-                            .frame(maxWidth: .infinity, maxHeight: 40)
-                            .padding(.horizontal, 10)
-                            .border(Color.gray)
-
                         }
                     }
                 } header: {
@@ -75,6 +64,7 @@ struct ViewToday: View {
             }
         }
         .padding(.vertical, 10)
+        .padding(.horizontal,20)
         .id(idRefresh)
         .onAppear {
             reload()
@@ -84,30 +74,33 @@ struct ViewToday: View {
     
     // viewBuilder
     @ViewBuilder
-    private func viewList(_ type: TypePlan) -> some View {
-        if getList(type).isEmpty {
-            VStack(spacing: 0) {
-                Text("할 일이 존재하지 않습니다.")
-                    .foregroundStyle(Color.gray)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 10)
+    private func viewList(_ list: [Work]) -> some View {
+        ForEach(list, id: \.id) { todo in
+            ItemTodo(todo) {
+                update(todo, key: $0, value: $1)
             }
-            .frame(maxWidth: .infinity, maxHeight: 40)
-        } else {
-            ForEach(getList(type), id: \.id) { todo in
-                ItemTodo(todo) {
-                    update(todo, key: $0, value: $1)
-                }
-                .contentShape(Rectangle())
-                .contextMenu {
-                    Button(role: .destructive) {
-                        delete(todo)
-                    } label: {
-                        Label("삭제하기", systemImage: "trash")
-                    }
+            .contentShape(Rectangle())
+            .contextMenu {
+                Button(role: .destructive) {
+                    delete(todo)
+                } label: {
+                    Label("삭제하기", systemImage: "trash")
                 }
             }
         }
+    }
+    
+    @ViewBuilder
+    private var viewEmptyList: some View {
+        VStack(spacing: 0) {
+            Text("+ 버튼을 눌러 할 일을 작성할 수 있어요.")
+                .foregroundStyle(Color.gray)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 10)
+            Divider()
+                .background(.gray)
+        }
+        .frame(maxWidth: .infinity, maxHeight: 40)
     }
     
     @ViewBuilder
@@ -140,10 +133,31 @@ struct ViewToday: View {
             }
             // 구분선
             Divider()
-                .frame(height: 0.5)
+                .frame(height: 1)
                 .background(.black)
         }
     }
+    
+    @ViewBuilder
+    private func viewWriting(_ type: TypePlan) -> some View {
+        let day = calendar.getDay(dateToday)
+        let month = calendar.getMonth(dateToday)
+        let year = calendar.getYear(dateToday)
+        if type == .day {
+            ViewCreatingTodo(day: day, month: month, year: year, isPresented: $isEditing) { result in
+                onCreat(result)
+            }
+        } else if type == .month {
+            ViewCreatingTodo(month: month, year: year, isPresented: $isEditing) { result in
+                onCreat(result)
+            }
+        } else if type == .year {
+            ViewCreatingTodo(year: year, isPresented: $isEditing) { result in
+                onCreat(result)
+            }
+        }
+    }
+    
     
     // func
     private func reload() {
@@ -161,31 +175,8 @@ struct ViewToday: View {
         print(isShowingToast)
     }
     
-    private func write(on type: TypePlan) {
-        var isSuccess = false
-        if type == .day {
-            isSuccess = service.create(
-                textTitle,
-                listTypePlan: .day,
-                planedDay: calendar.getDay(dateToday),
-                planedMonth: calendar.getMonth(dateToday),
-                planedYear: calendar.getYear(dateToday)
-            ).isSuccess
-        } else if type == .month {
-            isSuccess = service.create(
-                textTitle,
-                listTypePlan: .month,
-                planedMonth: calendar.getMonth(dateToday),
-                planedYear: calendar.getYear(dateToday)
-            ).isSuccess
-        } else if type == .year {
-            isSuccess = service.create(
-                textTitle,
-                listTypePlan: .year,
-                planedYear: calendar.getYear(dateToday)
-            ).isSuccess
-        }
-        if !isSuccess {
+    private func onCreat(_ result: Result) {
+        if !result.isSuccess {
             showToast("할 일이 작성되지 않았습니다.")
         }
         // 화면 갱신
@@ -212,14 +203,14 @@ struct ViewToday: View {
         reload()
     }
     
-    private func getList(_ type: TypePlan) -> [Work] {
+    private func getList(_ type: TypePlan) -> [Work]? {
         return if type == .day {
             listToday
         } else if type == .month {
             listMonth
         } else if type == .year {
             listYear
-        } else {[]}
+        } else { nil }
     }
 }
 

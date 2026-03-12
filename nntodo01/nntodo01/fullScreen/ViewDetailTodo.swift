@@ -20,7 +20,7 @@ struct ViewDetailTodo: View {
         self._isDone = State(initialValue: item.isDone)
         // 추가
         self._textMemo = State(initialValue: item.memo ?? "")
-        self._listSubwork = State(initialValue: service.getChildren(item))
+        self._listSub = State(initialValue: service.getChildren(item))
         // 분류
         self._isMarked = State(initialValue: item.isMarked)
         self._planType = State(initialValue: item.listTypePlan)
@@ -38,7 +38,7 @@ struct ViewDetailTodo: View {
     @State private var isDone: Bool
     // 추가
     @State private var textMemo: String
-    @State private var listSubwork: [Work]
+    @State private var listSub: [Work] = []
     // 분류
     @State private var isMarked: Bool
     @State private var planType: TypePlan
@@ -49,9 +49,11 @@ struct ViewDetailTodo: View {
     @State private var kategory: Kategory?
     // 기타
     @State private var idRefresh: UUID = UUID()
-    @State private var isEditingSubwork: Bool = false
+    // creating sub
+    @State private var isEditingSub: Bool = false
     @State private var textTitleSub: String = ""
     @FocusState private var isFocusedSub: Bool
+    // showing toast
     @State private var isShowingToast: Bool = false
     @State private var msgToast: String = ""
     // environment
@@ -62,61 +64,29 @@ struct ViewDetailTodo: View {
     
     var body: some View {
         NavigationStack {
-            VStack {
-                // 상단
+            ScrollView {
+                // 하위 작업
                 VStack {
-                    // 서브 작업 리스트
-                    List {
-                        ForEach(listSubwork) { subwork in
-                            ItemSubwork(subwork) {key, value in
-                                update(child: subwork, key: key, value: value)
-                            }
-                            .listRowInsets(.init(top: 0, leading: 10, bottom: 0, trailing: 0))
-                            .listRowSpacing(0)
-                            .listRowSeparator(.hidden)
+                    if isEditingSub {
+                        // 하위 작업 작성 부분
+                        ViewCreatingTodo(parent: item, isPresented: $isEditingSub) { result in
+                            onCreateSub(result)
                         }
-                        .onDelete(perform: deleteChild)
-                    }
-                    .frame(height: CGFloat(listSubwork.count * 60))
-                    .listStyle(.plain)
-                    .scrollDisabled(true)
-                    .listSectionSpacing(0)
-                    .listSectionSeparator(.hidden)                    
-                    if isEditingSubwork {
-                        // 서브 작업 작성 영역
-                        HStack {
-                            BtnCheckImg("btnDone", isChecked: Binding(get: { false }, set: { _ in }))
-                                .frame(width: 25, height: 25)
-                                .disabled(true)
-                            TextFieldTitle(placeholder: "서브 작업의 이름을 입력하세요.", text: $textTitleSub)
-                                .focused($isFocusedSub)
-                                .onChange(of: isFocusedSub) { _, new in
-                                    isEditingSubwork = new
-                                }
-                                .submitLabel(.done)
-                                .onSubmit {
-                                    addSubwork(textTitleSub)
-                                    textTitleSub = ""
-                                }
-                        }
-                        .padding(.horizontal, 10)
                     } else {
-                        // 서브 작업 추가 버튼
-                        Button {
-                            isEditingSubwork = true
-                            isFocusedSub = true
-                        } label: {
-                            HStack {
-                                ImgSafe("iconPlus", color: .cyan)
-                                    .frame(width: 25, height: 25)
-                                Text("서브 작업 추가")
-                                    .foregroundStyle(Color.cyan)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 10)
-                            }
-                            .padding(.horizontal, 10)
+                        // 하위 작업 생성 부분
+                        btnCreating
+                    }
+                    // 하위 작업 리스트
+                    if !listSub.isEmpty {
+                        // 리스트
+                        viewList
+                    } else {
+                        if !(isEditingSub) {
+                            // 리스트가 빈 경우 _ 가이드
+                            viewEmptyList
                         }
                     }
+                    
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 20)
@@ -124,12 +94,10 @@ struct ViewDetailTodo: View {
                 .background(Color.white)
                 // 중단
                 VStack {
-                    // 오늘 할일 추가 버튼
-//                    BtnCheckFullWidth($isToday, strOn: "오늘 할 일에 추가됨", strOff: "오늘 할 일에 추가")
-//                        .background(Color.white)
                     // 메모 입력
                     ZStack(alignment: .topLeading) {
                         TextEditor(text: $textMemo)
+                            .frame(minHeight: 200)
                             .padding(12)
                         if textMemo.isEmpty {
                             Text("메모 추가")
@@ -139,19 +107,20 @@ struct ViewDetailTodo: View {
                         }
                     }
                     .frame(maxHeight: 200)
-                    .background(Color.white)
-                    Spacer()
-                    Text("todo detail")
-                    Spacer()
+                    .border(.gray)
                 }
-                .padding(.horizontal, 10)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .background(Color.white)
                 
                 // 하단
                 HStack {
                     if let date = item.updatedDate {
                         Text(date.getStrDate(format: format) + "에 수정됨")
+                            .foregroundColor(.gray)
                     } else if let date = item.createdDate {
                         Text(date.getStrDate(format: format) + "에 생성됨")
+                            .foregroundColor(.gray)
                     }
                     Spacer()
                     // 삭제 버튼
@@ -194,10 +163,61 @@ struct ViewDetailTodo: View {
             .toast(msgToast, isPresented: $isShowingToast)
         }
         .id(idRefresh)
+        .contentShape(Rectangle()) // 빈 공간도 터치 가능하게 설정
+        .onTapGesture {
+            // 키보드를 내리는 코드
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            // 편집 모드 해제
+            isEditingSub = false
+        }
     }
     
     
-    //MARK: func
+    // ViewBuiler
+    @ViewBuilder
+    private var btnCreating: some View {
+        Button {
+            isEditingSub = true
+        } label: {
+            Text("이 버튼을 눌러 세부적인 일을 작성할 수 있어요.")
+                .foregroundStyle(Color.white)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 10)
+        }
+        .frame(maxWidth: .infinity, maxHeight: 40)
+        .background(.cyan)
+    }
+    
+    @ViewBuilder
+    private var viewEmptyList: some View {
+        VStack() {
+            Text("작성된 할 일이 없어요.")
+                .foregroundStyle(Color.gray)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 10)
+        }
+        .frame(maxWidth: .infinity)
+    }
+    
+    @ViewBuilder
+    private var viewList: some View {
+        ForEach(listSub) { sub in
+            ItemTodo(sub) {key, value in
+                update(child: sub, key: key, value: value)
+            }
+            .contentShape(Rectangle())
+            .contextMenu {
+                Button(role: .destructive) {
+                    delete(sub: sub)
+                } label: {
+                    Label("삭제하기", systemImage: "trash")
+                }
+            }
+        }
+    }
+    
+    
+    // func
     func showToast(_ msg: String) {
         msgToast = msg
         isShowingToast = true
@@ -206,11 +226,14 @@ struct ViewDetailTodo: View {
     }
     // 리로드
     private func reload() {
+        // 편집 모드 해제
+        isEditingSub = false
+        //
         if let i = item.id,
-        let new = service.fetchOne(i) {
+           let new = service.fetchOne(i) {
             item = new
         }
-        listSubwork = service.getChildren(item)
+        listSub = service.getChildren(item)
         idRefresh = UUID()
     }
     // 일괄 수정
@@ -231,8 +254,8 @@ struct ViewDetailTodo: View {
     }
     // Subwork
     // subwork 추가
-    private func addSubwork(_ title: String) {
-        if !service.addChild(title, target: item).isSuccess {
+    private func onCreateSub(_ result: Result) {
+        if !result.isSuccess {
             showToast("서브 작업 생성에 실패했습니다.")
         }
         // 화면 갱신
@@ -247,13 +270,11 @@ struct ViewDetailTodo: View {
         reload()
     }
     // subwork 삭제
-    private func deleteChild(at offsets: IndexSet) {
-        if let idx = offsets.first {
-            let subwork = listSubwork[idx]
-            listSubwork.remove(at: idx)
-            if !service.delete(subwork).isSuccess {
-                showToast("서브 작업 삭제에 실패했습니다.")
-            }
+    private func delete(sub target: Work) {
+        if !service
+            .delete(target)
+            .isSuccess {
+            showToast("작업 삭제에 실패했습니다.")
         }
         // 화면 갱신
         reload()

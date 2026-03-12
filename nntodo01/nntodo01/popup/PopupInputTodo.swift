@@ -15,6 +15,7 @@ struct PopupInputTodo: View {
     // state
     @State private var canInput: Bool = false
     @State private var text: String = ""
+    @FocusState private var isTextfieldFocused : Bool
     // constant
     private let service: ServiceWork = ServiceWork()
     private let typePlan: TypePlan?
@@ -22,9 +23,9 @@ struct PopupInputTodo: View {
     private let month: Int?
     private let day: Int?
     
-    // case: .nomal, .today, .marked
+    // case: .normal, .today, .marked
     init(
-        templete: Templete = .nomal,
+        templete: Templete = .normal,
         isPresented: Binding<Bool>,
         onFinish: @escaping (Result) -> Void
     ) {
@@ -50,7 +51,7 @@ struct PopupInputTodo: View {
     ) {
         self._isPresented = isPresented
         self.onFinish = onFinish
-        self.templete = .nomal
+        self.templete = .normal
         self.kategory = kategory
         // dummy
         self.typePlan = nil
@@ -70,7 +71,7 @@ struct PopupInputTodo: View {
     ) {
         self._isPresented = isPresented
         self.onFinish = onFinish
-        self.templete = .nomal
+        self.templete = .normal
         self.typePlan = .day
         let cal = Calendar.nn
         self.day = cal.component(.day, from: date)
@@ -91,7 +92,7 @@ struct PopupInputTodo: View {
     ) {
         self._isPresented = isPresented
         self.onFinish = onFinish
-        self.templete = .nomal
+        self.templete = .normal
         self.typePlan = .week
         self.week = week
         self.month = month
@@ -112,7 +113,7 @@ struct PopupInputTodo: View {
     ) {
         self._isPresented = isPresented
         self.onFinish = onFinish
-        self.templete = .nomal
+        self.templete = .normal
         self.typePlan = .month
         self.month = month
         self.year = year
@@ -130,7 +131,7 @@ struct PopupInputTodo: View {
     ) {
         self._isPresented = isPresented
         self.onFinish = onFinish
-        self.templete = .nomal
+        self.templete = .normal
         self.typePlan = .year
         self.year = year
         // dummy
@@ -143,7 +144,7 @@ struct PopupInputTodo: View {
     
     var body: some View {
         ContainerPopup(
-            .bottom,
+            .center,
             isPresented: $isPresented,
             content: {
                 HStack(alignment: .center, spacing: 10) {
@@ -152,9 +153,19 @@ struct PopupInputTodo: View {
                         .disabled(true)
                     TextFieldTitle(placeholder: "작업추가", text: $text)
                         .frame(maxWidth: .infinity)
+                        .focused($isTextfieldFocused)
+                        .submitLabel(.done)
+                        .onSubmit {
+                            if !text.isEmpty {
+                                onFinish(write(text))
+                                isPresented = false
+                            }
+                            // text 초기화
+                            text = ""
+                        }
                     Button {
                         if canInput {
-                            onFinish(create(text))
+                            onFinish(write(text))
                             isPresented = false
                         }
                     } label: {
@@ -173,6 +184,11 @@ struct PopupInputTodo: View {
                 .background(Color.white)
             }
         )
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                isTextfieldFocused = true
+            }
+        }
     }
     
     
@@ -181,7 +197,7 @@ struct PopupInputTodo: View {
         canInput = !text.isEmpty
     }
     
-    private func create(_ title: String) -> Result {
+    private func write(_ title: String) -> Result {
         if templete == .marked {
             return service.create(title, isMarked: true)
         } else if kategory != nil {
@@ -203,55 +219,55 @@ struct PopupInputTodo: View {
     @Previewable @State var isShowing: Bool = true
     let kategory: Kategory = ServiceKategory().getNew("kate_preview")
     
-    // case: .nomal
+    // case: .normal
     PopupInputTodo(
         isPresented: $isShowing
     ) { result in
         NnLogger.log("(preview)Try to add new todo (result: \(result))", level: .debug)
     }
-    // case: .marked
-    PopupInputTodo(
-        templete: .marked,
-        isPresented: $isShowing
-    ) { result in
-        NnLogger.log("(preview)Try to add new todo (result: \(result))", level: .debug)
-    }
-    // case: kategory
-    PopupInputTodo(
-        kategory: kategory,
-        isPresented: $isShowing
-    ) { result in
-        NnLogger.log("(preview)Try to add new todo (result: \(result))", level: .debug)
-    }
-    // case: day
-    PopupInputTodo(
-        date: Date(),
-        isPresented: $isShowing
-    ) { result in
-        NnLogger.log("(preview)Try to add new todo (result: \(result))", level: .debug)
-    }
-    // case: week
-    PopupInputTodo(
-        week: 1,
-        month: 1,
-        year: 2026,
-        isPresented: $isShowing
-    ) { result in
-        NnLogger.log("(preview)Try to add new todo (result: \(result))", level: .debug)
-    }
-    // case: month
-    PopupInputTodo(
-        month: 1,
-        year: 2026,
-        isPresented: $isShowing
-    ) { result in
-        NnLogger.log("(preview)Try to add new todo (result: \(result))", level: .debug)
-    }
-    // case: year
-    PopupInputTodo(
-        year: 2026,
-        isPresented: $isShowing
-    ) { result in
-        NnLogger.log("(preview)Try to add new todo (result: \(result))", level: .debug)
-    }
+//    // case: .marked
+//    PopupInputTodo(
+//        templete: .marked,
+//        isPresented: $isShowing
+//    ) { result in
+//        NnLogger.log("(preview)Try to add new todo (result: \(result))", level: .debug)
+//    }
+//    // case: kategory
+//    PopupInputTodo(
+//        kategory: kategory,
+//        isPresented: $isShowing
+//    ) { result in
+//        NnLogger.log("(preview)Try to add new todo (result: \(result))", level: .debug)
+//    }
+//    // case: day
+//    PopupInputTodo(
+//        date: Date(),
+//        isPresented: $isShowing
+//    ) { result in
+//        NnLogger.log("(preview)Try to add new todo (result: \(result))", level: .debug)
+//    }
+//    // case: week
+//    PopupInputTodo(
+//        week: 1,
+//        month: 1,
+//        year: 2026,
+//        isPresented: $isShowing
+//    ) { result in
+//        NnLogger.log("(preview)Try to add new todo (result: \(result))", level: .debug)
+//    }
+//    // case: month
+//    PopupInputTodo(
+//        month: 1,
+//        year: 2026,
+//        isPresented: $isShowing
+//    ) { result in
+//        NnLogger.log("(preview)Try to add new todo (result: \(result))", level: .debug)
+//    }
+//    // case: year
+//    PopupInputTodo(
+//        year: 2026,
+//        isPresented: $isShowing
+//    ) { result in
+//        NnLogger.log("(preview)Try to add new todo (result: \(result))", level: .debug)
+//    }
 }

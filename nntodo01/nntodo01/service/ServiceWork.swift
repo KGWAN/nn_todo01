@@ -251,7 +251,7 @@ class ServiceWork: NnService {
     
     // MARK: read
     // constant
-    private let sortDefalt: [NSSortDescriptor] = [NSSortDescriptor(keyPath: \Work.createdDate, ascending: true)]
+    private let sortDefalt: [NSSortDescriptor] = [NSSortDescriptor(keyPath: \Work.createdDate, ascending: false)]
     // common func
     private func fetch<Work>(_ request: NSFetchRequest<Work>) -> [Work] {
         do {

@@ -8,25 +8,28 @@
 import SwiftUI
 
 struct ViewShell: View {
+    // state
     @State private var tabShowing = 1
     @State private var idRefresh: UUID = UUID()
     
     var body: some View {
-        TabView(selection: $tabShowing) {
-            ViewCalendar()
-                .tag(0)
-            ViewToday()
-                .tag(1)
-            ViewMain()
-                .tag(2)
+        ZStack {
+            TabView(selection: $tabShowing) {
+                ViewCalendar()
+                    .tag(0)
+                ViewToday()
+                    .tag(1)
+                ViewMain()
+                    .tag(2)
+            }
+            .tabViewStyle(PageTabViewStyle())
+            .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+            .ignoresSafeArea()
+            .onChange(of: tabShowing) { oldValue, newValue in
+                idRefresh = UUID()
+            }
+            .id(idRefresh)
         }
-        .tabViewStyle(PageTabViewStyle())
-        .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-        .ignoresSafeArea()
-        .onChange(of: tabShowing) { oldValue, newValue in
-            idRefresh = UUID()
-        }
-        .id(idRefresh)
     }
 }
 
