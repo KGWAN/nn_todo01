@@ -21,6 +21,9 @@ struct ViewToday: View {
     @FocusState private var isFocusedSub: Bool
     @State private var textTitle: String = ""
     @State private var targetNum: TypePlan? = nil
+    // updating work
+    @State private var isModifying: Bool = false
+    @State private var targetModifying: Work? = nil
     // value
     private let service = ServiceWork()
     private let dateToday = Date()
@@ -40,32 +43,35 @@ struct ViewToday: View {
     }
     
     var body: some View {
-        ScrollView {
-            ForEach(listSection, id: \.self) {type in
-                Section {
-                    VStack(spacing: 20) {
-                        if isEditing && targetNum == type {
-                            // 할 일 작성 부분
-                            viewWriting(type)
-                        }
-                        if let list = getList(type),
-                           !list.isEmpty {
-                            // 할 일 리스트
-                            viewList(list)
-                        } else {
-                            if !(isEditing && targetNum == type) {
-                                viewEmptyList
+        NavigationStack {
+            ScrollView {
+                ForEach(listSection, id: \.self) {type in
+                    Section {
+                        VStack(spacing: 20) {
+                            if isEditing && targetNum == type {
+                                // 할 일 작성 부분
+                                viewWriting(type)
+                            }
+                            if let list = getList(type),
+                               !list.isEmpty {
+                                // 할 일 리스트
+                                viewList(list)
+                            } else {
+                                if !(isEditing && targetNum == type) {
+                                    viewEmptyList
+                                }
                             }
                         }
+                    } header: {
+                        viewHeader(type)
                     }
-                } header: {
-                    viewHeader(type)
                 }
             }
+            .padding(.vertical, 10)
+            .padding(.horizontal,20)
         }
-        .padding(.vertical, 10)
-        .padding(.horizontal,20)
         .id(idRefresh)
+        .navigationBarBackButtonHidden()
         .onAppear {
             reload()
         }
@@ -76,15 +82,37 @@ struct ViewToday: View {
     @ViewBuilder
     private func viewList(_ list: [Work]) -> some View {
         ForEach(list, id: \.id) { todo in
-            ItemTodo(todo) {
-                update(todo, key: $0, value: $1)
-            }
-            .contentShape(Rectangle())
-            .contextMenu {
-                Button(role: .destructive) {
-                    delete(todo)
-                } label: {
-                    Label("삭제하기", systemImage: "trash")
+            NavigationLink(
+                destination: ViewDetailTodo(todo) {result in
+                    onUpdate(result: result)
+                }
+            ) {
+                if isModifying &&  todo == targetModifying {
+                    // 수정 부분
+                    ViewUpdatingTodo(
+                        todo,
+                        isPresented: $isModifying
+                    ) { k, v in
+                        update(todo, key: k, value: v)
+                    }
+                } else {
+                    ItemTodo(todo) {
+                        update(todo, key: $0, value: $1)
+                    }
+                    .contentShape(Rectangle())
+                    .contextMenu {
+                        Button() {
+                            targetModifying = todo
+                            isModifying = true
+                        } label: {
+                            Label("수정하기", systemImage: "pencil")
+                        }
+                        Button(role: .destructive) {
+                            delete(todo)
+                        } label: {
+                            Label("삭제하기", systemImage: "trash")
+                        }
+                    }
                 }
             }
         }
@@ -187,6 +215,14 @@ struct ViewToday: View {
         if !service
             .update(item, key: key, value: value)
             .isSuccess {
+            showToast("작업이 수정에 실패했습니다.")
+        }
+        // 화면 갱신
+        reload()
+    }
+    
+    private func onUpdate(result: Result) {
+        if !result.isSuccess {
             showToast("작업이 수정에 실패했습니다.")
         }
         // 화면 갱신

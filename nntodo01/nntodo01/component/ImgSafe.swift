@@ -11,7 +11,7 @@ struct ImgSafe: View {
     private let nameImg: String
     private let color: Color
     
-    init(_ nameImg: String = "", color: Color = .black) {
+    init(_ nameImg: String = "noImg", color: Color = .black) {
         self.nameImg = nameImg
         self.color = color
     }
@@ -26,7 +26,7 @@ struct ImgSafe: View {
                 
         } else {
             Circle()
-                .fill(.gray)
+                .fill(color)
         }
     }
 }

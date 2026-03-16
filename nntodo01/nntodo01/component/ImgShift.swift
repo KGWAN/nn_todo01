@@ -9,44 +9,29 @@ import SwiftUI
 
 struct ImgShift: View {
     // init
-    let imgName: String
-    let colorY: Color
-    let colorN: Color
-    @Binding var isY: Bool
-    
     init(
         _ imgName: String = "noImg",
         colorY: Color = .cyan,
         colorN: Color = .gray,
-        isY: Binding<Bool>,
+        isY: Bool,
     ) {
-        self._isY = isY
+        self.isY = isY
         self.imgName = imgName
         self.colorY = colorY
         self.colorN = colorN
     }
+    // in value
+    private let imgName: String
+    private let colorY: Color
+    private let colorN: Color
+    private let isY: Bool
+    
     
     var body: some View {
         if isY {
-            if let uiImg = UIImage(named: imgName) {
-                Image(uiImage: uiImg)
-                    .resizable()
-                    .foregroundStyle(colorY)
-                    .scaledToFit()
-            } else {
-                Circle()
-                    .fill(colorY)
-            }
+            ImgSafe(imgName, color: colorY)
         } else {
-            if let uiImg = UIImage(named: imgName) {
-                Image(uiImage: uiImg)
-                    .resizable()
-                    .foregroundStyle(colorN)
-                    .scaledToFit()
-            } else {
-                Circle()
-                    .stroke(colorN)
-            }
+            ImgSafe(imgName, color: colorN)
         }
     }
 }
@@ -55,6 +40,6 @@ struct ImgShift: View {
     @Previewable @State var isY: Bool = true
     @Previewable @State var isN: Bool = false
     
-    ImgShift(isY: $isY)
-    ImgShift(isY: $isN)
+    ImgShift(isY: isY)
+    ImgShift(isY: isN)
 }

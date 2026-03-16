@@ -19,6 +19,9 @@ struct ViewWeek: View {
     // writing work
     @State private var isEditing: Bool = false
     @State private var targetNum: Int? = nil
+    // updating work
+    @State private var isModifying: Bool = false
+    @State private var targetModifying: Work? = nil
     // constant
     private let service: ServiceWork = ServiceWork()
     private let year: Int = Calendar.nn.getYear(Date())
@@ -26,43 +29,46 @@ struct ViewWeek: View {
     
     
     var body: some View {
-        ZStack {
-            ScrollView {
-                ForEach(listSection) { w in
-                    Section {
-                        VStack {
-                            if isEditing && targetNum == w.num {
-                                // 할 일 작성 부분
-                                ViewCreatingTodo(
-                                    week: w.num,
-                                    month: month,
-                                    year: year,
-                                    isPresented: $isEditing
-                                ) { result in
-                                    onCreate(result)
+        NavigationStack {
+            ZStack {
+                ScrollView {
+                    ForEach(listSection) { w in
+                        Section {
+                            VStack {
+                                if isEditing && targetNum == w.num {
+                                    // 할 일 작성 부분
+                                    ViewCreatingTodo(
+                                        week: w.num,
+                                        month: month,
+                                        year: year,
+                                        isPresented: $isEditing
+                                    ) { result in
+                                        onCreate(result)
+                                    }
+                                }
+                                if let listTodo = listGrouped[w.num],
+                                   !listTodo.isEmpty {
+                                    // 할 일 리스트
+                                    viewList(listTodo)
+                                } else {
+                                    if !(isEditing && targetNum == w.num) {
+                                        // 리스트가 빈 경우 _ 가이드
+                                        viewEmptyList
+                                    }
                                 }
                             }
-                            if let listTodo = listGrouped[w.num],
-                               !listTodo.isEmpty {
-                                // 할 일 리스트
-                                viewList(listTodo)
-                            } else {
-                                if !(isEditing && targetNum == w.num) {
-                                    // 리스트가 빈 경우 _ 가이드
-                                    viewEmptyList
-                                }
-                            }
+                            .padding(.bottom, 30)
+                        } header: {
+                            viewHeader(w)
                         }
-                        .padding(.bottom, 30)
-                    } header: {
-                        viewHeader(w)
+                        .padding(.horizontal, 10)
                     }
-                    .padding(.horizontal, 10)
                 }
+                .padding(.top, 10)
             }
-            .padding(.top, 10)
         }
         .id(idRefresh)
+        .navigationBarBackButtonHidden()
         .toast(msgToast, isPresented: $isShowingToast)
         .onAppear {
             reload()
@@ -106,15 +112,37 @@ struct ViewWeek: View {
     @ViewBuilder
     private func viewList(_ list: [Work]) -> some View {
         ForEach(list, id: \.id) { todo in
-            ItemTodo(todo) {
-                update(todo, key: $0, value: $1)
-            }
-            .contentShape(Rectangle())
-            .contextMenu {
-                Button(role: .destructive) {
-                    delete(todo)
-                } label: {
-                    Label("삭제하기", systemImage: "trash")
+            NavigationLink(
+                destination: ViewDetailTodo(todo) {result in
+                    onUpdate(result: result)
+                }
+            ) {
+                if isModifying &&  todo == targetModifying {
+                    // 수정 부분
+                    ViewUpdatingTodo(
+                        todo,
+                        isPresented: $isModifying
+                    ) { k, v in
+                        update(todo, key: k, value: v)
+                    }
+                } else {
+                    ItemTodo(todo) {
+                        update(todo, key: $0, value: $1)
+                    }
+                    .contentShape(Rectangle())
+                    .contextMenu { 
+                        Button() {
+                            targetModifying = todo
+                            isModifying = true
+                        } label: {
+                            Label("수정하기", systemImage: "pencil")
+                        }
+                        Button(role: .destructive) {
+                            delete(todo)
+                        } label: {
+                            Label("삭제하기", systemImage: "trash")
+                        }
+                    }
                 }
             }
         }
@@ -164,6 +192,14 @@ struct ViewWeek: View {
         if !service
             .update(item, key: key, value: value)
             .isSuccess {
+            showToast("작업이 수정에 실패했습니다.")
+        }
+        // 화면 갱신
+        reload()
+    }
+    
+    private func onUpdate(result: Result) {
+        if !result.isSuccess {
             showToast("작업이 수정에 실패했습니다.")
         }
         // 화면 갱신

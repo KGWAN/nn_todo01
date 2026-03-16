@@ -35,7 +35,7 @@ struct BtnCheckImg: View {
                 nameImg,
                 colorY: colorY,
                 colorN: colorN,
-                isY: $isChecked
+                isY: isChecked
             )
         }
     }

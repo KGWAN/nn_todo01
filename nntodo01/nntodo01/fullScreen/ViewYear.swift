@@ -13,6 +13,8 @@ struct ViewYear: View {
     @State private var list: [Work] = []
     @State private var year: Int = Calendar.nn.getYear(Date())
     @State private var isEditing: Bool = false
+    @State private var isModifying: Bool = false
+    @State private var targetModifying: Work? = nil
     // showing toast
     @State private var isShowingToast: Bool = false
     @State private var msgToast: String = ""
@@ -66,10 +68,23 @@ struct ViewYear: View {
     @ViewBuilder
     private var viewHeader: some View {
         HStack {
-            Text("Yearly plan: (\(String(year)))")
-                .font(.system(size: 20, weight: .bold))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, 5)
+            // 연도 선택
+            HStack(alignment: .center, spacing: 10) {
+                BtnImg("", color: .black) {
+                    year -= 1
+                    reload()
+                }
+                .frame(width: 25, height: 25)
+                Text("\(String(year))년 할 일")
+                    .font(.system(size: 20, weight: .bold))
+                    .padding(.vertical, 5)
+                BtnImg("", color: .black) {
+                    year += 1
+                    reload()
+                }
+                .frame(width: 25, height: 25)
+            }
+            Spacer()
             // 할 일 작성 버튼
             Button {
                 isEditing = true
@@ -106,15 +121,31 @@ struct ViewYear: View {
                     onUpdate(result: result)
                 }
             ) {
-                ItemTodo(i) {
-                    update(i, key: $0, value: $1)
-                }
-                .contentShape(Rectangle())
-                .contextMenu {
-                    Button(role: .destructive) {
-                        delete(i)
-                    } label: {
-                        Label("삭제하기", systemImage: "trash")
+                if isModifying &&  i == targetModifying {
+                    // 수정 부분
+                    ViewUpdatingTodo(
+                        i,
+                        isPresented: $isModifying
+                    ) { k, v in
+                        update(i, key: k, value: v)
+                    }
+                } else {
+                    ItemTodo(i) {
+                        update(i, key: $0, value: $1)
+                    }
+                    .contentShape(Rectangle())
+                    .contextMenu {
+                        Button() {
+                            targetModifying = i
+                            isModifying = true
+                        } label: {
+                            Label("수정하기", systemImage: "pencil")
+                        }
+                        Button(role: .destructive) {
+                            delete(i)
+                        } label: {
+                            Label("삭제하기", systemImage: "trash")
+                        }
                     }
                 }
             }

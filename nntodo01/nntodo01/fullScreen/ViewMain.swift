@@ -51,8 +51,8 @@ struct ViewMain: View {
                             destination: ViewSearchTodo()
                         ) {
                             // 검색
-                            ImgSafe("btnSearch", color: .blue)
-                                .frame(width: 35, height: 35)
+                            ImgSafe("btnSearch", color: .cyan)
+                                .frame(width: 30, height: 30)
                         }
                     }
                     .padding(.horizontal, 20)
@@ -106,20 +106,24 @@ struct ViewMain: View {
                         }
                         Spacer()
                     }
-                    
-                    Button {
-                        isShowingPopupInputKategory = true
-                    } label: {
-                        HStack {
-                            Image(systemName: "plus")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 20, height: 20)
-                            Text("새 목록")
-                                .font(.system(size: 18))
-                                .foregroundStyle(Color.blue)
-                                .padding(.horizontal, 10)
+                    Group {
+                        Button {
+                            isShowingPopupInputKategory = true
+                        } label: {
+                            HStack {
+                                ImgSafe("iconPlus", color: .cyan)
+                                    .frame(width: 20, height: 20)
+                                Text("새 목록")
+                                    .font(.system(size: 18))
+                                    .foregroundStyle(Color.cyan)
+                                    .padding(.horizontal, 10)
+                            }
+                            .frame(maxWidth: .infinity)
                         }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                        .background(.white.opacity(0.4))
+                        .border(.cyan)
                     }
                     .padding(.horizontal, 20)
                 }

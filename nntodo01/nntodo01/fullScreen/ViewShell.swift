@@ -10,7 +10,7 @@ import SwiftUI
 struct ViewShell: View {
     // state
     @State private var tabShowing = 1
-    @State private var idRefresh: UUID = UUID()
+//    @State private var idRefresh: UUID = UUID()
     
     var body: some View {
         ZStack {
@@ -22,13 +22,9 @@ struct ViewShell: View {
                 ViewMain()
                     .tag(2)
             }
-            .tabViewStyle(PageTabViewStyle())
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
             .ignoresSafeArea()
-            .onChange(of: tabShowing) { oldValue, newValue in
-                idRefresh = UUID()
-            }
-            .id(idRefresh)
         }
     }
 }

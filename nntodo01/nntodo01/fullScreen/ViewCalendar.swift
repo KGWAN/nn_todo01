@@ -64,17 +64,26 @@ struct ViewCalendar: View {
             }
             .padding(.top, 5)
             .background(.gray.opacity(0.3))
-            
             // 콘텐츠 영역
-            Group {
-                switch idxSelectedTab {
-                case 0: ViewYear()
-                case 1: ViewMonth()
-                case 2: ViewWeek()
-                case 3: ViewDay()
-                default: EmptyView()
-                }
+            ZStack {
+                ViewYear()
+                    .opacity(idxSelectedTab == 0 ? 1 : 0)
+                ViewMonth()
+                    .opacity(idxSelectedTab == 1 ? 1 : 0)
+                ViewWeek()
+                    .opacity(idxSelectedTab == 2 ? 1 : 0)
+                ViewDay()
+                    .opacity(idxSelectedTab == 3 ? 1 : 0)
             }
+//            Group {
+//                switch idxSelectedTab {
+//                case 0: ViewYear()
+//                case 1: ViewMonth()
+//                case 2: ViewWeek()
+//                case 3: ViewDay()
+//                default: EmptyView()
+//                }
+//            }
         }
     }
 }

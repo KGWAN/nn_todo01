@@ -9,7 +9,6 @@ import Foundation
 import SwiftUI
 
 enum Templete: String, CaseIterable, Identifiable {
-//    case today = "오늘 할 일"
     case marked = "별표"
     case normal = "모두 보기"
     
@@ -19,8 +18,6 @@ enum Templete: String, CaseIterable, Identifiable {
         switch self {
         case .normal:
             return nil
-//        case .today:
-//            return NSPredicate(format: "isToday == %@", NSNumber(value: true))
         case .marked:
             return NSPredicate(format: "isMarked == %@", NSNumber(value: true))
         }
@@ -29,7 +26,6 @@ enum Templete: String, CaseIterable, Identifiable {
     var nameIcon: String {
         switch self {
         case .normal: return "iconTempAll"
-//        case .today: return "iconTempToday"
         case .marked: return "iconTempStar"
         }
     }
@@ -37,7 +33,6 @@ enum Templete: String, CaseIterable, Identifiable {
     var hexColor: String {
         switch self {
         case .normal: return "#696969"
-//        case .today: return "#1E90FF"
         case .marked: return "#FF8C00"
         }
     }

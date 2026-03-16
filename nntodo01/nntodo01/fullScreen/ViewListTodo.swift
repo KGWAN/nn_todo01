@@ -14,6 +14,8 @@ struct ViewListTodo: View {
     @State private var list: [Work] = []
     @State private var title: String
     @State private var isEditing: Bool = false
+    @State private var isModifying: Bool = false
+    @State private var targetModifying: Work? = nil
     @State private var isShowingPopupAddTodo: Bool = false
     // showing toast
     @State private var isShowingToast: Bool = false
@@ -21,6 +23,8 @@ struct ViewListTodo: View {
     // constant
     private let service: ServiceWork = ServiceWork()
     private let predicate: NSPredicate?
+    // environment
+    @Environment(\.dismiss) private var dismiss
     // init
     let onDismiss: () -> Void
     
@@ -53,6 +57,7 @@ struct ViewListTodo: View {
     // state
     @State private var kategory: Kategory? = nil
     @State private var isShowingPopupModifyKategory: Bool = false
+//    @State private var isPop: Bool = false
     
     
     var body: some View {
@@ -67,7 +72,6 @@ struct ViewListTodo: View {
                             Image(uiImage: img)
                                 .resizable()
                                 .ignoresSafeArea()
-                                .scaledToFill()
                         } else {
                             Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
                                 .ignoresSafeArea()
@@ -86,6 +90,7 @@ struct ViewListTodo: View {
 //                        }
                     default:
                         Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
+                            .opacity(0.3)
                             .ignoresSafeArea()
                     }
                 } else {
@@ -94,86 +99,101 @@ struct ViewListTodo: View {
                 }
                 // 내용
                 ContainerFloating {
-                    ScrollView {
-                        // 할 일 목록 부분
-                        if isEditing {
-                            // 할 일 작성 부분
-                            if let k = kategory {
-                                ViewCreatingTodo(
-                                    kategory: k,
-                                    isPresented: $isEditing
-                                ) { result in
-                                    onCreate(result)
+                    VStack {
+                        // header
+                        HStack {
+                            HStack(spacing: 10){
+                                // 뒤로가기 버튼
+                                BtnImg("btnBack") {
+                                    onDismiss()
+                                    dismiss()
                                 }
+                                .frame(width: 40, height: 40, alignment: .center)
+                                .background(.white.opacity(0.4))
+                                .clipped()
+                                // 제목
+                                Text(title)
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundStyle(Color.black)
+                                    .padding(.trailing, 10)
+                                // 기타 메뉴
+                            }
+                            Spacer()
+                            // trailer
+                            HStack {
+                                if kategory != nil {
+                                    // 카테고리 수정 버튼
+                                    BtnImg("btnSetting") {
+                                        isShowingPopupModifyKategory = true
+                                    }
+                                    .frame(width: 40, height: 40)
+                                    .background(.white.opacity(0.4))
+                                    .clipped()
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        // 내용
+                        ScrollView {
+                            // 할 일 목록 부분
+                            if isEditing {
+                                // 할 일 작성 부분
+                                viewWriting
                             } else {
-                                ViewCreatingTodo(
-                                    templete: templete,
-                                    isPresented: $isEditing
-                                ) { result in
-                                    onCreate(result)
+                                // 생성 버튼
+                                btnCreating
+                            }
+                            if !list.isEmpty {
+                                // 리스트
+                                viewList
+                            } else {
+                                if !(isEditing) {
+                                    // 리스트가 빈 경우 _ 가이드
+                                    viewEmptyList
                                 }
                             }
-                        } else {
-                            // 생성 버튼
-                            btnCreating
                         }
-                        if !list.isEmpty {
-                            // 리스트
-                            viewList
-                        } else {
-                            if !(isEditing) {
-                                // 리스트가 빈 경우 _ 가이드
-                                viewEmptyList
-                            }
-                        }
+                        .padding(.horizontal, 20)
                     }
-                    .padding(.horizontal, 20)
                 } label: {
                     if !isShowingPopupAddTodo
                     {
-                        ZStack {
-                            if !(templete == .normal && kategory == nil) {
-                                // todo 추가 버튼
-                                Button {
-                                    isShowingPopupAddTodo = true
-                                } label: {
-                                    HStack {
-//                                        ImgSafe("iconAddPlan", color: .blue)
-//                                            .frame(width: 25, height: 25)
-                                        Text("기존 작업에서 추가")
-                                            .font(.system(size: 17, weight: .medium))
-                                            .foregroundStyle(Color.blue)
-                                    }
-                                    .frame(minHeight: 45)
-                                    .padding(.horizontal, 20)
-                                    .background(Color.white)
-                                    .cornerRadius(55)
+                        if kategory != nil {
+                            // todo 추가 버튼
+                            Button {
+                                isShowingPopupAddTodo = true
+                            } label: {
+                                HStack {
+                                    Text("기존 작업에서 추가")
+                                        .font(.system(size: 17, weight: .medium))
+                                        .foregroundStyle(Color.blue)
                                 }
+                                .frame(minHeight: 45)
+                                .padding(.horizontal, 20)
+                                .background(Color.white)
+                                .cornerRadius(55)
                             }
-                            
-                            // new todo 생성 버튼
                         }
                     }
                 }
-                // new todo 생성 팝업
-                
-                
                 if isShowingPopupAddTodo {
                     // todo 추가 팝업
                     if kategory == nil,
                        templete != .normal,
                        let predicate = templete.predicateComplementary {
                         // .normal 이외의 templete의 경우
-                        PopupAddTodo(
-                            predicate: predicate,
-                            isPresented: $isShowingPopupAddTodo
-                        ) { result in
-                            onUpdate(result: result)
-                        }
-                    } else if kategory != nil {
+//                        PopupSelectingTodo(
+//                            destination: templete,
+//                            predicate: predicate,
+//                            isPresented: $isShowingPopupAddTodo
+//                        ) { result in
+//                            onUpdate(result: result)
+//                        }
+                    } else if let k = kategory {
                         // kategory의 경우
-                        PopupAddTodo(
-                            predicate: NSPredicate(format: "kategory == nil"),
+                        PopupSelectingTodo(
+                            destination: k,
+                            predicate: NSPredicate(format: "kategory == nil OR kategory != %@", k),
                             isPresented: $isShowingPopupAddTodo
                         ) { result in
                             onUpdate(result: result)
@@ -189,25 +209,10 @@ struct ViewListTodo: View {
                     }
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .nnToolbar(
-                title,
-                onDismiss: { onDismiss() },
-                contentTrailing: {
-                    HStack {
-                        if kategory != nil {
-                            // 카테고리 수정 버튼
-                            BtnImg("btnSetting") {
-                                isShowingPopupModifyKategory = true
-                            }
-                            .frame(width: 40, height: 40)
-                        }
-                    }
-                }
-            )
             .toast(msgToast, isPresented: $isShowingToast)
         }
         .id(idRefresh)
+        .navigationBarBackButtonHidden()
         .contentShape(Rectangle()) // 빈 공간도 터치 가능하게 설정
         .onTapGesture {
             // 키보드를 내리는 코드
@@ -234,6 +239,7 @@ struct ViewListTodo: View {
         .background(.cyan)
     }
     
+    // 할 일 목록
     @ViewBuilder
     private var viewList: some View {
         ForEach(list) { i in
@@ -242,21 +248,44 @@ struct ViewListTodo: View {
                     onUpdate(result: result)
                 }
             ) {
-                ItemTodo(i) {
-                    update(i, key: $0, value: $1)
-                }
-                .contentShape(Rectangle())
-                .contextMenu {
-                    Button(role: .destructive) {
-                        delete(i)
-                    } label: {
-                        Label("삭제하기", systemImage: "trash")
+                if isModifying &&  i == targetModifying {
+                    // 수정 부분
+                    ViewUpdatingTodo(
+                        i,
+                        isPresented: $isModifying
+                    ) { k, v in
+                        update(i, key: k, value: v)
+                    }
+                } else {
+                    //
+                    ItemTodo(i) {
+                        update(i, key: $0, value: $1)
+                    }
+                    .contentShape(Rectangle())
+                    .contextMenu {
+                        Button() {
+                            targetModifying = i
+                            isModifying = true
+                        } label: {
+                            Label("이름 수정하기", systemImage: "pencil")
+                        }
+                        Button() {
+                            update(i, key: "kategory", value: nil)
+                        } label: {
+                            Label("목록에서 제외하기", systemImage: "minus")
+                        }
+                        Button(role: .destructive) {
+                            delete(i)
+                        } label: {
+                            Label("삭제하기", systemImage: "trash")
+                        }
                     }
                 }
             }
         }
     }
     
+    // 할 일 목록 _ 비었을 때
     @ViewBuilder
     private var viewEmptyList: some View {
         VStack() {
@@ -266,6 +295,25 @@ struct ViewListTodo: View {
                 .padding(.vertical, 10)
         }
         .frame(maxWidth: .infinity)
+    }
+    
+    @ViewBuilder
+    private var viewWriting: some View {
+        if let k = kategory {
+            ViewCreatingTodo(
+                kategory: k,
+                isPresented: $isEditing
+            ) { result in
+                onCreate(result)
+            }
+        } else {
+            ViewCreatingTodo(
+                templete: templete,
+                isPresented: $isEditing
+            ) { result in
+                onCreate(result)
+            }
+        }
     }
     
     
@@ -301,7 +349,7 @@ struct ViewListTodo: View {
         reload()
     }
     
-    private func update(_ item: Work, key: String, value: Any) {
+    private func update(_ item: Work, key: String, value: Any?) {
         if !service
             .update(item, key: key, value: value)
             .isSuccess {

@@ -30,7 +30,7 @@ struct BtnCheckFullWidth: View {
             isChecked.toggle()
         } label: {
             HStack {
-                ImgShift(isY: $isChecked)
+                ImgShift(isY: isChecked)
                 .frame(width: 20, height: 20)
                 Text(isChecked ? strOn : strOff)
                     .font(Font.system(size: 18, weight: .light))

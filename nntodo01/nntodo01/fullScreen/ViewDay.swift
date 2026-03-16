@@ -20,9 +20,11 @@ struct ViewDay: View {
     // showing toast
     @State private var isShowingToast: Bool = false
     @State private var msgToast: String = ""
-    // popup
     // writing todo
     @State private var isEditing: Bool = false
+    // updating todo
+    @State private var isModifying: Bool = false
+    @State private var targetModifying: Work? = nil
     
     
     // 현재 표시할 달의 첫 번째 날 구하기
@@ -37,45 +39,48 @@ struct ViewDay: View {
     }
 
     var body: some View {
-        ZStack {
-            ScrollView {
-                // 헤더: 현재 연도와 월
-                viewHeader
-                // 날짜 그리드
-                viewCalendar
-                    .padding()
-                // 할 일 목록 부분
-                Group {
-                    if isEditing,
-                       let date = dateSelected {
-                        // 할 일 작성 부분
-                        ViewCreatingTodo(
-                            day: calendar.getDay(date),
-                            month: calendar.getMonth(date),
-                            year: calendar.getYear(date),
-                            isPresented: $isEditing)
-                        { result in
-                            onCreate(result)
+        NavigationStack {
+            ZStack {
+                ScrollView {
+                    // 헤더: 현재 연도와 월
+                    viewHeader
+                    // 날짜 그리드
+                    viewCalendar
+                        .padding()
+                    // 할 일 목록 부분
+                    Group {
+                        if isEditing,
+                           let date = dateSelected {
+                            // 할 일 작성 부분
+                            ViewCreatingTodo(
+                                day: calendar.getDay(date),
+                                month: calendar.getMonth(date),
+                                year: calendar.getYear(date),
+                                isPresented: $isEditing)
+                            { result in
+                                onCreate(result)
+                            }
+                        } else {
+                            // 생성 버튼
+                            btnCreating
                         }
-                    } else {
-                        // 생성 버튼
-                        btnCreating
-                    }
-                    if !list.isEmpty {
-                        // 리스트
-                        viewList
-                    } else {
-                        if !(isEditing) {
-                            // 리스트가 빈 경우 _ 가이드
-                            viewEmptyList
+                        if !list.isEmpty {
+                            // 리스트
+                            viewList
+                        } else {
+                            if !(isEditing) {
+                                // 리스트가 빈 경우 _ 가이드
+                                viewEmptyList
+                            }
                         }
                     }
+                    .padding(.horizontal, 20)
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(.horizontal, 20)
-                .frame(maxWidth: .infinity)
             }
         }
         .id(idRefresh)
+        .navigationBarBackButtonHidden()
         .onAppear {
             dateSelected = dateBase
             reload()
@@ -158,15 +163,37 @@ struct ViewDay: View {
     @ViewBuilder
     private var viewList: some View {
         ForEach(list, id: \.id) { todo in
-            ItemTodo(todo) {
-                update(todo, key: $0, value: $1)
-            }
-            .contentShape(Rectangle())
-            .contextMenu {
-                Button(role: .destructive) {
-                    delete(todo)
-                } label: {
-                    Label("삭제하기", systemImage: "trash")
+            NavigationLink(
+                destination: ViewDetailTodo(todo) {result in
+                    onUpdate(result: result)
+                }
+            ) {
+                if isModifying &&  todo == targetModifying {
+                    // 수정 부분
+                    ViewUpdatingTodo(
+                        todo,
+                        isPresented: $isModifying
+                    ) { k, v in
+                        update(todo, key: k, value: v)
+                    }
+                } else {
+                    ItemTodo(todo) {
+                        update(todo, key: $0, value: $1)
+                    }
+                    .contentShape(Rectangle())
+                    .contextMenu {
+                        Button() {
+                            targetModifying = todo
+                            isModifying = true
+                        } label: {
+                            Label("수정하기", systemImage: "pencil")
+                        }
+                        Button(role: .destructive) {
+                            delete(todo)
+                        } label: {
+                            Label("삭제하기", systemImage: "trash")
+                        }
+                    }
                 }
             }
         }
@@ -236,6 +263,14 @@ struct ViewDay: View {
         if !service
             .update(item, key: key, value: value)
             .isSuccess {
+            showToast("작업이 수정에 실패했습니다.")
+        }
+        // 화면 갱신
+        reload()
+    }
+    
+    private func onUpdate(result: Result) {
+        if !result.isSuccess {
             showToast("작업이 수정에 실패했습니다.")
         }
         // 화면 갱신

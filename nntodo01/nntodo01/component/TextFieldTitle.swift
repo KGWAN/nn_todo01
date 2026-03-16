@@ -30,6 +30,7 @@ struct TextFieldTitle: View {
             TextField(placeholder, text: $text)
                 .textFieldStyle(.plain)
                 .font(.system(size: 16, weight: .medium))
+                .multilineTextAlignment(.leading)
             if let color {
                 Divider()
                     .frame(height: 1)

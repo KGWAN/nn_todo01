@@ -53,6 +53,9 @@ struct ViewDetailTodo: View {
     @State private var isEditingSub: Bool = false
     @State private var textTitleSub: String = ""
     @FocusState private var isFocusedSub: Bool
+    // updating sub
+    @State private var isModifyingSub: Bool = false
+    @State private var targetModifying: Work? = nil
     // showing toast
     @State private var isShowingToast: Bool = false
     @State private var msgToast: String = ""
@@ -64,6 +67,30 @@ struct ViewDetailTodo: View {
     
     var body: some View {
         NavigationStack {
+            // tool bar
+            HStack {
+                HStack {
+                    // 뒤로가기 버튼
+                    BtnImg("btnBack") {
+                        onUpdate()
+                        dismiss()
+                    }
+                    .frame(width: 35, height: 35)
+                    TextFieldTitle(placeholder: "작업이름을 바꾸어 보세요.", text: $textTitle)
+                        .frame(maxWidth: .infinity)
+                    Text("depth: \(item.depth)")
+                }
+                Spacer()
+                HStack {
+                    // 완료 체크 버튼
+                    BtnCheckImg("btnDone", isChecked: $isDone)
+                        .frame(width: 35, height: 35)
+                    // 별표 체크 버튼
+                    BtnCheckImg("btnStar", colorY: .yellow, isChecked: $isMarked)
+                        .frame(width: 35, height: 35)
+                }
+            }
+            .padding(.horizontal, 20)
             ScrollView {
                 // 하위 작업
                 VStack {
@@ -136,30 +163,6 @@ struct ViewDetailTodo: View {
             }
             .background(Color.gray)
             .navigationBarBackButtonHidden()
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    HStack {
-                        // 뒤로가기 버튼
-                        BtnImg("btnBack") {
-                            onUpdate()
-                            dismiss()
-                        }
-                        .frame(width: 35, height: 35)
-                        TextFieldTitle(placeholder: "작업이름을 바꾸어 보세요.", text: $textTitle)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    HStack {
-                        // 완료 체크 버튼
-                        BtnCheckImg("btnDone", isChecked: $isDone)
-                            .frame(width: 35, height: 35)
-                        // 별표 체크 버튼
-                        BtnCheckImg("btnStar", colorY: .yellow, isChecked: $isMarked)
-                            .frame(width: 35, height: 35)
-                    }
-                }
-            }
             .toast(msgToast, isPresented: $isShowingToast)
         }
         .id(idRefresh)
@@ -202,15 +205,37 @@ struct ViewDetailTodo: View {
     @ViewBuilder
     private var viewList: some View {
         ForEach(listSub) { sub in
-            ItemTodo(sub) {key, value in
-                update(child: sub, key: key, value: value)
-            }
-            .contentShape(Rectangle())
-            .contextMenu {
-                Button(role: .destructive) {
-                    delete(sub: sub)
-                } label: {
-                    Label("삭제하기", systemImage: "trash")
+            NavigationLink(
+                destination: ViewDetailTodo(sub) {result in
+                    onUpdateSub(result)
+                }
+            ) {
+                if isModifyingSub &&  sub == targetModifying {
+                    // 수정 부분
+                    ViewUpdatingTodo(
+                        sub,
+                        isPresented: $isModifyingSub
+                    ) { k, v in
+                        update(child: sub, key: k, value: v)
+                    }
+                } else {
+                    ItemTodo(sub) {key, value in
+                        update(child: sub, key: key, value: value)
+                    }
+                    .contentShape(Rectangle())
+                    .contextMenu {
+                        Button() {
+                            targetModifying = sub
+                            isModifyingSub = true
+                        } label: {
+                            Label("수정하기", systemImage: "pencil")
+                        }
+                        Button(role: .destructive) {
+                            delete(sub: sub)
+                        } label: {
+                            Label("삭제하기", systemImage: "trash")
+                        }
+                    }
                 }
             }
         }
@@ -265,6 +290,13 @@ struct ViewDetailTodo: View {
     private func update(child: Work, key: String, value: Any) {
         if !ServiceWork().update(child, key: key, value: value).isSuccess {
             showToast("서브 작업 수정에 실패했습니다.")
+        }
+        // 화면 갱신
+        reload()
+    }
+    private func onUpdateSub(_ result: Result) {
+        if !result.isSuccess {
+            showToast("서브 작업이 수정에 실패했습니다.")
         }
         // 화면 갱신
         reload()
