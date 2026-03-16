@@ -36,7 +36,7 @@ struct ItemInventory: View {
                         .fill(Color.cyan)
                 }
             }
-            .frame(width: 35, height: 35, alignment: .center)
+            .frame(width: 30, height: 30, alignment: .center)
             Text(title)
                 .foregroundStyle(Color.black)
                 .frame(maxWidth: .infinity, alignment: .leading)

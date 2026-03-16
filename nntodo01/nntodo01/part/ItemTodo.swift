@@ -8,8 +8,14 @@
 import SwiftUI
 
 struct ItemTodo: View {
-    let onUpdate: (String, Any) -> Void
-    
+    // init --------------------
+    // value
+    private let title: String
+    @State private var isDone: Bool
+    @State private var isMarked: Bool
+    private let depth: Int
+    private let onUpdate: (String, Any) -> Void
+    // func
     init(
         _ inf: Work,
         onUpdate: @escaping (String, Any) -> Void
@@ -17,12 +23,11 @@ struct ItemTodo: View {
         self.title = inf.title ?? ""
         self.isDone = inf.isDone
         self.isMarked = inf.isMarked
+        self.depth = Int(inf.depth)
         self.onUpdate = onUpdate
     }
+    // -------------------------
     
-    @State private var title: String
-    @State private var isDone: Bool
-    @State private var isMarked: Bool
     
     var body: some View {
         HStack(alignment: .center) {
@@ -36,9 +41,16 @@ struct ItemTodo: View {
             // 이름
             Text(title)
                 .font(.system(size: 16, weight: .medium))
+                .multilineTextAlignment(.leading)
                 .foregroundStyle(Color.black)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 10)
+            Text(String(depth))
+                .frame(width: 20, height: 20)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.white)
+                .background(.red.opacity(0.8))
+                .cornerRadius(10)
             // 즐겨찾기 여부 체크 버튼
             BtnCheckImg(
                 "btnStar",
@@ -63,9 +75,22 @@ struct ItemTodo: View {
 }
 
 #Preview {
-    let item = ServiceWork().getNew("todo")
+    let item = ServiceWork().getNew("스위프트유아이에서 전역적으로 상태를 관리하고 싶으시군요!")
+    let item2 = ServiceWork().getNew("tod")
     
     ItemTodo(item) { key, value in
+        NnLogger.log("Todo(\(item.title ?? "")) was changed. (key:\(key), value:\(value))", level: .debug)
+        
+        switch key {
+        case "isDone":
+            item.isDone = value as! Bool
+        case "isMarked":
+            item.isMarked = value as! Bool
+        default:
+            NnLogger.log("\(key) was not existed.")
+        }
+    }
+    ItemTodo(item2) { key, value in
         NnLogger.log("Todo(\(item.title ?? "")) was changed. (key:\(key), value:\(value))", level: .debug)
         
         switch key {

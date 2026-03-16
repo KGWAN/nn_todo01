@@ -7,23 +7,33 @@
 
 import SwiftUI
 
-struct PopupAddTodo: View {
+struct PopupSelectingTodo: View {
     //init
-    let predicate: NSPredicate
-    @Binding var isPresented: Bool
-    let onUpdate: (Result) -> Void
-    
-    init(predicate: NSPredicate, isPresented: Binding<Bool>, onUpdate: @escaping (Result) -> Void) {
+//    init(destination templete: Templete = .normal, predicate: NSPredicate, isPresented: Binding<Bool>, onUpdate: @escaping (Result) -> Void) {
+//        self._isPresented = isPresented
+//        self.onUpdate = onUpdate
+//        self.predicate = predicate
+//        self.templete = templete
+//        // dummy value
+//        self.kategory = nil
+//    }
+    init(destination kategory: Kategory, predicate: NSPredicate, isPresented: Binding<Bool>, onUpdate: @escaping (Result) -> Void) {
         self._isPresented = isPresented
         self.onUpdate = onUpdate
-        
         self.predicate = predicate
-        
-        self._list = State(initialValue: service.fetchList(predicate))
+        self.kategory = kategory
+        // dummy value
+//        self.templete = .normal
     }
+    // in value
+//    private let templete: Templete
+    private let kategory: Kategory?
+    private let predicate: NSPredicate
+    @Binding var isPresented: Bool
+    private let onUpdate: (Result) -> Void
     // state
     @State private var text: String = ""
-    @State private var list: [Work]
+    @State private var list: [Work] = []
     @State private var idRefresh: UUID = UUID()
     @State private var isShowingToast: Bool = false
     @State private var msgToast: String = ""
@@ -39,33 +49,44 @@ struct PopupAddTodo: View {
                 VStack {
                     // list
                     if !list.isEmpty {
-                        List {
+                        ScrollView {
                             ForEach(list) { i in
-//                                NavigationLink(
-//                                    destination: ViewDetailTodo(i) {_ in
-//                                        reload()
-//                                    }
-//                                ) {
+                                //                                NavigationLink(
+                                //                                    destination: ViewDetailTodo(i) {_ in
+                                //                                        reload()
+                                //                                    }
+                                //                                ) {
+                                Button {
+                                    if let k = kategory {
+                                        update(i, key: "kategory", value: k)
+                                    } else {
+                                        //                                        update(i, key: "kategory", value: kategory)
+                                    }
+                                } label: {
                                     ItemAddTodo(i) {
                                         update(i, key: $0, value: $1)
                                     }
-//                                }
+                                }
+                                //                                }
                             }
-                            .onDelete(perform: delete)
                         }
-                        .id(idRefresh)
                     } else {
                         HStack {
                             Spacer()
                             Text("추가할 작업이 없습니다.")
+                                .foregroundStyle(.gray)
                             Spacer()
                         }
                     }
                 }
-                .frame(minHeight: 300)
+                .frame(minHeight: 300, maxHeight: 500)
                 .background(Color.white)
             }
         )
+        .id(idRefresh)
+        .onAppear {
+            reload()
+        }
     }
     
     
@@ -97,8 +118,9 @@ struct PopupAddTodo: View {
     private func update(_ item: Work, key: String, value: Any) {
         let result = service.update(item, key: key, value: value)
         if !result.isSuccess {
-            showToast("작업 수정에 실패했습니다.")
+            showToast("할 일 추가에 실패했습니다.")
         } else {
+            isPresented = false
             onUpdate(result)
         }
         
@@ -110,7 +132,11 @@ struct PopupAddTodo: View {
 #Preview {
     @Previewable @State var isShowing: Bool = true
     
-    PopupAddTodo(predicate: Templete.marked.predicateComplementary!, isPresented: $isShowing) { todo in
+    PopupSelectingTodo(
+        destination: ServiceKategory().getNew("kategory"),
+        predicate: Templete.marked.predicateComplementary!,
+        isPresented: $isShowing
+    ) { todo in
         NnLogger.log("(preview)Adding todo: \(todo)", level: .debug)
     }
 }

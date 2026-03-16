@@ -41,6 +41,7 @@ class ServiceWork: NnService {
         // auto
         new.id = UUID()
         new.createdDate = Date()
+        new.depth = 0
         // user's input
         new.title = title
         new.isDone = isDone
@@ -55,7 +56,10 @@ class ServiceWork: NnService {
     ) -> Work {
         let new = getNew(title, isDone: isDone)
         new.memo = memo
-        new.parent = parent
+        if let p = parent {
+            new.parent = p
+            new.depth = p.depth + 1
+        }
         return new
     }
     // 분류 내용 포함 생성
@@ -298,7 +302,7 @@ class ServiceWork: NnService {
         return save()
     }
     // 한 요소
-    func update(_ work: Work, key: String, value: Any) -> Result {
+    func update(_ work: Work, key: String, value: Any?) -> Result {
         switch key {
         case "title":
             if let newValue = value as? String { work.title = newValue }
@@ -319,7 +323,11 @@ class ServiceWork: NnService {
         case "planedYear":
             if let newValue = value as? Int64 { work.planedYear = newValue }
         case "kategory":
-            if let newValue = value as? Kategory { work.kategory = newValue }
+            if value != nil {
+                if let newValue = value as? Kategory { work.kategory = newValue }
+            } else {
+                work.kategory = nil
+            }
 //        case "children":
 //            if let newValue = value as? [Work] {
 //                for i in newValue.indices {
@@ -331,12 +339,6 @@ class ServiceWork: NnService {
             return Result(code: "9999", msg: "업데이트 실패")
         }
         return update(work)
-    }
-    // 자식 추가
-    func addChild(_ name: String, isDone: Bool = false, target: Work) -> Result  {
-        target.addToChildren(getNew(name, isDone: isDone))
-        NnLogger.log("New subwork added. (subwork's count: \(target.children?.count ?? 0))", level: .info)
-        return save()
     }
     // 자식 리스트
     func getChildren(_ target: Work) -> [Work]{

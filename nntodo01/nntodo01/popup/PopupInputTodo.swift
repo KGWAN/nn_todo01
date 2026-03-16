@@ -23,7 +23,7 @@ struct PopupInputTodo: View {
     private let month: Int?
     private let day: Int?
     
-    // case: .normal, .today, .marked
+    // case: .normal, .marked
     init(
         templete: Templete = .normal,
         isPresented: Binding<Bool>,
