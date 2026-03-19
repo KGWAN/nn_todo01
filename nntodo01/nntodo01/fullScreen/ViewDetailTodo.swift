@@ -8,45 +8,49 @@
 import SwiftUI
 
 struct ViewDetailTodo: View {
-    // init
+    // in value
     @State var item: Work
-    let onFinish: (Result) -> Void
-    
+    private let onFinish: (Result) -> Void
+    // init
     init(_ item: Work, onFinish: @escaping (Result) -> Void) {
         self._item = State(initialValue: item)
         self.onFinish = onFinish
+        
+        self.isLocked = item.isLocked
         // 기본
-        self._textTitle = State(initialValue: item.title ?? "")
-        self._isDone = State(initialValue: item.isDone)
+//        self._textTitle = State(initialValue: item.title ?? "")
+//        self._isDone = State(initialValue: item.isDone)
         // 추가
-        self._textMemo = State(initialValue: item.memo ?? "")
-        self._listSub = State(initialValue: service.getChildren(item))
+//        self._textMemo = State(initialValue: item.memo ?? "")
+//        self._listSub = State(initialValue: service.getChildren(item))
         // 분류
-        self._isMarked = State(initialValue: item.isMarked)
-        self._planType = State(initialValue: item.listTypePlan)
-        self._planedDay = State(initialValue: Int(item.planedDay))
-        self._planedWeek = State(initialValue: Int(item.planedWeek))
-        self._planedMonth = State(initialValue: Int(item.planedMonth))
-        self._planedYear = State(initialValue: Int(item.planedYear))
-        self._kategory = State(initialValue: item.kategory)
+//        self._isMarked = State(initialValue: item.isMarked)
+//        self._planType = State(initialValue: item.listTypePlan)
+//        self._planedDay = State(initialValue: Int(item.planedDay))
+//        self._planedWeek = State(initialValue: Int(item.planedWeek))
+//        self._planedMonth = State(initialValue: Int(item.planedMonth))
+//        self._planedYear = State(initialValue: Int(item.planedYear))
+//        self._kategory = State(initialValue: item.kategory)
+        // plan
     }
     
     // state
     // work member
     // 기본
-    @State private var textTitle: String
-    @State private var isDone: Bool
-    // 추가
-    @State private var textMemo: String
+    @State private var textTitle: String = ""
+    @State private var isDone: Bool = false
+    @State private var textMemo: String = ""
+    @State private var kategory: Kategory? = nil
+    // 별표
+    @State private var isMarked: Bool = false
+    // 부모/자식
     @State private var listSub: [Work] = []
-    // 분류
-    @State private var isMarked: Bool
-    @State private var planType: TypePlan
-    @State private var planedDay: Int
-    @State private var planedWeek: Int
-    @State private var planedMonth: Int
-    @State private var planedYear: Int
-    @State private var kategory: Kategory?
+    // 계획
+    @State private var planType: TypePlan = []
+    @State private var planedDay: Int = 0
+    @State private var planedWeek: Int = 0
+    @State private var planedMonth: Int = 0
+    @State private var planedYear: Int = 0
     // 기타
     @State private var idRefresh: UUID = UUID()
     // creating sub
@@ -64,30 +68,37 @@ struct ViewDetailTodo: View {
     // constant
     private let service: ServiceWork = ServiceWork()
     private let format: String = "yyyy년MM월dd일"
+    private let isLocked: Bool
+    
     
     var body: some View {
         NavigationStack {
             // tool bar
             HStack {
-                HStack {
+                HStack(alignment: .center) {
                     // 뒤로가기 버튼
                     BtnImg("btnBack") {
                         onUpdate()
                         dismiss()
                     }
-                    .frame(width: 35, height: 35)
+                    .frame(width: 30, height: 30)
                     TextFieldTitle(placeholder: "작업이름을 바꾸어 보세요.", text: $textTitle)
                         .frame(maxWidth: .infinity)
-                    Text("depth: \(item.depth)")
+                    // 층수
+                    Text("lv \(item.depth)")
+                        .foregroundStyle(.gray)
+                        .padding(.horizontal, 10)
+                        .border(.gray)
                 }
                 Spacer()
-                HStack {
+                HStack(spacing: 5) {
                     // 완료 체크 버튼
                     BtnCheckImg("btnDone", isChecked: $isDone)
-                        .frame(width: 35, height: 35)
+                        .frame(width: 25, height: 25)
+                        .disabled(isLocked)
                     // 별표 체크 버튼
                     BtnCheckImg("btnStar", colorY: .yellow, isChecked: $isMarked)
-                        .frame(width: 35, height: 35)
+                        .frame(width: 25, height: 25)
                 }
             }
             .padding(.horizontal, 20)
@@ -121,6 +132,8 @@ struct ViewDetailTodo: View {
                 .background(Color.white)
                 // 중단
                 VStack {
+                    // plan
+                    
                     // 메모 입력
                     ZStack(alignment: .topLeading) {
                         TextEditor(text: $textMemo)
@@ -166,12 +179,18 @@ struct ViewDetailTodo: View {
             .toast(msgToast, isPresented: $isShowingToast)
         }
         .id(idRefresh)
+        .onAppear {
+            reload()
+        }
         .contentShape(Rectangle()) // 빈 공간도 터치 가능하게 설정
         .onTapGesture {
             // 키보드를 내리는 코드
             UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             // 편집 모드 해제
             isEditingSub = false
+        }
+        .onChange(of: isDone) { _, _ in
+            update("isDone", value: isDone)
         }
     }
     
@@ -228,12 +247,17 @@ struct ViewDetailTodo: View {
                             targetModifying = sub
                             isModifyingSub = true
                         } label: {
-                            Label("수정하기", systemImage: "pencil")
+                            Label("이름 수정하기", systemImage: "pencil")
                         }
                         Button(role: .destructive) {
                             delete(sub: sub)
                         } label: {
                             Label("삭제하기", systemImage: "trash")
+                        }
+                        Button(role: .destructive) {
+                            deleteWithChildren(sub)
+                        } label: {
+                            Label("서브 작업까지 모두 삭제하기", systemImage: "trash")
                         }
                     }
                 }
@@ -253,13 +277,36 @@ struct ViewDetailTodo: View {
     private func reload() {
         // 편집 모드 해제
         isEditingSub = false
-        //
+        // 데이터 갱신
         if let i = item.id,
            let new = service.fetchOne(i) {
             item = new
+            // 기본
+            textTitle = item.title ?? ""
+            textMemo = item.memo ?? ""
+            kategory = item.kategory
+            // state
+            isDone = item.isDone
+            // 별표
+            isMarked = item.isMarked
+            // child
+            listSub = service.getChildren(item)
+            // plan
+            planType = item.listTypePlan
+            planedYear = Int(item.planedYear)
+            planedMonth = Int(item.planedMonth)
+            planedWeek = Int(item.planedWeek)
+            planedDay = Int(item.planedDay)
         }
-        listSub = service.getChildren(item)
         idRefresh = UUID()
+    }
+    // 단일 수정
+    private func update(_ key: String, value: Any) {
+        if !ServiceWork().update(item, key: key, value: value).isSuccess {
+            showToast("작업 수정에 실패했습니다.")
+        }
+        // 화면 갱신
+        reload()
     }
     // 일괄 수정
     private func onUpdate() {
@@ -267,7 +314,6 @@ struct ViewDetailTodo: View {
         item.title = textTitle
         item.isDone = isDone
         item.memo = textMemo
-//        item.children = listSubwork
         item.isMarked = isMarked
         item.listTypePlan = planType
         item.planedDay = Int64(planedDay)
@@ -302,9 +348,20 @@ struct ViewDetailTodo: View {
         reload()
     }
     // subwork 삭제
+    // 자신만 삭제
     private func delete(sub target: Work) {
         if !service
             .delete(target)
+            .isSuccess {
+            showToast("작업 삭제에 실패했습니다.")
+        }
+        // 화면 갱신
+        reload()
+    }
+    // 자식과 함께 삭제
+    private func deleteWithChildren(_ sub: Work) {
+        if !service
+            .deleteWithChildren(sub)
             .isSuccess {
             showToast("작업 삭제에 실패했습니다.")
         }
@@ -320,7 +377,8 @@ struct ViewDetailTodo: View {
 }
 
 #Preview {
-    let item = ServiceWork().getNew("todo example", isDone: true, isMarked: true)
+    let item = ServiceWork().getNew("todo example")
+    let itemChild = ServiceWork().getNew("todo example child", parent: item)
     
     ViewDetailTodo(item) {
         NnLogger.log("result code: \($0)", level: .debug)

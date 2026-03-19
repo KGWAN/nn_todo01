@@ -8,6 +8,12 @@
 import SwiftUI
 
 struct ViewMonth: View {
+    // init
+    init(year: Int) {
+        self.year = year
+    }
+    // in value
+    private let year: Int
     // state
     @State private var idRefresh: UUID = UUID()
     @State private var list: [Work] = []
@@ -23,7 +29,7 @@ struct ViewMonth: View {
     @State private var targetModifying: Work? = nil
     // constant
     private let listSection: [Int] = Array(1...12)
-    private let year: Int = Calendar.nn.getYear(Date())
+//    private let year: Int = Calendar.nn.getYear(Date())
     private let service: ServiceWork = ServiceWork()
     
     
@@ -141,12 +147,17 @@ struct ViewMonth: View {
                             targetModifying = todo
                             isModifying = true
                         } label: {
-                            Label("수정하기", systemImage: "pencil")
+                            Label("이름 수정하기", systemImage: "pencil")
                         }
                         Button(role: .destructive) {
                             delete(todo)
                         } label: {
                             Label("삭제하기", systemImage: "trash")
+                        }
+                        Button(role: .destructive) {
+                            deleteWithChildren(todo)
+                        } label: {
+                            Label("서브 작업까지 모두 삭제하기", systemImage: "trash")
                         }
                     }
                 }
@@ -166,7 +177,7 @@ struct ViewMonth: View {
     private func reload() {
         // 편집 모드 해제
         isEditing = false
-        let predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d", TypePlan.month.rawValue, Calendar.nn.getYear(Date()))
+        let predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d", TypePlan.month.rawValue, year)
         list = service.fetchList(predicate)
         listGrouped = Dictionary(grouping: list, by: { Int($0.planedMonth) })
         idRefresh = UUID()
@@ -198,6 +209,7 @@ struct ViewMonth: View {
         reload()
     }
     
+    // 자신만 삭제
     private func delete(_ target: Work) {
         if !service
             .delete(target)
@@ -207,8 +219,18 @@ struct ViewMonth: View {
         // 화면 갱신
         reload()
     }
+    // 자식과 함께 삭제
+    private func deleteWithChildren(_ target: Work) {
+        if !service
+            .deleteWithChildren(target)
+            .isSuccess {
+            showToast("작업 삭제에 실패했습니다.")
+        }
+        // 화면 갱신
+        reload()
+    }
 }
 
 #Preview {
-    ViewMonth()
+    ViewMonth(year: 2026)
 }

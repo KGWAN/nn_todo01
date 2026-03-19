@@ -8,6 +8,12 @@
 import SwiftUI
 
 struct ViewDay: View {
+    // init
+    init(year: Int) {
+        self.year = year
+    }
+    // in value
+    private let year: Int
     // constant
     private let daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"]
     private let calendar = Calendar.nn
@@ -17,6 +23,7 @@ struct ViewDay: View {
     @State private var idRefresh: UUID = UUID()
     @State var dateSelected: Date? = nil
     @State private var list: [Work] = []
+    @State private var month: Int = Calendar.nn.getMonth(Date())
     // showing toast
     @State private var isShowingToast: Bool = false
     @State private var msgToast: String = ""
@@ -29,8 +36,7 @@ struct ViewDay: View {
     
     // 현재 표시할 달의 첫 번째 날 구하기
     var firstDayOfMonth: Date {
-        let components = calendar.dateComponents([.year, .month], from: dateBase)
-        return calendar.date(from: components)!
+        return calendar.getFirstDateOfMonth(month, year: year) ?? Date()
     }
     
     // 시작 요일 (1: 일요일, 7: 토요일)
@@ -102,9 +108,21 @@ struct ViewDay: View {
     // viewBuilder
     @ViewBuilder
     private var viewHeader: some View {
-        Text(dateBase, format: .dateTime.year().month())
-            .font(.title2.bold())
-            .padding()
+        HStack(alignment: .center, spacing: 10) {
+            BtnImg("left", color: .cyan) {
+                month -= 1
+                reload()
+            }
+            .frame(width: 25, height: 25)
+            Text("\(String(month))월 일별 할 일")
+                .font(.system(size: 20, weight: .bold))
+                .padding(.vertical, 5)
+            BtnImg("right", color: .cyan) {
+                month += 1
+                reload()
+            }
+            .frame(width: 25, height: 25)
+        }
     }
     
     @ViewBuilder
@@ -124,7 +142,7 @@ struct ViewDay: View {
             }
             
             // 실제 날짜 출력
-            ForEach(Calendar.nn.getDaysInCurrentMonth(), id: \.self) { day in
+            ForEach(Calendar.nn.getDaysInMonth(firstDay: firstDayOfMonth), id: \.self) { day in
                 Button {
                     dateSelected = day
                 } label: {
@@ -186,12 +204,17 @@ struct ViewDay: View {
                             targetModifying = todo
                             isModifying = true
                         } label: {
-                            Label("수정하기", systemImage: "pencil")
+                            Label("이름 수정하기", systemImage: "pencil")
                         }
                         Button(role: .destructive) {
                             delete(todo)
                         } label: {
                             Label("삭제하기", systemImage: "trash")
+                        }
+                        Button(role: .destructive) {
+                            deleteWithChildren(todo)
+                        } label: {
+                            Label("서브 작업까지 모두 삭제하기", systemImage: "trash")
                         }
                     }
                 }
@@ -277,6 +300,7 @@ struct ViewDay: View {
         reload()
     }
     
+    // 자신만 삭제
     private func delete(_ target: Work) {
         if !service
             .delete(target)
@@ -286,8 +310,18 @@ struct ViewDay: View {
         // 화면 갱신
         reload()
     }
+    // 자식과 함께 삭제
+    private func deleteWithChildren(_ target: Work) {
+        if !service
+            .deleteWithChildren(target)
+            .isSuccess {
+            showToast("작업 삭제에 실패했습니다.")
+        }
+        // 화면 갱신
+        reload()
+    }
 }
 
 #Preview {
-    ViewDay()
+    ViewDay(year: 2026)
 }

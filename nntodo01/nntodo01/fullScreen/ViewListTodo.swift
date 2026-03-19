@@ -17,6 +17,8 @@ struct ViewListTodo: View {
     @State private var isModifying: Bool = false
     @State private var targetModifying: Work? = nil
     @State private var isShowingPopupAddTodo: Bool = false
+    @State private var depth: Int = -1
+    @State private var idxFilter: Int = -1 // -1: 전체, 0: 완료만 보기, 1: 미완료만 보기
     // showing toast
     @State private var isShowingToast: Bool = false
     @State private var msgToast: String = ""
@@ -58,6 +60,15 @@ struct ViewListTodo: View {
     @State private var kategory: Kategory? = nil
     @State private var isShowingPopupModifyKategory: Bool = false
 //    @State private var isPop: Bool = false
+    
+    
+    // 연산 프로퍼티
+    private var listFiltered: [Work] {
+        skipOnDepth(skipOnDone(list))
+    }
+    private var availableDepths: [Int] {
+        return Array(Set(list.map { Int($0.depth) })).sorted()
+    }
     
     
     var body: some View {
@@ -133,6 +144,41 @@ struct ViewListTodo: View {
                             }
                         }
                         .padding(.horizontal, 20)
+                        // fillter
+                        VStack {
+                            HStack(spacing: 0) {
+                                Text("완료여부")
+                                    .font(.system(size: 14))
+                                    .foregroundStyle(.black)
+                                    .padding(.horizontal, 25)
+                                Picker("LocalizedStringKey", selection: $idxFilter) {
+                                    Text("전체").tag(-1)
+                                    Text("완료").tag(0)
+                                    Text("미완료").tag(1)
+                                }
+                                .pickerStyle(.palette)
+                            }
+                            .border(.white.opacity(0.4))
+                            .clipped()
+                            if availableDepths.count > 0 {
+                                HStack(spacing: 0) {
+                                    Text("레밸")
+                                        .font(.system(size: 14))
+                                        .foregroundStyle(.black)
+                                        .padding(.horizontal, 25)
+                                    Picker("depth 선택", selection: $depth) {
+                                        Text("전체").tag(-1)
+                                        ForEach(availableDepths, id: \.self) {
+                                            Text("\($0)").tag($0)
+                                        }
+                                    }
+                                    .pickerStyle(.palette)
+                                }
+                                .border(.white.opacity(0.4))
+                                .clipped()
+                            }
+                        }
+                        .padding(.horizontal, 20)
                         // 내용
                         ScrollView {
                             // 할 일 목록 부분
@@ -178,22 +224,11 @@ struct ViewListTodo: View {
                 }
                 if isShowingPopupAddTodo {
                     // todo 추가 팝업
-                    if kategory == nil,
-                       templete != .normal,
-                       let predicate = templete.predicateComplementary {
-                        // .normal 이외의 templete의 경우
-//                        PopupSelectingTodo(
-//                            destination: templete,
-//                            predicate: predicate,
-//                            isPresented: $isShowingPopupAddTodo
-//                        ) { result in
-//                            onUpdate(result: result)
-//                        }
-                    } else if let k = kategory {
+                    if let k = kategory {
                         // kategory의 경우
                         PopupSelectingTodo(
                             destination: k,
-                            predicate: NSPredicate(format: "kategory == nil OR kategory != %@", k),
+                            predicate: NSPredicate(format: "kategory == nil", k),
                             isPresented: $isShowingPopupAddTodo
                         ) { result in
                             onUpdate(result: result)
@@ -242,7 +277,7 @@ struct ViewListTodo: View {
     // 할 일 목록
     @ViewBuilder
     private var viewList: some View {
-        ForEach(list) { i in
+        ForEach(listFiltered) { i in
             NavigationLink(
                 destination: ViewDetailTodo(i) {result in
                     onUpdate(result: result)
@@ -278,6 +313,11 @@ struct ViewListTodo: View {
                             delete(i)
                         } label: {
                             Label("삭제하기", systemImage: "trash")
+                        }
+                        Button(role: .destructive) {
+                            deleteWithChildren(i)
+                        } label: {
+                            Label("서브 작업까지 모두 삭제하기", systemImage: "trash")
                         }
                     }
                 }
@@ -337,6 +377,10 @@ struct ViewListTodo: View {
         if let kate = kategory {
             title = kate.title ?? ""
         }
+        // depth
+        if depth != -1 && !availableDepths.contains(depth) {
+            depth = -1
+        }
         // view refresh trager
         idRefresh = UUID()
     }
@@ -391,6 +435,7 @@ struct ViewListTodo: View {
 //        }
 //    }
     
+    // 자신만 삭제
     private func delete(_ target: Work) {
         if !service
             .delete(target)
@@ -399,6 +444,35 @@ struct ViewListTodo: View {
         }
         // 화면 갱신
         reload()
+    }
+    // 자식과 함께 삭제
+    private func deleteWithChildren(_ target: Work) {
+        if !service
+            .deleteWithChildren(target)
+            .isSuccess {
+            showToast("작업 삭제에 실패했습니다.")
+        }
+        // 화면 갱신
+        reload()
+    }
+    
+    // 분류
+    private func skipOnDone(_ list: [Work]) -> [Work] {
+        switch idxFilter {
+        case 0:
+            return list.filter{ $0.isDone == true }
+        case 1:
+            return list.filter{ $0.isDone == false }
+        default:
+            return list
+        }
+    }
+    private func skipOnDepth(_ list: [Work]) -> [Work] {
+        if depth < 0 {
+            return list
+        } else {
+            return list.filter { $0.depth == depth }
+        }
     }
 }
 

@@ -10,9 +10,26 @@ import SwiftUI
 struct ViewCalendar: View {
     // state
     @State private var idxSelectedTab = 0
+    @State private var year: Int = Calendar.nn.getYear(Date())
+    @State private var idRefresh: UUID = UUID()
     
     var body: some View {
         VStack {
+            HStack(alignment: .center, spacing: 10) {
+                BtnImg("left", color: .cyan) {
+                    year -= 1
+                    reload()
+                }
+                .frame(width: 25, height: 25)
+                Text("\(String(year))년")
+                    .font(.system(size: 20, weight: .bold))
+                    .padding(.vertical, 5)
+                BtnImg("right", color: .cyan) {
+                    year += 1
+                    reload()
+                }
+                .frame(width: 25, height: 25)
+            }
             HStack(spacing: 0) {
                 Button{
                     withAnimation {
@@ -66,15 +83,16 @@ struct ViewCalendar: View {
             .background(.gray.opacity(0.3))
             // 콘텐츠 영역
             ZStack {
-                ViewYear()
+                ViewYear(year)
                     .opacity(idxSelectedTab == 0 ? 1 : 0)
-                ViewMonth()
+                ViewMonth(year: year)
                     .opacity(idxSelectedTab == 1 ? 1 : 0)
-                ViewWeek()
+                ViewWeek(year: year)
                     .opacity(idxSelectedTab == 2 ? 1 : 0)
-                ViewDay()
+                ViewDay(year: year)
                     .opacity(idxSelectedTab == 3 ? 1 : 0)
             }
+            .id(idRefresh)
 //            Group {
 //                switch idxSelectedTab {
 //                case 0: ViewYear()
@@ -85,6 +103,12 @@ struct ViewCalendar: View {
 //                }
 //            }
         }
+    }
+    
+    
+    // func
+    private func reload() {
+        idRefresh = UUID()
     }
 }
 

@@ -14,6 +14,8 @@ struct ItemTodo: View {
     @State private var isDone: Bool
     @State private var isMarked: Bool
     private let depth: Int
+    private let cntChild: Int
+    private let isLocked: Bool
     private let onUpdate: (String, Any) -> Void
     // func
     init(
@@ -25,6 +27,8 @@ struct ItemTodo: View {
         self.isMarked = inf.isMarked
         self.depth = Int(inf.depth)
         self.onUpdate = onUpdate
+        self.cntChild = inf.children?.count ?? 0
+        self.isLocked = inf.isLocked
     }
     // -------------------------
     
@@ -38,6 +42,7 @@ struct ItemTodo: View {
                 isChecked: $isDone)
                 .frame(width: 25, height: 25)
                 .buttonStyle(.borderless)
+                .disabled(isLocked)
             // 이름
             Text(title)
                 .font(.system(size: 16, weight: .medium))
@@ -45,7 +50,19 @@ struct ItemTodo: View {
                 .foregroundStyle(Color.black)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 10)
-            Text(String(depth))
+            // 층수
+            Text(isLocked ? "잠김" : "")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.white)
+                .frame(width: 30)
+                .padding(.vertical, 3)
+                .background(isLocked ? .gray : .clear)
+            // 층수
+            Text("lv\(depth)")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.gray)
+            // 자식 수
+            Text(String(cntChild))
                 .frame(width: 20, height: 20)
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(.white)
@@ -76,7 +93,7 @@ struct ItemTodo: View {
 
 #Preview {
     let item = ServiceWork().getNew("스위프트유아이에서 전역적으로 상태를 관리하고 싶으시군요!")
-    let item2 = ServiceWork().getNew("tod")
+    let item2 = ServiceWork().getNew("tod", parent: item)
     
     ItemTodo(item) { key, value in
         NnLogger.log("Todo(\(item.title ?? "")) was changed. (key:\(key), value:\(value))", level: .debug)

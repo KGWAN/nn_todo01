@@ -8,10 +8,16 @@
 import SwiftUI
 
 struct ViewYear: View {
+    // init
+    init(_ year: Int) {
+        self.year = year
+    }
+    // in value
+    private let year: Int
     // state
     @State private var idRefresh: UUID = UUID()
     @State private var list: [Work] = []
-    @State private var year: Int = Calendar.nn.getYear(Date())
+//    @State private var year: Int = Calendar.nn.getYear(Date())
     @State private var isEditing: Bool = false
     @State private var isModifying: Bool = false
     @State private var targetModifying: Work? = nil
@@ -70,19 +76,9 @@ struct ViewYear: View {
         HStack {
             // 연도 선택
             HStack(alignment: .center, spacing: 10) {
-                BtnImg("", color: .black) {
-                    year -= 1
-                    reload()
-                }
-                .frame(width: 25, height: 25)
                 Text("\(String(year))년 할 일")
                     .font(.system(size: 20, weight: .bold))
                     .padding(.vertical, 5)
-                BtnImg("", color: .black) {
-                    year += 1
-                    reload()
-                }
-                .frame(width: 25, height: 25)
             }
             Spacer()
             // 할 일 작성 버튼
@@ -139,12 +135,17 @@ struct ViewYear: View {
                             targetModifying = i
                             isModifying = true
                         } label: {
-                            Label("수정하기", systemImage: "pencil")
+                            Label("이름 수정하기", systemImage: "pencil")
                         }
                         Button(role: .destructive) {
                             delete(i)
                         } label: {
                             Label("삭제하기", systemImage: "trash")
+                        }
+                        Button(role: .destructive) {
+                            deleteWithChildren(i)
+                        } label: {
+                            Label("서브 작업까지 모두 삭제하기", systemImage: "trash")
                         }
                     }
                 }
@@ -194,6 +195,7 @@ struct ViewYear: View {
         reload()
     }
     
+    // 자신만 삭제
     private func delete(_ target: Work) {
         if !service
             .delete(target)
@@ -203,8 +205,20 @@ struct ViewYear: View {
         // 화면 갱신
         reload()
     }
+    // 자식과 함께 삭제
+    private func deleteWithChildren(_ target: Work) {
+        if !service
+            .deleteWithChildren(target)
+            .isSuccess {
+            showToast("작업 삭제에 실패했습니다.")
+        }
+        // 화면 갱신
+        reload()
+    }
 }
 
 #Preview {
-    ViewYear()
+    @Previewable @State var year: Int = 2026
+    
+    ViewYear(year)
 }

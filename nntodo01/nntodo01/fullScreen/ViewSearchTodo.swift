@@ -65,19 +65,16 @@ struct ViewSearchTodo: View {
                     Spacer()
                 } else {
                     ScrollView {
-                        List {
-                            ForEach(listFiltered) { i in
-                                NavigationLink(
-                                    destination: ViewDetailTodo(i) {_ in
-                                        reload()
-                                    }
-                                ) {
-                                    ItemTodo(i) {
-                                        onUpdate(i, key: $0, value: $1)
-                                    }
+                        ForEach(listFiltered) { i in
+                            NavigationLink(
+                                destination: ViewDetailTodo(i) {_ in
+                                    reload()
+                                }
+                            ) {
+                                ItemTodo(i) {
+                                    onUpdate(i, key: $0, value: $1)
                                 }
                             }
-                            .onDelete(perform: delete)
                         }
                         .id(idRefresh)
                         Spacer()

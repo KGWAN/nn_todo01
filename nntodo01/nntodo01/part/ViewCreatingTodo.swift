@@ -184,17 +184,17 @@ struct ViewCreatingTodo: View {
     // 할 일 생성 함수
     private func create(_ title: String) -> Result {
         if templete == .marked {
-            return service.create(title, parent: parent, isMarked: true)
+            return service.create(title, isMarked: true, parent: parent)
         } else if kategory != nil {
-            return service.create(title, parent: parent, kategory: kategory)
+            return service.create(title, kategory: kategory, parent: parent)
         } else if typePlan == .day {
-            return service.create(title, parent: parent, listTypePlan: typePlan!, planedDay: day!, planedMonth: month!, planedYear: year!)
+            return service.create(title, planedDay: day!, planedMonth: month!, planedYear: year!, parent: parent)
         } else if typePlan == .week {
-            return service.create(title, parent: parent, listTypePlan: typePlan!, planedWeek: week!, planedMonth: month!, planedYear: year!)
+            return service.create(title, planedWeek: week!, planedMonth: month!, planedYear: year!, parent: parent)
         } else if typePlan == .month {
-            return service.create(title, parent: parent, listTypePlan: typePlan!, planedMonth: month!, planedYear: year!)
+            return service.create(title, planedMonth: month!, planedYear: year!, parent: parent)
         } else if typePlan == .year {
-            return service.create(title, parent: parent, listTypePlan: typePlan!, planedYear: year!)
+            return service.create(title, planedYear: year!, parent: parent)
         }
         return service.create(title, parent: parent)
     }

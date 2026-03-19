@@ -8,6 +8,12 @@
 import SwiftUI
 
 struct ViewWeek: View {
+    // init
+    init(year: Int) {
+        self.year = year
+    }
+    // in value
+    private let year: Int
     // state
     @State private var idRefresh: UUID = UUID()
     @State private var list: [Work] = []
@@ -22,49 +28,66 @@ struct ViewWeek: View {
     // updating work
     @State private var isModifying: Bool = false
     @State private var targetModifying: Work? = nil
+    @State private var month: Int = Calendar.nn.getMonth(Date())
     // constant
     private let service: ServiceWork = ServiceWork()
-    private let year: Int = Calendar.nn.getYear(Date())
-    private let month: Int = Calendar.nn.getMonth(Date())
+//    private let year: Int = Calendar.nn.getYear(Date())
     
     
     var body: some View {
         NavigationStack {
             ZStack {
-                ScrollView {
-                    ForEach(listSection) { w in
-                        Section {
-                            VStack {
-                                if isEditing && targetNum == w.num {
-                                    // 할 일 작성 부분
-                                    ViewCreatingTodo(
-                                        week: w.num,
-                                        month: month,
-                                        year: year,
-                                        isPresented: $isEditing
-                                    ) { result in
-                                        onCreate(result)
-                                    }
-                                }
-                                if let listTodo = listGrouped[w.num],
-                                   !listTodo.isEmpty {
-                                    // 할 일 리스트
-                                    viewList(listTodo)
-                                } else {
-                                    if !(isEditing && targetNum == w.num) {
-                                        // 리스트가 빈 경우 _ 가이드
-                                        viewEmptyList
-                                    }
-                                }
-                            }
-                            .padding(.bottom, 30)
-                        } header: {
-                            viewHeader(w)
+                VStack {
+                    HStack(alignment: .center, spacing: 10) {
+                        BtnImg("left", color: .cyan) {
+                            month -= 1
+                            reload()
                         }
-                        .padding(.horizontal, 10)
+                        .frame(width: 25, height: 25)
+                        Text("\(String(month))월 주별 할 일")
+                            .font(.system(size: 20, weight: .bold))
+                            .padding(.vertical, 5)
+                        BtnImg("right", color: .cyan) {
+                            month += 1
+                            reload()
+                        }
+                        .frame(width: 25, height: 25)
                     }
+                    ScrollView {
+                        ForEach(listSection) { w in
+                            Section {
+                                VStack {
+                                    if isEditing && targetNum == w.num {
+                                        // 할 일 작성 부분
+                                        ViewCreatingTodo(
+                                            week: w.num,
+                                            month: month,
+                                            year: year,
+                                            isPresented: $isEditing
+                                        ) { result in
+                                            onCreate(result)
+                                        }
+                                    }
+                                    if let listTodo = listGrouped[w.num],
+                                       !listTodo.isEmpty {
+                                        // 할 일 리스트
+                                        viewList(listTodo)
+                                    } else {
+                                        if !(isEditing && targetNum == w.num) {
+                                            // 리스트가 빈 경우 _ 가이드
+                                            viewEmptyList
+                                        }
+                                    }
+                                }
+                                .padding(.bottom, 30)
+                            } header: {
+                                viewHeader(w)
+                            }
+                            .padding(.horizontal, 10)
+                        }
+                    }
+                    .padding(.top, 10)
                 }
-                .padding(.top, 10)
             }
         }
         .id(idRefresh)
@@ -135,12 +158,17 @@ struct ViewWeek: View {
                             targetModifying = todo
                             isModifying = true
                         } label: {
-                            Label("수정하기", systemImage: "pencil")
+                            Label("이름 수정하기", systemImage: "pencil")
                         }
                         Button(role: .destructive) {
                             delete(todo)
                         } label: {
                             Label("삭제하기", systemImage: "trash")
+                        }
+                        Button(role: .destructive) {
+                            deleteWithChildren(todo)
+                        } label: {
+                            Label("서브 작업까지 모두 삭제하기", systemImage: "trash")
                         }
                     }
                 }
@@ -206,6 +234,7 @@ struct ViewWeek: View {
         reload()
     }
     
+    // 자신만 삭제
     private func delete(_ target: Work) {
         if !service
             .delete(target)
@@ -215,8 +244,18 @@ struct ViewWeek: View {
         // 화면 갱신
         reload()
     }
+    // 자식과 함께 삭제
+    private func deleteWithChildren(_ target: Work) {
+        if !service
+            .deleteWithChildren(target)
+            .isSuccess {
+            showToast("작업 삭제에 실패했습니다.")
+        }
+        // 화면 갱신
+        reload()
+    }
 }
 
 #Preview {
-    ViewWeek()
+    ViewWeek(year: 2026)
 }
