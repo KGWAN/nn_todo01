@@ -135,20 +135,23 @@ extension Calendar {
         return listWeek
     }
     
-    func getDaysInCurrentMonth() -> [Date] {
-        let now = Date()
-        
-        // 1. 이번 달의 시작일 구하기 (예: 2026년 3월 1일)
-        guard let startOfMonth = self.date(from: self.dateComponents([.year, .month], from: now)) else {
-            return []
-        }
-        
-        // 2. 이번 달이 총 며칠인지 확인 (28, 30, 31일 등)
-        let range = self.range(of: .day, in: .month, for: startOfMonth)!
-        
-        // 3. 시작일부터 끝일까지 날짜 배열 생성
+    func getFirstDateOfMonth(_ month: Int, year: Int) -> Date? {
+        // components 생성
+        var componentsTarget = DateComponents()
+        componentsTarget.year = year
+        componentsTarget.month = month
+        componentsTarget.day = 1
+        // 해달 월의 처음 날짜
+        guard let startOfMonth = self.date(from: componentsTarget) else { return nil }
+        return startOfMonth
+    }
+    
+    func getDaysInMonth(firstDay base: Date) -> [Date] {
+        // 이번 달이 총 며칠인지 확인 (28, 30, 31일 등)
+        let range = self.range(of: .day, in: .month, for: base)!
+        // 시작일부터 끝일까지 날짜 배열 생성
         return range.compactMap { day -> Date? in
-            return self.date(byAdding: .day, value: day - 1, to: startOfMonth)
+            return self.date(byAdding: .day, value: day - 1, to: base)
         }
     }
     

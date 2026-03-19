@@ -33,224 +33,173 @@ class ServiceWork: NnService {
     
     // MARK: create
     // 기본 생성
-    func getNew(
-        _ title: String,
-        isDone: Bool = false,
-    ) -> Work {
+    func getNew(_ title: String, parent: Work? = nil) -> Work {
         let new = Work(context: context)
         // auto
         new.id = UUID()
         new.createdDate = Date()
-        new.depth = 0
         // user's input
         new.title = title
-        new.isDone = isDone
-        return new
-    }
-    // 추가 내용 포함 생성
-    func getNew(
-        _ title: String,
-        isDone: Bool = false,
-        memo: String? = nil,
-        parent: Work? = nil
-    ) -> Work {
-        let new = getNew(title, isDone: isDone)
-        new.memo = memo
+        // parent
         if let p = parent {
             new.parent = p
             new.depth = p.depth + 1
+            new.isLocked = p.isDone
+            new.kategory = p.kategory
         }
         return new
     }
-    // 분류 내용 포함 생성
+    // 별표 생성
     func getNew(
         _ title: String,
-        isDone: Bool = false,
-        memo: String? = nil,
-        parent: Work? = nil,
         isMarked: Bool = false,
-        listTypePlan: TypePlan = [],
-        kategory: Kategory? = nil
+        parent: Work? = nil
     ) -> Work {
-        let new = getNew(title, isDone: isDone, memo: memo, parent: parent)
+        let new = getNew(title, parent: parent)
         new.isMarked = isMarked
-        new.listTypePlan = listTypePlan
+        return new
+    }
+    // kategory에서 생성
+    func getNew(
+        _ title: String,
+        kategory: Kategory? = nil,
+        parent: Work? = nil
+    ) -> Work {
+        let new = getNew(title, parent: parent)
         new.kategory = kategory
         return new
     }
-    // 일별 계획
+    // 연도 달력에서 생성
     func getNew(
         _ title: String,
-        isDone: Bool = false,
-        memo: String? = nil,
-        parent: Work? = nil,
-        isMarked: Bool = false,
-        listTypePlan: TypePlan = [],
-        kategory: Kategory? = nil,
-        planedDay: Int,
-        planedMonth: Int,
-        planedYear: Int
-    ) -> Work? {
-        if listTypePlan.contains(.day) {
-            let new = getNew(title, isDone: isDone, memo: memo, parent: parent, isMarked: isMarked, listTypePlan: listTypePlan, kategory: kategory)
-            new.planedDay = Int64(planedDay)
-            new.planedMonth = Int64(planedMonth)
-            new.planedYear = Int64(planedYear)
-            return new
-        }
-        return nil
+        planedYear: Int,
+        parent: Work? = nil
+    ) -> Work {
+        let new = getNew(title, parent: parent)
+        new.planType = TypePlan.year.rawValue
+        new.planedYear = Int64(planedYear)
+        return new
     }
-    // 주별 계획
+    // 월 달력에서 생성
     func getNew(
         _ title: String,
-        isDone: Bool = false,
-        memo: String? = nil,
-        parent: Work? = nil,
-        isMarked: Bool = false,
-        listTypePlan: TypePlan = [],
-        kategory: Kategory? = nil,
+        planedMonth: Int,
+        planedYear: Int,
+        parent: Work? = nil
+    ) -> Work {
+        let new = getNew(title, parent: parent)
+        new.planType = TypePlan.month.rawValue
+        new.planedMonth = Int64(planedMonth)
+        new.planedYear = Int64(planedYear)
+        return new
+        
+    }
+    // 주 달력에서 생성
+    func getNew(
+        _ title: String,
         planedWeek: Int,
         planedMonth: Int,
-        planedYear: Int
-    ) -> Work? {
-        if listTypePlan.contains(.week) {
-            let new = getNew(title, isDone: isDone, memo: memo, parent: parent, isMarked: isMarked, listTypePlan: listTypePlan, kategory: kategory)
-            new.planedWeek = Int64(planedWeek)
-            new.planedMonth = Int64(planedMonth)
-            new.planedYear = Int64(planedYear)
-            return new
-        }
-        return nil
+        planedYear: Int,
+        parent: Work? = nil
+    ) -> Work {
+        let new = getNew(title, parent: parent)
+        new.planType = TypePlan.week.rawValue
+        new.planedWeek = Int64(planedWeek)
+        new.planedMonth = Int64(planedMonth)
+        new.planedYear = Int64(planedYear)
+        return new
     }
-    // 월별 계획
+    // 날짜 달력에서 생성
     func getNew(
         _ title: String,
-        isDone: Bool = false,
-        memo: String? = nil,
-        parent: Work? = nil,
-        isMarked: Bool = false,
-        listTypePlan: TypePlan = [],
-        kategory: Kategory? = nil,
+        planedDay: Int,
         planedMonth: Int,
-        planedYear: Int
-    ) -> Work? {
-        if listTypePlan.contains(.month) {
-            let new = getNew(title, isDone: isDone, memo: memo, parent: parent, isMarked: isMarked, listTypePlan: listTypePlan, kategory: kategory)
-            new.planedMonth = Int64(planedMonth)
-            new.planedYear = Int64(planedYear)
-            return new
-        }
-        return nil
+        planedYear: Int,
+        parent: Work? = nil
+    ) -> Work {
+        let new = getNew(title, parent: parent)
+        new.planType = TypePlan.week.rawValue
+        new.planedDay = Int64(planedDay)
+        new.planedMonth = Int64(planedMonth)
+        new.planedYear = Int64(planedYear)
+        return new
     }
-    // 연별 계획
-    func getNew(
-        _ title: String,
-        isDone: Bool = false,
-        memo: String? = nil,
-        parent: Work? = nil,
-        isMarked: Bool = false,
-        listTypePlan: TypePlan = [],
-        kategory: Kategory? = nil,
-        planedYear: Int
-    ) -> Work? {
-        if listTypePlan.contains(.year) {
-            let new = getNew(title, isDone: isDone, memo: memo, parent: parent, isMarked: isMarked, listTypePlan: listTypePlan, kategory: kategory)
-            new.planedYear = Int64(planedYear)
-            return new
-        }
-        return nil
-    }
-    // 생성 및 저장
+    // 생성
+    // 기본 생성
     func create(
         _ title: String,
-        isDone: Bool = false,
-        memo: String? = nil,
         parent: Work? = nil,
-        isMarked: Bool = false,
-        listTypePlan: TypePlan = [],
-        kategory: Kategory? = nil
     ) -> Result {
-        let new = getNew(title, isDone: isDone, parent: parent, isMarked: isMarked, listTypePlan: listTypePlan, kategory: kategory)
+        let new = getNew(title, parent: parent)
         // save
         NnLogger.log("New Work was created. (work: \(new))", level: .info)
         return save()
     }
-    // 일별 계획
+    // 별표 생성
     func create(
         _ title: String,
-        isDone: Bool = false,
-        memo: String? = nil,
-        parent: Work? = nil,
         isMarked: Bool = false,
-        listTypePlan: TypePlan = [],
-        kategory: Kategory? = nil,
-        planedDay: Int,
-        planedMonth: Int,
-        planedYear: Int
+        parent: Work? = nil,
     ) -> Result {
-        if listTypePlan.contains(.day) {
-            let new = getNew(title, isDone: isDone, memo: memo, parent: parent, isMarked: isMarked, listTypePlan: listTypePlan, kategory: kategory, planedDay: planedDay, planedMonth: planedMonth, planedYear: planedYear)
-            NnLogger.log("New Work was created. (work: \(String(describing: new)))", level: .info)
-            return save()
-        }
-        return Result(code: "9999", msg: "listTypePlan does not contain .day")
+        let new = getNew(title, isMarked: isMarked, parent: parent)
+        // save
+        NnLogger.log("New Work was created. (work: \(new))", level: .info)
+        return save()
     }
-    // 주별 계획
+    // kategory에서 생성
     func create(
         _ title: String,
-        isDone: Bool = false,
-        memo: String? = nil,
-        parent: Work? = nil,
-        isMarked: Bool = false,
-        listTypePlan: TypePlan = [],
         kategory: Kategory? = nil,
+        parent: Work? = nil
+    ) -> Result {
+        let new = getNew(title, kategory: kategory, parent: parent)
+        NnLogger.log("New Work was created. (work: \(new))", level: .info)
+        return save()
+    }
+    // 연도 달력에서 생성
+    func create(
+        _ title: String,
+        planedYear: Int,
+        parent: Work? = nil,
+    ) -> Result {
+        let new = getNew(title, planedYear: planedYear, parent: parent)
+        NnLogger.log("New Work was created. (work: \(String(describing: new)))", level: .info)
+        return save()
+    }
+    // 월 달력에서 생성
+    func create(
+        _ title: String,
+        planedMonth: Int,
+        planedYear: Int,
+        parent: Work? = nil
+    ) -> Result {
+        let new = getNew(title, planedMonth: planedMonth, planedYear: planedYear ,parent: parent)
+        NnLogger.log("New Work was created. (work: \(String(describing: new)))", level: .info)
+        return save()
+    }
+    // 주 달력에서 생성
+    func create(
+        _ title: String,
         planedWeek: Int,
         planedMonth: Int,
-        planedYear: Int
+        planedYear: Int,
+        parent: Work? = nil
     ) -> Result {
-        if listTypePlan.contains(.week) {
-            let new = getNew(title, isDone: isDone, memo: memo, parent: parent, isMarked: isMarked, listTypePlan: listTypePlan, kategory: kategory, planedWeek: planedWeek, planedMonth: planedMonth, planedYear: planedYear)
-            NnLogger.log("New Work was created. (work: \(String(describing: new)))", level: .info)
-            return save()
-        }
-        return Result(code: "9999", msg: "listTypePlan does not contain .week")
+        let new = getNew(title, planedWeek: planedWeek, planedMonth: planedMonth, planedYear: planedYear, parent: parent)
+        NnLogger.log("New Work was created. (work: \(String(describing: new)))", level: .info)
+        return save()
     }
-    // 월별 계획
+    // 날짜 달력에서 생성
     func create(
         _ title: String,
-        isDone: Bool = false,
-        memo: String? = nil,
-        parent: Work? = nil,
-        isMarked: Bool = false,
-        listTypePlan: TypePlan = [],
-        kategory: Kategory? = nil,
+        planedDay: Int,
         planedMonth: Int,
-        planedYear: Int
-    ) -> Result {
-        if listTypePlan.contains(.month) {
-            let new = getNew(title, isDone: isDone, memo: memo, parent: parent, isMarked: isMarked, listTypePlan: listTypePlan, kategory: kategory, planedMonth: planedMonth, planedYear: planedYear)
-            NnLogger.log("New Work was created. (work: \(String(describing: new)))", level: .info)
-            return save()
-        }
-        return Result(code: "9999", msg: "listTypePlan does not contain .month")
-    }
-    // 연별 계획
-    func create(
-        _ title: String,
-        isDone: Bool = false,
-        memo: String? = nil,
+        planedYear: Int,
         parent: Work? = nil,
-        isMarked: Bool = false,
-        listTypePlan: TypePlan = [],
-        kategory: Kategory? = nil,
-        planedYear: Int
     ) -> Result {
-        if listTypePlan.contains(.year) {
-            let new = getNew(title, isDone: isDone, memo: memo, parent: parent, isMarked: isMarked, listTypePlan: listTypePlan, kategory: kategory, planedYear: planedYear)
-            NnLogger.log("New Work was created. (work: \(String(describing: new)))", level: .info)
-            return save()
-        }
-        return Result(code: "9999", msg: "listTypePlan does not contain .year")
+        let new = getNew(title, planedDay: planedDay, planedMonth: planedMonth, planedYear: planedYear, parent: parent)
+        NnLogger.log("New Work was created. (work: \(String(describing: new)))", level: .info)
+        return save()
     }
     
     // MARK: read
@@ -307,7 +256,12 @@ class ServiceWork: NnService {
         case "title":
             if let newValue = value as? String { work.title = newValue }
         case "isDone":
-            if let newValue = value as? Bool { work.isDone = newValue }
+            if let newValue = value as? Bool {
+                work.isDone = newValue
+                getChildren(work).forEach {
+                    $0.isLocked = work.isDone
+                }
+            }
         case "memo":
             if let newValue = value as? String { work.memo = newValue }
         case "isMarked":
@@ -328,6 +282,8 @@ class ServiceWork: NnService {
             } else {
                 work.kategory = nil
             }
+        case "isLocked":
+            if let newValue = value as? Bool { work.isLocked = newValue }
 //        case "children":
 //            if let newValue = value as? [Work] {
 //                for i in newValue.indices {
@@ -346,8 +302,31 @@ class ServiceWork: NnService {
     }
     
     // MARK: delete
-    func delete(_ work: Work) -> Result {
+    // 자식과 함께 삭제
+    func deleteWithChildren(_ work: Work) -> Result {
+        getChildren(work).forEach {
+            if !deleteWithChildren($0).isSuccess {
+                NnLogger.log("It's failed to delete work: \($0)", level: .error)
+            }
+        }
         context.delete(work)
         return save()
+    }
+    // 자신만 삭제, 자식은 재위치시킴
+    func delete(_ work: Work) -> Result {
+        raiseChildren(of: work)
+        context.delete(work)
+        return save()
+    }
+    // target의 자손들의 위치를 재위치시키는 함수
+    private func raiseChildren(of target: Work) {
+        getChildren(target).forEach {
+            raiseChildren(of: $0)
+            $0.depth -= 1
+            if let p = target.parent {
+                $0.parent = p
+                $0.isLocked = p.isDone
+            }
+        }
     }
 }
