@@ -82,7 +82,7 @@ struct ViewDetailTodo: View {
                         dismiss()
                     }
                     .frame(width: 30, height: 30)
-                    TextFieldTitle(placeholder: "작업이름을 바꾸어 보세요.", text: $textTitle)
+                    TextFieldTitle(placeholder: "할 일의 이름을 바꾸어 보세요.", text: $textTitle)
                         .frame(maxWidth: .infinity)
                     // 층수
                     Text("lv \(item.depth)")
