@@ -16,6 +16,7 @@ struct ItemTodo: View {
     private let depth: Int
     private let cntChild: Int
     private let isLocked: Bool
+    private let kategory: Kategory?
     private let onUpdate: (String, Any) -> Void
     // func
     init(
@@ -27,8 +28,9 @@ struct ItemTodo: View {
         self.isMarked = inf.isMarked
         self.depth = Int(inf.depth)
         self.onUpdate = onUpdate
-        self.cntChild = inf.children?.count ?? 0
+        self.cntChild = ((inf.children?.allObjects as? [Work])?.filter { $0.isDone == false } ?? []).count
         self.isLocked = inf.isLocked
+        self.kategory = inf.kategory
     }
     // -------------------------
     
@@ -50,7 +52,7 @@ struct ItemTodo: View {
                 .foregroundStyle(Color.black)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 10)
-            // 층수
+            // 잠김 여부
             Text(isLocked ? "잠김" : "")
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(.white)
@@ -61,6 +63,7 @@ struct ItemTodo: View {
             Text("lv\(depth)")
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(.gray)
+                .opacity(depth == 0 ? 0 : 1)
             // 자식 수
             Text(String(cntChild))
                 .frame(width: 20, height: 20)
@@ -68,6 +71,7 @@ struct ItemTodo: View {
                 .foregroundStyle(.white)
                 .background(.red.opacity(0.8))
                 .cornerRadius(10)
+                .opacity(cntChild == 0 ? 0 : 1)
             // 즐겨찾기 여부 체크 버튼
             BtnCheckImg(
                 "btnStar",
@@ -81,7 +85,7 @@ struct ItemTodo: View {
         .padding(.horizontal, 10)
         .frame(maxWidth: .infinity, maxHeight: 40)
         .background(.white.opacity(0.3))
-        .border(.gray)
+        .border(kategory?.color == nil ? .gray : Color(hex: kategory!.color!))
         .onChange(of: isDone) { _, new in
             onUpdate("isDone", new)
         }
