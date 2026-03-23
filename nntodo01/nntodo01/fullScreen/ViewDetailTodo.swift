@@ -51,6 +51,8 @@ struct ViewDetailTodo: View {
     @State private var planedWeek: Int = 0
     @State private var planedMonth: Int = 0
     @State private var planedYear: Int = 0
+    @State private var cntWeek: Int = 0
+    @State private var cntDate: Int = 0
     // 기타
     @State private var idRefresh: UUID = UUID()
     // creating sub
@@ -73,35 +75,7 @@ struct ViewDetailTodo: View {
     
     var body: some View {
         NavigationStack {
-            // tool bar
-            HStack {
-                HStack(alignment: .center) {
-                    // 뒤로가기 버튼
-                    BtnImg("btnBack") {
-                        onUpdate()
-                        dismiss()
-                    }
-                    .frame(width: 30, height: 30)
-                    TextFieldTitle(placeholder: "할 일의 이름을 바꾸어 보세요.", text: $textTitle)
-                        .frame(maxWidth: .infinity)
-                    // 층수
-                    Text("lv \(item.depth)")
-                        .foregroundStyle(.gray)
-                        .padding(.horizontal, 10)
-                        .border(.gray)
-                }
-                Spacer()
-                HStack(spacing: 5) {
-                    // 완료 체크 버튼
-                    BtnCheckImg("btnDone", isChecked: $isDone)
-                        .frame(width: 25, height: 25)
-                        .disabled(isLocked)
-                    // 별표 체크 버튼
-                    BtnCheckImg("btnStar", colorY: .yellow, isChecked: $isMarked)
-                        .frame(width: 25, height: 25)
-                }
-            }
-            .padding(.horizontal, 20)
+            header
             ScrollView {
                 // 하위 작업
                 VStack {
@@ -124,7 +98,6 @@ struct ViewDetailTodo: View {
                             viewEmptyList
                         }
                     }
-                    
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 20)
@@ -132,8 +105,21 @@ struct ViewDetailTodo: View {
                 .background(Color.white)
                 // 중단
                 VStack {
-                    // plan
-                    
+                    // plan ---------------------------------------------
+                    ViewSelectingPlan(listTypePlan: $planType)
+                    if !planType.isEmpty {
+                        ViewAdjustingNum($planedYear, limit: 9999, labelText: "연도")
+                        if planType != .year {
+                            ViewAdjustingNum($planedMonth, limit: 12, labelText: "월")
+                            if planType.contains(.week) {
+                                ViewAdjustingNum($planedWeek, limit: cntWeek, labelText: "주")
+                            }
+                            if planType.contains(.day) {
+                                ViewAdjustingNum($planedDay, limit: cntDate, labelText: "일")
+                            }
+                        }
+                    }
+                    // --------------------------------------------------
                     // 메모 입력
                     ZStack(alignment: .topLeading) {
                         TextEditor(text: $textMemo)
@@ -152,7 +138,6 @@ struct ViewDetailTodo: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
                 .background(Color.white)
-                
                 // 하단
                 HStack {
                     if let date = item.updatedDate {
@@ -164,11 +149,21 @@ struct ViewDetailTodo: View {
                     }
                     Spacer()
                     // 삭제 버튼
-                    BtnImg("btnDelete", color: .red) {
-                        onDelete()
-                        dismiss()
-                    }
-                    .frame(width: 35, height: 35)
+                    ImgSafe("btnDelete", color: .red)
+                        .frame(width: 35, height: 35)
+                        .contentShape(Rectangle())
+                        .contextMenu {
+                            Button(role: .destructive) {
+                                onDelete()
+                            } label: {
+                                Label("삭제하기", systemImage: "trash")
+                            }
+                            Button(role: .destructive) {
+                                onDeleteWithChildren()
+                            } label: {
+                                Label("서브 작업까지 모두 삭제하기", systemImage: "trash")
+                            }
+                        }
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
@@ -192,10 +187,51 @@ struct ViewDetailTodo: View {
         .onChange(of: isDone) { _, _ in
             update("isDone", value: isDone)
         }
+        .onChange(of: planedYear) {_, new in
+            print(new)
+            resetLimitOfViewAdjustingNum()
+        }
+        .onChange(of: planedMonth) {_, new in
+            print(new)
+            resetLimitOfViewAdjustingNum()
+        }
     }
     
     
     // ViewBuiler
+    // header: tool bar
+    @ViewBuilder
+    private var header: some View {
+        HStack {
+            HStack(alignment: .center) {
+                // 뒤로가기 버튼
+                BtnImg("btnBack") {
+                    onUpdate()
+                    dismiss()
+                }
+                .frame(width: 30, height: 30)
+                TextFieldTitle(placeholder: "할 일의 이름을 바꾸어 보세요.", text: $textTitle)
+                    .frame(maxWidth: .infinity)
+                // 층수
+                Text("lv \(item.depth)")
+                    .foregroundStyle(.gray)
+                    .padding(.horizontal, 10)
+                    .border(.gray)
+            }
+            Spacer()
+            HStack(spacing: 5) {
+                // 완료 체크 버튼
+                BtnCheckImg("btnDone", isChecked: $isDone)
+                    .frame(width: 25, height: 25)
+                    .disabled(isLocked)
+                // 별표 체크 버튼
+                BtnCheckImg("btnStar", colorY: .yellow, isChecked: $isMarked)
+                    .frame(width: 25, height: 25)
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+    
     @ViewBuilder
     private var btnCreating: some View {
         Button {
@@ -297,8 +333,19 @@ struct ViewDetailTodo: View {
             planedMonth = Int(item.planedMonth)
             planedWeek = Int(item.planedWeek)
             planedDay = Int(item.planedDay)
+            // 주와 날짜 한계 재설정
+            resetLimitOfViewAdjustingNum()
         }
         idRefresh = UUID()
+    }
+    // 주와 날짜 한계 재설정
+    private func resetLimitOfViewAdjustingNum() {
+        // 마지막 주
+        cntWeek = Calendar.nn.getWeeksInMonth(month: planedMonth, year: planedYear).count
+        print("cntWeek >>> \(cntWeek)")
+        // 마지막 날
+        cntDate = Calendar.nn.getDaysInMonth(month: planedMonth, year: planedYear).count
+        print("cntDate >>> \(cntDate)")
     }
     // 단일 수정
     private func update(_ key: String, value: Any) {
@@ -323,7 +370,15 @@ struct ViewDetailTodo: View {
         item.kategory = kategory
         onFinish(service.update(item))
     }
-    // Subwork
+    // 자신만 삭제
+    private func onDelete() {
+        onFinish(service.delete(item))
+    }
+    // 자식과 함께 삭제
+    private func onDeleteWithChildren() {
+        onFinish(service.deleteWithChildren(item))
+    }
+    // Subwork ------------------------------------
     // subwork 추가
     private func onCreateSub(_ result: Result) {
         if !result.isSuccess {
@@ -368,16 +423,11 @@ struct ViewDetailTodo: View {
         // 화면 갱신
         reload()
     }
-    
-
-    // 삭제
-    private func onDelete() {
-        onFinish(service.delete(item))
-    }
+    // -----------------------------------------------
 }
 
 #Preview {
-    let item = ServiceWork().getNew("todo example")
+    let item = ServiceWork().getNew("todo example", planedWeek: 4, planedMonth: 3, planedYear: 2026)
     let itemChild = ServiceWork().getNew("todo example child", parent: item)
     
     ViewDetailTodo(item) {

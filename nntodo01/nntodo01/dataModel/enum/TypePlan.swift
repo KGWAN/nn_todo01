@@ -14,4 +14,16 @@ struct TypePlan: OptionSet, Codable, Hashable {
     static let month = TypePlan(rawValue: 1 << 1) // 0010
     static let week = TypePlan(rawValue: 1 << 2) // 0100
     static let day = TypePlan(rawValue: 1 << 3) // 1000
+    
+    static let allCases: [TypePlan] = [.year, .month, .week, .day]
+    
+    var name: String {
+        switch self {
+        case .year: return "Yearly"
+        case .month: return "Monthly"
+        case .week: return "Weekly"
+        case .day: return "Daily"
+        default: return "Unknown"
+        }
+    }
 }

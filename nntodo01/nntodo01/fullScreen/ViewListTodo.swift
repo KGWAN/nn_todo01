@@ -14,9 +14,10 @@ struct ViewListTodo: View {
     @State private var list: [Work] = []
     @State private var title: String
     @State private var isEditing: Bool = false
-    @State private var isModifying: Bool = false
+    @State private var isModifyingName: Bool = false
     @State private var targetModifying: Work? = nil
     @State private var isShowingPopupAddTodo: Bool = false
+    @State private var isShowingPopupSelectingKategory: Bool = false
     @State private var depth: Int = -1
     @State private var idxFilter: Int = -1 // -1: 전체, 0: 완료만 보기, 1: 미완료만 보기
     // showing toast
@@ -243,6 +244,15 @@ struct ViewListTodo: View {
                         onDeleteKategory(result: result)
                     }
                 }
+                if isShowingPopupSelectingKategory,
+                   !isShowingPopupAddTodo,
+                   !isShowingPopupModifyKategory {
+                    PopupSelectingKategory(isPresented: $isShowingPopupSelectingKategory) { selectedKategory in
+                        if let target = targetModifying {
+                            update(target, key: "kategory", value: selectedKategory)
+                        }
+                    }
+                }
             }
             .toast(msgToast, isPresented: $isShowingToast)
         }
@@ -283,11 +293,11 @@ struct ViewListTodo: View {
                     onUpdate(result: result)
                 }
             ) {
-                if isModifying &&  i == targetModifying {
+                if isModifyingName &&  i == targetModifying {
                     // 수정 부분
                     ViewUpdatingTodo(
                         i,
-                        isPresented: $isModifying
+                        isPresented: $isModifyingName
                     ) { k, v in
                         update(i, key: k, value: v)
                     }
@@ -300,14 +310,20 @@ struct ViewListTodo: View {
                     .contextMenu {
                         Button() {
                             targetModifying = i
-                            isModifying = true
+                            isModifyingName = true
                         } label: {
-                            Label("이름 수정하기", systemImage: "pencil")
+                            Label("이름 수정", systemImage: "pencil")
+                        }
+                        Button() {
+                            isShowingPopupSelectingKategory = true
+                            targetModifying = i
+                        } label: {
+                            Label("다른 목록으로 이동", systemImage: "folder")
                         }
                         Button() {
                             update(i, key: "kategory", value: nil)
                         } label: {
-                            Label("목록에서 제외하기", systemImage: "minus")
+                            Label("목록에서 제외", systemImage: "minus")
                         }
                         Button(role: .destructive) {
                             delete(i)
