@@ -154,6 +154,15 @@ extension Calendar {
             return self.date(byAdding: .day, value: day - 1, to: base)
         }
     }
+    func getDaysInMonth(month: Int, year: Int) -> [Date] {
+        guard let base = getFirstDateOfMonth(month, year: year) else { return [] }
+        // 이번 달이 총 며칠인지 확인 (28, 30, 31일 등)
+        let range = self.range(of: .day, in: .month, for: base)!
+        // 시작일부터 끝일까지 날짜 배열 생성
+        return range.compactMap { day -> Date? in
+            return self.date(byAdding: .day, value: day - 1, to: base)
+        }
+    }
     
     func getDay(_ date: Date) -> Int {
         return self.component(.day, from: date)
@@ -165,5 +174,20 @@ extension Calendar {
     
     func getYear(_ date: Date) -> Int {
         return self.component(.year, from: date)
+    }
+}
+
+// MARK: EnvironmentValues
+extension EnvironmentValues {
+    struct PreviewStateKey: EnvironmentKey {
+        static let defaultValue: Bool = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
+    
+    var isPreview: Bool {
+        get {
+            self[PreviewStateKey.self]
+        } set {
+            self[PreviewStateKey.self] = newValue
+        }
     }
 }
