@@ -150,11 +150,13 @@ struct ViewCreatingTodo: View {
     
     var body: some View {
         // 작성 부분
-        HStack {
+        HStack(spacing: 5) {
             BtnCheckImg("btnDone", isChecked: Binding(get: { false }, set: { _ in }))
                 .frame(width: 25, height: 25)
+                .padding(2.5)
                 .disabled(true)
             TextFieldTitle(placeholder: "작성할 일의 이름을 입력하세요.", text: $name)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .focused($isFocusingOnField)
                 .onChange(of: isFocusingOnField) { _, new in
                     isPresented = new
@@ -172,10 +174,18 @@ struct ViewCreatingTodo: View {
                     isPresented = false
                 }
         }
-        .frame(maxWidth: .infinity, maxHeight: 40)
+        .frame(height: 40)
         .padding(.horizontal, 10)
-        .background(.white.opacity(0.3))
-        .border(Color.gray)
+        .background {
+            Color.white
+                .cornerRadius(15)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+        }
+        .padding(2.5)
         .onAppear {
             isFocusingOnField = true
         }
@@ -188,6 +198,8 @@ struct ViewCreatingTodo: View {
         } else if kategory != nil {
             return service.create(title, kategory: kategory, parent: parent)
         } else if typePlan == .day {
+            print(typePlan?.rawValue)
+            print(TypePlan.day.rawValue)
             return service.create(title, planedDay: day!, planedMonth: month!, planedYear: year!, parent: parent)
         } else if typePlan == .week {
             return service.create(title, planedWeek: week!, planedMonth: month!, planedYear: year!, parent: parent)

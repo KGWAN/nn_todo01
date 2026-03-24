@@ -24,7 +24,6 @@ struct ViewShell: View {
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-            .ignoresSafeArea()
         }
     }
 }

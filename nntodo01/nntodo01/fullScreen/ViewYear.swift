@@ -30,31 +30,30 @@ struct ViewYear: View {
     
     var body: some View {
         NavigationStack {
-            VStack {
+            VStack(spacing: 10) {
                 // 제목
                 viewHeader
-                    .padding(.horizontal, 10)
                 // 내용
-                ScrollView {
-                    if isEditing {
-                        // 할 일 작성 부분
-                        ViewCreatingTodo(year: year, isPresented: $isEditing) { result in
-                            onCreate(result)
+                VStack {
+                    ScrollView(showsIndicators: false) {
+                        if isEditing {
+                            // 할 일 작성 부분
+                            ViewCreatingTodo(year: year, isPresented: $isEditing) { result in
+                                onCreate(result)
+                            }
+                        }
+                        if list.isEmpty && !isEditing {
+                            // 리스트가 빈 경우 _ 가이드
+                            viewEmptyList
+                        } else {
+                            // 할 일 리스트
+                            viewList
                         }
                     }
-                    if list.isEmpty && !isEditing {
-                        // 리스트가 빈 경우 _ 가이드
-                        viewEmptyList
-                    } else {
-                        // 할 일 리스트
-                        viewList
-                    }
                 }
-                .padding(.horizontal, 10)
-                
-                Spacer()
             }
-            .padding(.horizontal, 10)
+            .padding(.top, 5)
+            .background(.gray.opacity(0.2))
         }
         .id(idRefresh)
         .onAppear {
@@ -73,40 +72,40 @@ struct ViewYear: View {
     // ViewBuilder
     @ViewBuilder
     private var viewHeader: some View {
-        HStack {
-            // 연도 선택
-            HStack(alignment: .center, spacing: 10) {
+        VStack(spacing: 5) {
+            HStack(spacing: 0) {
+                // 연도
                 Text("\(String(year))년 할 일")
                     .font(.system(size: 20, weight: .bold))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                     .padding(.vertical, 5)
+                // 할 일 작성 버튼
+                BtnImg("iconPlus", color: .cyan) {
+                    isEditing = true
+                }
             }
-            Spacer()
-            // 할 일 작성 버튼
-            Button {
-                isEditing = true
-            } label: {
-                ImgSafe("iconPlus", color: .cyan)
-                    .frame(width: 15, height: 15)
-                    .padding(5)
-                    .border(.cyan)
-            }
+            .frame(height: 30)
+            Divider()
+                .frame(height: 1)
+                .background(.gray.opacity(0.4))
         }
-        Divider()
-            .frame(height: 1)
-            .background(.black)
     }
     
     @ViewBuilder
     private var viewEmptyList: some View {
-        VStack(spacing: 10) {
+        HStack {
             Text("+ 버튼을 눌러 할 일을 작성할 수 있어요.")
+                .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color.gray)
-                .padding(.horizontal, 10)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.vertical, 10)
-            Divider()
-                .background(.gray)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.gray.opacity(0.4), lineWidth: 1)
+                }
         }
-        .frame(maxWidth: .infinity, maxHeight: 40)
+        .frame(height: 40)
+        .padding(2.5)
     }
 
     @ViewBuilder

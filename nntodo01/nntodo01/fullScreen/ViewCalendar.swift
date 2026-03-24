@@ -12,97 +12,97 @@ struct ViewCalendar: View {
     @State private var idxSelectedTab = 0
     @State private var year: Int = Calendar.nn.getYear(Date())
     @State private var idRefresh: UUID = UUID()
+    // constant
+    private let listTab: [TypePlan] = TypePlan.allCases
     
     var body: some View {
-        VStack {
-            HStack(alignment: .center, spacing: 10) {
-                BtnImg("left", color: .cyan) {
-                    year -= 1
-                    reload()
-                }
-                .frame(width: 25, height: 25)
-                Text("\(String(year))년")
-                    .font(.system(size: 20, weight: .bold))
-                    .padding(.vertical, 5)
-                BtnImg("right", color: .cyan) {
-                    year += 1
-                    reload()
-                }
-                .frame(width: 25, height: 25)
-            }
-            HStack(spacing: 0) {
-                Button{
-                    withAnimation {
-                        idxSelectedTab = 0
+        ZStack {
+            VStack(spacing: 10) {
+                // year
+                viewSelectingYear
+                    .padding(.top, 5)
+                // tab
+                HStack(spacing: 0) {
+                    ForEach(listTab.indices, id: \.self) { idx in
+                        Button{
+                            withAnimation {
+                                idxSelectedTab = idx
+                            }
+                        } label: {
+                            Text("\(listTab[idx].name)")
+                                .fontWeight(idxSelectedTab == idx ? .bold : .regular)
+                                .foregroundStyle(idxSelectedTab == idx ? .cyan : .gray)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .background{
+                                    if idxSelectedTab == idx {
+                                        Color.white
+                                            .cornerRadius(15)
+                                            .overlay {
+                                                RoundedRectangle(cornerRadius: 15)
+                                                    .stroke(.white.opacity(0.2), lineWidth: 1)
+                                            }
+                                            .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                                    } else {
+                                        Color.clear
+                                    }
+                                }
+                        }
                     }
-                } label: {
-                    Text("Year")
-                        .fontWeight(idxSelectedTab == 0 ? .bold : .regular)
-                        .foregroundStyle(idxSelectedTab == 0 ? .cyan : .gray)
                 }
-                .frame(maxWidth: .infinity)
-                .background(idxSelectedTab == 0 ? .white : .clear)
-                
-                Button{
-                    withAnimation {
-                        idxSelectedTab = 1
-                    }
-                } label: {
-                    Text("Month")
-                        .fontWeight(idxSelectedTab == 1 ? .bold : .regular)
-                        .foregroundStyle(idxSelectedTab == 1 ? .cyan : .gray)
+                .frame(height: 30)
+                .background(.ultraThinMaterial)
+                .cornerRadius(15)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.white.opacity(0.2), lineWidth: 1)
                 }
-                .frame(maxWidth: .infinity)
-                .background(idxSelectedTab == 1 ? .white : .clear)
-                
-                Button{
-                    withAnimation {
-                        idxSelectedTab = 2
-                    }
-                } label: {
-                    Text("Week")
-                        .fontWeight(idxSelectedTab == 2 ? .bold : .regular)
-                        .foregroundStyle(idxSelectedTab == 2 ? .cyan : .gray)
+                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                .padding(2.5)
+                // 콘텐츠 영역
+                ZStack {
+                    ViewYear(year)
+                        .background(.clear)
+                        .opacity(idxSelectedTab == 0 ? 1 : 0)
+                    ViewMonth(year: year)
+                        .opacity(idxSelectedTab == 1 ? 1 : 0)
+                    ViewWeek(year: year)
+                        .opacity(idxSelectedTab == 2 ? 1 : 0)
+                    ViewDay(year: year)
+                        .opacity(idxSelectedTab == 3 ? 1 : 0)
                 }
-                .frame(maxWidth: .infinity)
-                .background(idxSelectedTab == 2 ? .white : .clear)
-                
-                Button{
-                    withAnimation {
-                        idxSelectedTab = 3
-                    }
-                } label: {
-                    Text("Day")
-                        .fontWeight(idxSelectedTab == 3 ? .bold : .regular)
-                        .foregroundStyle(idxSelectedTab == 3 ? .cyan : .gray)
-                }
-                .frame(maxWidth: .infinity)
-                .background(idxSelectedTab == 3 ? .white : .clear)
-            }
-            .padding(.top, 5)
-            .background(.gray.opacity(0.3))
-            // 콘텐츠 영역
-            ZStack {
-                ViewYear(year)
-                    .opacity(idxSelectedTab == 0 ? 1 : 0)
-                ViewMonth(year: year)
-                    .opacity(idxSelectedTab == 1 ? 1 : 0)
-                ViewWeek(year: year)
-                    .opacity(idxSelectedTab == 2 ? 1 : 0)
-                ViewDay(year: year)
-                    .opacity(idxSelectedTab == 3 ? 1 : 0)
             }
             .id(idRefresh)
-//            Group {
-//                switch idxSelectedTab {
-//                case 0: ViewYear()
-//                case 1: ViewMonth()
-//                case 2: ViewWeek()
-//                case 3: ViewDay()
-//                default: EmptyView()
-//                }
-//            }
+            .padding(.horizontal, 20)
+            .background(.gray.opacity(0.2))
         }
+    }
+    
+    
+    // ViewBuilder
+    @ViewBuilder
+    private var viewSelectingYear: some View {
+        HStack(spacing: 10) {
+            BtnImg("left", color: .cyan) {
+                year -= 1
+                reload()
+            }
+            Text("\(String(year))년")
+                .font(.system(size: 20, weight: .bold))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(.ultraThinMaterial)
+                .cornerRadius(15)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                .padding(2.5)
+            BtnImg("right", color: .cyan) {
+                year += 1
+                reload()
+            }
+        }
+        .frame(height: 30)
     }
     
     

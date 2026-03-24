@@ -31,6 +31,7 @@ struct ContainerFloating<C: View, B: View>: View {
                 HStack {
                     label
                 }
+                .padding(.horizontal, 20)
             }
         }
     }

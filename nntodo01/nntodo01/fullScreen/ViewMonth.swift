@@ -35,8 +35,8 @@ struct ViewMonth: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                ScrollView {
+            VStack {
+                ScrollView(showsIndicators: false) {
                     ForEach(listSection, id: \.self) { m in
                         Section {
                             VStack {
@@ -60,11 +60,11 @@ struct ViewMonth: View {
                         } header: {
                             viewHeader(m)
                         }
-                        .padding(.horizontal, 10)
                     }
                 }
-                .padding(.top, 10)
             }
+            .padding(.top, 5)
+            .background(.gray.opacity(0.2))
         }
         .id(idRefresh)
         .navigationBarBackButtonHidden()
@@ -85,40 +85,38 @@ struct ViewMonth: View {
     // viewBuilder
     @ViewBuilder
     private func viewHeader(_ month: Int) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(spacing: 5) {
             HStack {
                 Text("\(month) 월")
                     .font(.system(size: 20, weight: .medium))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 // 할 일 작성 버튼
-                Button {
-                    isEditing = true
+                BtnImg("iconPlus", color: .cyan) {
                     targetMonth = month
-                } label: {
-                    ImgSafe("iconPlus", color: .cyan)
-                        .frame(width: 15, height: 15)
-                        .padding(5)
-                        .border(.cyan)
+                    isEditing = true
                 }
             }
-            
             Divider()
                 .frame(height: 1)
-                .background(.black)
+                .background(.gray.opacity(0.4))
         }
     }
     
     @ViewBuilder
     private var viewEmptyList: some View {
-        VStack(spacing: 0) {
+        HStack {
             Text("+ 버튼을 눌러 할 일을 작성할 수 있어요.")
+                .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color.gray)
-                .padding(.horizontal, 10)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.vertical, 10)
-            Divider()
-                .background(.gray)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.gray.opacity(0.4), lineWidth: 1)
+                }
         }
-        .frame(maxWidth: .infinity, maxHeight: 40)
+        .frame(height: 40)
+        .padding(2.5)
     }
     
     @ViewBuilder

@@ -46,44 +46,44 @@ struct ViewDay: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                ScrollView {
-                    // 헤더: 현재 연도와 월
-                    viewHeader
-                    // 날짜 그리드
-                    viewCalendar
-                        .padding()
-                    // 할 일 목록 부분
-                    Group {
-                        if isEditing,
-                           let date = dateSelected {
-                            // 할 일 작성 부분
-                            ViewCreatingTodo(
-                                day: calendar.getDay(date),
-                                month: calendar.getMonth(date),
-                                year: calendar.getYear(date),
-                                isPresented: $isEditing)
-                            { result in
-                                onCreate(result)
+            VStack {
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 20) {
+                        // 헤더: 현재 연도와 월
+                        viewSelectingMonth
+                        // 날짜 그리드
+                        viewCalendar
+                        // 할 일 목록 부분
+                        Group {
+                            if isEditing,
+                               let date = dateSelected {
+                                // 할 일 작성 부분
+                                ViewCreatingTodo(
+                                    day: calendar.getDay(date),
+                                    month: calendar.getMonth(date),
+                                    year: calendar.getYear(date),
+                                    isPresented: $isEditing)
+                                { result in
+                                    onCreate(result)
+                                }
+                            } else {
+                                // 생성 버튼
+                                btnCreating
                             }
-                        } else {
-                            // 생성 버튼
-                            btnCreating
-                        }
-                        if !list.isEmpty {
-                            // 리스트
-                            viewList
-                        } else {
-                            if !(isEditing) {
-                                // 리스트가 빈 경우 _ 가이드
-                                viewEmptyList
+                            if !list.isEmpty {
+                                // 리스트
+                                viewList
+                            } else {
+                                if !(isEditing) {
+                                    // 리스트가 빈 경우 _ 가이드
+                                }
                             }
                         }
+                        .frame(maxWidth: .infinity)
                     }
-                    .padding(.horizontal, 20)
-                    .frame(maxWidth: .infinity)
                 }
             }
+            .background(.gray.opacity(0.2))
         }
         .id(idRefresh)
         .navigationBarBackButtonHidden()
@@ -107,22 +107,29 @@ struct ViewDay: View {
     
     // viewBuilder
     @ViewBuilder
-    private var viewHeader: some View {
-        HStack(alignment: .center, spacing: 10) {
+    private var viewSelectingMonth: some View {
+        HStack(spacing: 10) {
             BtnImg("left", color: .cyan) {
                 month -= 1
                 reload()
             }
-            .frame(width: 25, height: 25)
             Text("\(String(month))월 일별 할 일")
-                .font(.system(size: 20, weight: .bold))
-                .padding(.vertical, 5)
+                .font(.system(size: 16, weight: .bold))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(.ultraThinMaterial)
+                .cornerRadius(15)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                .padding(2.5)
             BtnImg("right", color: .cyan) {
                 month += 1
                 reload()
             }
-            .frame(width: 25, height: 25)
         }
+        .frame(height: 30)
     }
     
     @ViewBuilder
@@ -151,18 +158,19 @@ struct ViewDay: View {
                 .buttonStyle(.plain)
             }
         }
+        .padding(2.5)
     }
     
-    @ViewBuilder
-    private var viewEmptyList: some View {
-        VStack() {
-            Text("작성된 할 일이 없어요.")
-                .foregroundStyle(Color.gray)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 10)
-        }
-        .frame(maxWidth: .infinity)
-    }
+//    @ViewBuilder
+//    private var viewEmptyList: some View {
+//        VStack() {
+//            Text("작성된 할 일이 없어요.")
+//                .foregroundStyle(Color.gray)
+//                .padding(.horizontal, 10)
+//                .padding(.vertical, 10)
+//        }
+//        .frame(maxWidth: .infinity)
+//    }
     
     @ViewBuilder
     private var btnCreating: some View {
@@ -171,11 +179,21 @@ struct ViewDay: View {
         } label: {
             Text("이 버튼을 눌러 할 일을 작성할 수 있어요.")
                 .foregroundStyle(Color.white)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 10)
+                .background {
+                    Color.cyan
+                        .cornerRadius(15)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 15)
+                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                        }
+                        .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                }
+                .padding(2.5)
         }
-        .frame(maxWidth: .infinity, maxHeight: 40)
-        .background(.cyan)
+        .frame(height: 40)
     }
     
     @ViewBuilder
@@ -227,29 +245,50 @@ struct ViewDay: View {
         VStack {
             // TODO: 일 별 할 일 개수 표시
             Spacer()
-            
-            // selected
-            if let selected = dateSelected,
-                calendar.isDate(date, inSameDayAs: selected) {
-                Text(date.getStrDate(format: "d"))
-                    .frame(maxWidth: .infinity)
-                    .background(.black)
-                    .foregroundColor(.white)
-                // today
-            } else if ( calendar.isDateInToday(date) ) {
-                Text(date.getStrDate(format: "d"))
-                    .frame(maxWidth: .infinity)
-                    .background(.gray)
-                    .foregroundColor(.black)
-                // defalt
-            } else {
-                Text(date.getStrDate(format: "d"))
-                    .frame(maxWidth: .infinity)
-                    .foregroundColor(.black)
+            HStack {
+                if let selected = dateSelected,
+                    calendar.isDate(date, inSameDayAs: selected) {
+                    // selected
+                    Text(date.getStrDate(format: "d"))
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.cyan)
+                    // today
+                } else if ( calendar.isDateInToday(date) ) {
+                    Text(date.getStrDate(format: "d"))
+                        .font(.system(size: 14))
+                        .foregroundColor(.black)
+                    // defalt
+                } else {
+                    Text(date.getStrDate(format: "d"))
+                        .font(.system(size: 14))
+                        .foregroundColor(.black)
+                }
             }
+            .frame(maxWidth: .infinity)
         }
-        .frame(height: 60)
-        .border(Color.gray)
+        .frame(height: 50)
+        .padding(5)
+        .background {
+            Color.white
+                .cornerRadius(15)
+                .overlay {
+                    if let selected = dateSelected,
+                        calendar.isDate(date, inSameDayAs: selected) {
+                        // selected
+                        RoundedRectangle(cornerRadius: 15)
+                            .stroke(.cyan.opacity(0.8), lineWidth: 1)
+                        // today
+                    } else if ( calendar.isDateInToday(date) ) {
+                        RoundedRectangle(cornerRadius: 15)
+                            .stroke(.black.opacity(0.4), lineWidth: 1)
+                        // defalt
+                    } else {
+                        RoundedRectangle(cornerRadius: 15)
+                            .stroke(.white.opacity(0.2), lineWidth: 1)
+                    }
+                }
+                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+        }
         .contentShape(Rectangle())
     }
     

@@ -18,36 +18,43 @@ struct ItemInventory: View {
         self.title = title
         self.nameImg = nameImg
         self.color = color
-        self.cnt = cnt // 작업 개수
+        self.cnt = cnt // 미완료 작업 개수
     }
     
     
     var body: some View {
         HStack {
-            Group {
-                if !nameImg.isEmpty,
-                   let img = UIImage(named: nameImg) {
-                    Image(uiImage: img)
-                        .resizable()
-                        .foregroundStyle(color)
-                        .scaledToFit()
-                } else {
-                    Circle()
-                        .fill(Color.cyan)
-                }
-            }
-            .frame(width: 30, height: 30, alignment: .center)
+            ImgSafe(nameImg, color: color)
+                .frame(width: 25, height: 25)
+                .padding(2.5)
             Text(title)
+                .font(.system(size: 16, weight: .medium))
+                .multilineTextAlignment(.leading)
                 .foregroundStyle(Color.black)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 10)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                .padding(.leading, 10)
+                .padding(.vertical, 3)
             if cnt > 0 {
                 Text(String(cnt))
-                    .foregroundStyle(Color.black)
-                    .padding(.horizontal, 10)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(Color.white)
+                    .frame(width: 20, height: 20)
+                    .background(.red.opacity(0.8))
+                    .cornerRadius(10)
             }
         }
-        .padding(.horizontal, 20)
+        .frame(height: 40)
+        .padding(.horizontal, 10)
+        .background {
+            Color.white
+                .cornerRadius(15)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+        }
+        .padding(2.5)
     }
 }
 

@@ -36,59 +36,43 @@ struct ViewWeek: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                VStack {
-                    HStack(alignment: .center, spacing: 10) {
-                        BtnImg("left", color: .cyan) {
-                            month -= 1
-                            reload()
-                        }
-                        .frame(width: 25, height: 25)
-                        Text("\(String(month))월 주별 할 일")
-                            .font(.system(size: 20, weight: .bold))
-                            .padding(.vertical, 5)
-                        BtnImg("right", color: .cyan) {
-                            month += 1
-                            reload()
-                        }
-                        .frame(width: 25, height: 25)
-                    }
-                    ScrollView {
-                        ForEach(listSection) { w in
-                            Section {
-                                VStack {
-                                    if isEditing && targetNum == w.num {
-                                        // 할 일 작성 부분
-                                        ViewCreatingTodo(
-                                            week: w.num,
-                                            month: month,
-                                            year: year,
-                                            isPresented: $isEditing
-                                        ) { result in
-                                            onCreate(result)
-                                        }
-                                    }
-                                    if let listTodo = listGrouped[w.num],
-                                       !listTodo.isEmpty {
-                                        // 할 일 리스트
-                                        viewList(listTodo)
-                                    } else {
-                                        if !(isEditing && targetNum == w.num) {
-                                            // 리스트가 빈 경우 _ 가이드
-                                            viewEmptyList
-                                        }
+            VStack(spacing: 20) {
+                viewSelectingMonth
+                ScrollView(showsIndicators: false) {
+                    ForEach(listSection) { w in
+                        Section {
+                            VStack {
+                                if isEditing && targetNum == w.num {
+                                    // 할 일 작성 부분
+                                    ViewCreatingTodo(
+                                        week: w.num,
+                                        month: month,
+                                        year: year,
+                                        isPresented: $isEditing
+                                    ) { result in
+                                        onCreate(result)
                                     }
                                 }
-                                .padding(.bottom, 30)
-                            } header: {
-                                viewHeader(w)
+                                if let listTodo = listGrouped[w.num],
+                                   !listTodo.isEmpty {
+                                    // 할 일 리스트
+                                    viewList(listTodo)
+                                } else {
+                                    if !(isEditing && targetNum == w.num) {
+                                        // 리스트가 빈 경우 _ 가이드
+                                        viewEmptyList
+                                    }
+                                }
                             }
-                            .padding(.horizontal, 10)
+                            .padding(.bottom, 30)
+                        } header: {
+                            viewHeader(w)
                         }
                     }
-                    .padding(.top, 10)
                 }
             }
+            .padding(.top, 5)
+            .background(.gray.opacity(0.2))
         }
         .id(idRefresh)
         .navigationBarBackButtonHidden()
@@ -105,30 +89,52 @@ struct ViewWeek: View {
         }
     }
      
-    // viewBuilder
+    // ViewBuilder
+    @ViewBuilder
+    private var viewSelectingMonth: some View {
+        HStack(spacing: 10) {
+            BtnImg("left", color: .cyan) {
+                month -= 1
+                reload()
+            }
+            Text("\(String(month))월 주별 할 일")
+                .font(.system(size: 16, weight: .bold))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(.ultraThinMaterial)
+                .cornerRadius(15)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                .padding(2.5)
+            BtnImg("right", color: .cyan) {
+                month += 1
+                reload()
+            }
+        }
+        .frame(height: 30)
+    }
+    
+    @ViewBuilder
     private func viewHeader(_ week: Calendar.Week) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(spacing: 5) {
             HStack {
                 // 제목
                 Text("\(week.num)주차 (\(week.startDate.getStrDate(format: "MM.dd")) - \(week.endDate.getStrDate(format: "MM.dd")))")
                     .font(.system(size: 20, weight: .medium))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                // 생성 버튼
-                Button {
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                // 할 일 작성 버튼
+                BtnImg("iconPlus", color: .cyan) {
                     targetNum = week.num
                     // 편집 모드 들어가기
                     isEditing = true
-                } label: {
-                    ImgSafe("iconPlus", color: .cyan)
-                        .frame(width: 15, height: 15)
-                        .padding(5)
-                        .border(.cyan)
                 }
             }
             // 구분선
             Divider()
                 .frame(height: 1)
-                .background(.black)
+                .background(.gray.opacity(0.4))
         }
     }
     
@@ -178,15 +184,19 @@ struct ViewWeek: View {
     
     @ViewBuilder
     private var viewEmptyList: some View {
-        VStack(spacing: 10) {
+        HStack {
             Text("+ 버튼을 눌러 할 일을 작성할 수 있어요.")
+                .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color.gray)
-                .padding(.horizontal, 10)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.vertical, 10)
-            Divider()
-                .background(.gray)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.gray.opacity(0.4), lineWidth: 1)
+                }
         }
-        .frame(maxWidth: .infinity, maxHeight: 40)
+        .frame(height: 40)
+        .padding(2.5)
     }
     
     

@@ -33,16 +33,19 @@ struct ViewUpdatingTodo: View {
     
     var body: some View {
         // 수정 부분
-        HStack(alignment: .center) {
+        HStack(spacing: 5) {
             // 완료 여부 체크 버튼
             BtnCheckImg(
                 "btnDone",
+                colorY: .blue,
                 isChecked: Binding(get: { target.isDone }, set: { _ in })
             )
             .frame(width: 25, height: 25)
+            .padding(2.5)
             .disabled(true)
             // 이름
             TextFieldTitle(placeholder: "수정할 이름을 입력하세요.", text: $name)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .focused($isFocusingOnField)
                 .onChange(of: isFocusingOnField) { _, new in
                     isPresented = new
@@ -66,14 +69,21 @@ struct ViewUpdatingTodo: View {
                 isChecked: Binding(get: { target.isDone }, set: { _ in })
             )
             .frame(width: 25, height: 25)
-            .buttonStyle(.borderless)
+            .padding(2.5)
             .disabled(true)
         }
-        .padding(.vertical, 10)
+        .frame(height: 40)
         .padding(.horizontal, 10)
-        .frame(maxWidth: .infinity, maxHeight: 40)
-        .background(.white.opacity(0.3))
-        .border(.gray)
+        .background {
+            Color.white
+                .cornerRadius(15)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+        }
+        .padding(2.5)
         .onAppear {
             name = target.title ?? ""
             isFocusingOnField = true

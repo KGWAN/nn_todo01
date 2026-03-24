@@ -76,75 +76,12 @@ struct ViewListTodo: View {
         NavigationStack {
             ZStack {
                 // 배경
-                if let kate = kategory {
-                    switch kate.markType {
-                    case TypeMarkKategory.photo.rawValue:
-                        if let name = kate.photo,
-                            let img = UIImage(named: name) {
-                            Image(uiImage: img)
-                                .resizable()
-                                .ignoresSafeArea()
-                        } else {
-                            Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
-                                .ignoresSafeArea()
-                        }
-//                    case TypeMarkKategory.user.rawValue:
-//                        if let path = kate.userPhoto?.path,
-//                            let url = URL(string: path),
-//                            let img = UIImage(contentsOfFile: url.path()) {
-//                            Image(uiImage: img)
-//                                .resizable()
-//                                .ignoresSafeArea()
-//                                .scaledToFill()
-//                        } else {
-//                            Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
-//                                .ignoresSafeArea()
-//                        }
-                    default:
-                        Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
-                            .opacity(0.3)
-                            .ignoresSafeArea()
-                    }
-                } else {
-                    Color(hex: templete.hexColor)
-                        .ignoresSafeArea()
-                }
+//                background
                 // 내용
                 ContainerFloating {
-                    VStack {
+                    VStack(spacing: 20) {
                         // header
-                        HStack {
-                            HStack(spacing: 10){
-                                // 뒤로가기 버튼
-                                BtnImg("btnBack") {
-                                    onDismiss()
-                                    dismiss()
-                                }
-                                .frame(width: 40, height: 40, alignment: .center)
-                                .background(.white.opacity(0.4))
-                                .clipped()
-                                // 제목
-                                Text(title)
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundStyle(Color.black)
-                                    .padding(.trailing, 10)
-                                // 기타 메뉴
-                            }
-                            Spacer()
-                            // trailer
-                            HStack {
-                                if kategory != nil {
-                                    // 카테고리 수정 버튼
-                                    BtnImg("btnSetting") {
-                                        isShowingPopupModifyKategory = true
-                                    }
-                                    .frame(width: 40, height: 40)
-                                    .background(.white.opacity(0.4))
-                                    .clipped()
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 20)
+                        viewHeader
                         // fillter
                         VStack {
                             HStack(spacing: 0) {
@@ -159,7 +96,7 @@ struct ViewListTodo: View {
                                 }
                                 .pickerStyle(.palette)
                             }
-                            .border(.white.opacity(0.4))
+                            .border(.gray.opacity(0.4))
                             .clipped()
                             if availableDepths.count > 0 {
                                 HStack(spacing: 0) {
@@ -175,29 +112,33 @@ struct ViewListTodo: View {
                                     }
                                     .pickerStyle(.palette)
                                 }
-                                .border(.white.opacity(0.4))
+                                .border(.gray.opacity(0.4))
                                 .clipped()
                             }
                         }
                         .padding(.horizontal, 20)
                         // 내용
-                        ScrollView {
-                            // 할 일 목록 부분
-                            if isEditing {
-                                // 할 일 작성 부분
-                                viewWriting
-                            } else {
-                                // 생성 버튼
-                                btnCreating
-                            }
-                            if !list.isEmpty {
-                                // 리스트
-                                viewList
-                            } else {
-                                if !(isEditing) {
-                                    // 리스트가 빈 경우 _ 가이드
-                                    viewEmptyList
+                        VStack {
+                            ScrollView {
+                                VStack {
+                                    // 할 일 목록 부분
+                                    if isEditing {
+                                        // 할 일 작성 부분
+                                        viewWriting
+                                    } else {
+                                        // 생성 버튼
+                                        btnCreating
+                                    }
+                                    if !list.isEmpty {
+                                        // 리스트
+                                        viewList
+                                    } else {
+                                        if !(isEditing) {
+                                            // 리스트가 빈 경우 _ 가이드
+                                        }
+                                    }
                                 }
+                                .padding(.bottom, 50) // floating 버튼위로 띄우기 위함.
                             }
                         }
                         .padding(.horizontal, 20)
@@ -210,19 +151,28 @@ struct ViewListTodo: View {
                             Button {
                                 isShowingPopupAddTodo = true
                             } label: {
-                                HStack {
+                                HStack(spacing: 0) {
                                     Text("기존 작업에서 추가")
-                                        .font(.system(size: 17, weight: .medium))
-                                        .foregroundStyle(Color.blue)
+                                        .font(.system(size: 16, weight: .medium))
+                                        .foregroundStyle(Color.white)
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 }
-                                .frame(minHeight: 45)
-                                .padding(.horizontal, 20)
-                                .background(Color.white)
-                                .cornerRadius(55)
                             }
+                            .frame(height: 40)
+                            .background {
+                                Color.cyan
+                                    .cornerRadius(15)
+                                    .overlay {
+                                        RoundedRectangle(cornerRadius: 15)
+                                            .stroke(.white.opacity(0.2), lineWidth: 1)
+                                    }
+                                    .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                            }
+                            .padding(2.5)
                         }
                     }
                 }
+                .padding(.top, 5)
                 if isShowingPopupAddTodo {
                     // todo 추가 팝업
                     if let k = kategory {
@@ -269,6 +219,72 @@ struct ViewListTodo: View {
     
     
     // ViewBuilder
+    @ViewBuilder
+    private var background: some View {
+        if let kate = kategory {
+            switch kate.markType {
+            case TypeMarkKategory.photo.rawValue:
+                if let name = kate.photo,
+                    let img = UIImage(named: name) {
+                    Image(uiImage: img)
+                        .resizable()
+                        .ignoresSafeArea()
+                } else {
+                    Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
+                        .ignoresSafeArea()
+                }
+//                    case TypeMarkKategory.user.rawValue:
+//                        if let path = kate.userPhoto?.path,
+//                            let url = URL(string: path),
+//                            let img = UIImage(contentsOfFile: url.path()) {
+//                            Image(uiImage: img)
+//                                .resizable()
+//                                .ignoresSafeArea()
+//                                .scaledToFill()
+//                        } else {
+//                            Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
+//                                .ignoresSafeArea()
+//                        }
+            default:
+                Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
+                    .opacity(0.3)
+                    .ignoresSafeArea()
+            }
+        } else {
+            Color(hex: templete.hexColor)
+                .ignoresSafeArea()
+        }
+    }
+    
+    @ViewBuilder
+    private var viewHeader: some View {
+        HStack {
+            // leader
+            HStack(spacing: 20){
+                // 뒤로가기 버튼
+                BtnImg("btnBack") {
+                    onDismiss()
+                    dismiss()
+                }
+                // 제목
+                Text(title)
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(Color.black)
+            }
+            Spacer()
+            // trailer
+            HStack {
+                if kategory != nil {
+                    // 카테고리 수정 버튼
+                    BtnImg("btnSetting") {
+                        isShowingPopupModifyKategory = true
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+    
     // 할 일 작성 버튼
     @ViewBuilder
     private var btnCreating: some View {
@@ -277,11 +293,21 @@ struct ViewListTodo: View {
         } label: {
             Text("이 버튼을 눌러 할 일을 작성할 수 있어요.")
                 .foregroundStyle(Color.white)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 10)
+                .background {
+                    Color.cyan
+                        .cornerRadius(15)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 15)
+                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                        }
+                        .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                }
+                .padding(2.5)
         }
-        .frame(maxWidth: .infinity, maxHeight: 40)
-        .background(.cyan)
+        .frame(height: 40)
     }
     
     // 할 일 목록

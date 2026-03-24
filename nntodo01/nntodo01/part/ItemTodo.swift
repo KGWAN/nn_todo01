@@ -36,22 +36,23 @@ struct ItemTodo: View {
     
     
     var body: some View {
-        HStack(alignment: .center) {
+        HStack(spacing: 5) {
             // 완료 여부 체크 버튼
             BtnCheckImg(
                 "btnDone",
                 colorY: .blue,
                 isChecked: $isDone)
                 .frame(width: 25, height: 25)
-                .buttonStyle(.borderless)
+                .padding(2.5)
                 .disabled(isLocked)
             // 이름
             Text(title)
                 .font(.system(size: 16, weight: .medium))
                 .multilineTextAlignment(.leading)
                 .foregroundStyle(Color.black)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 .padding(.leading, 10)
+                .padding(.vertical, 3)
             // 잠김 여부
             Text(isLocked ? "잠김" : "")
                 .font(.system(size: 12, weight: .medium))
@@ -79,13 +80,20 @@ struct ItemTodo: View {
                 isChecked: $isMarked
             )
             .frame(width: 25, height: 25)
-            .buttonStyle(.borderless)
+            .padding(2.5)
         }
-        .padding(.vertical, 10)
+        .frame(height: 40)
         .padding(.horizontal, 10)
-        .frame(maxWidth: .infinity, maxHeight: 40)
-        .background(.white.opacity(0.3))
-        .border(kategory?.color == nil ? .gray : Color(hex: kategory!.color!))
+        .background {
+            Color.white
+                .cornerRadius(15)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke((kategory?.color == nil ? .gray : Color(hex: kategory!.color!)).opacity(0.2), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+        }
+        .padding(2.5)
         .onChange(of: isDone) { _, new in
             onUpdate("isDone", new)
         }

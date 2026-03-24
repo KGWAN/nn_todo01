@@ -25,6 +25,7 @@ struct ViewMain: View {
         ZStack {
             NavigationStack {
                 VStack(spacing: 30) {
+                    // header
                     HStack {
 //                        // 프로필
 //                        NavigationLink(
@@ -52,82 +53,75 @@ struct ViewMain: View {
                         ) {
                             // 검색
                             ImgSafe("btnSearch", color: .cyan)
-                                .frame(width: 30, height: 30)
+                                .frame(width: 22.5, height: 22.5)
+                                .padding(2.5)
+                                .background(.ultraThinMaterial)
+                                .cornerRadius(15)
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                                }
+                                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                                .padding(2.5)
                         }
                     }
-                    .padding(.horizontal, 20)
-                    
-                    ScrollView() {
-                        VStack(spacing: 20) {
-                            ForEach(Templete.allCases) { templete in
-                                NavigationLink(
-                                    destination: ViewListTodo(
-                                        templete,
-                                        onDismiss: {
-                                            reload()
-                                        }
-                                    )
-                                ) {
-                                    ItemInventory(
-                                        templete.rawValue,
-                                        nameImg: templete.nameIcon,
-                                        color: templete.color,
-                                        cnt: templete.cntNotDoneWorks
-                                    )
+                    .frame(height: 30)
+                    // content
+                    VStack {
+                        ScrollView() {
+                            VStack(spacing: 10) {
+                                ForEach(Templete.allCases) { templete in
+                                    NavigationLink(
+                                        destination: ViewListTodo(
+                                            templete,
+                                            onDismiss: {
+                                                reload()
+                                            }
+                                        )
+                                    ) {
+                                        ItemInventory(
+                                            templete.rawValue,
+                                            nameImg: templete.nameIcon,
+                                            color: templete.color,
+                                            cnt: templete.cntNotDoneWorks
+                                        )
+                                    }
                                 }
                             }
-                        }
-                        Divider()
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 20)
-                        VStack(spacing: 20) {
-                            ForEach(list) { kate in
-                                NavigationLink(
-                                    destination: ViewListTodo(
-                                        kate,
-                                        onDismiss: {
-                                            reload()
-                                        }
-                                    )
-                                ) {
-                                    if kate.markType == TypeMarkKategory.color.rawValue,
-                                       let color = kate.color {
-                                        ItemInventory(
-                                            kate.title ?? "",
-                                            nameImg: "iconTempNomal",
-                                            color: Color(hex: color),
-                                            cnt: service.getCntNotDoneWorks(kate)
+                            Divider()
+                                .padding(.vertical, 10)
+                            VStack(spacing: 20) {
+                                ForEach(list) { kate in
+                                    NavigationLink(
+                                        destination: ViewListTodo(
+                                            kate,
+                                            onDismiss: {
+                                                reload()
+                                            }
                                         )
-                                    } else {
-                                        ItemInventory(kate.title ?? "", nameImg: "iconTempNomal", cnt: service.getCntNotDoneWorks(kate))
+                                    ) {
+                                        if kate.markType == TypeMarkKategory.color.rawValue,
+                                           let color = kate.color {
+                                            ItemInventory(
+                                                kate.title ?? "",
+                                                nameImg: "iconTempNomal",
+                                                color: Color(hex: color),
+                                                cnt: service.getCntNotDoneWorks(kate)
+                                            )
+                                        } else {
+                                            ItemInventory(kate.title ?? "", nameImg: "iconTempNomal", cnt: service.getCntNotDoneWorks(kate))
+                                        }
                                     }
                                 }
                             }
                         }
-                        Spacer()
                     }
-                    Group {
-                        Button {
-                            isShowingPopupInputKategory = true
-                        } label: {
-                            HStack {
-                                ImgSafe("iconPlus", color: .cyan)
-                                    .frame(width: 20, height: 20)
-                                Text("새 목록")
-                                    .font(.system(size: 18))
-                                    .foregroundStyle(Color.cyan)
-                                    .padding(.horizontal, 10)
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
-                        .background(.white.opacity(0.4))
-                        .border(.cyan)
-                    }
-                    .padding(.horizontal, 20)
+                    // 목록 생성 버튼
+                    btnCreating
                 }
+                .padding(.horizontal, 20)
             }
+            .padding(.top, 5)
             .toast(msgToast, isPresented: $isShowingToast)
             
             if isShowingPopupInputKategory {
@@ -138,6 +132,38 @@ struct ViewMain: View {
         }
         .id(idRefresh)
     }
+    
+    
+    // ViewBuilder
+    @ViewBuilder
+    private var btnCreating: some View {
+        Button {
+            isShowingPopupInputKategory = true
+        } label: {
+            HStack(spacing: 0) {
+                ImgSafe("iconPlus", color: .white)
+                    .frame(width: 25, height: 25)
+                    .padding(2.5)
+                Text("새 목록")
+                    .font(.system(size: 18))
+                    .foregroundStyle(Color.white)
+                    .padding(.horizontal, 10)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .frame(height: 40)
+        .background {
+            Color.cyan
+                .cornerRadius(15)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+        }
+        .padding(2.5)
+    }
+    
     
     // func
     func showToast(_ msg: String) {

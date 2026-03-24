@@ -26,12 +26,22 @@ struct BtnImg: View {
             action()
         } label: {
             ImgSafe(imgName, color: color)
+                .frame(width: 22.5, height: 22.5)
+                .padding(2.5)
+                .background(.ultraThinMaterial)
+                .cornerRadius(15)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                .padding(2.5)
         }
     }
 }
 
 #Preview {
-    BtnImg() {
+    BtnImg("iconPlus") {
         NnLogger.log("BtnImg(preview) was tapped.", level: .debug)
     }
 }

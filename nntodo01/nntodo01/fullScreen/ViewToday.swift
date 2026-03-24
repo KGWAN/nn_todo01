@@ -44,30 +44,33 @@ struct ViewToday: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                ForEach(listSection, id: \.self) {type in
-                    Section {
-                        VStack(spacing: 20) {
-                            if isEditing && targetNum == type {
-                                // 할 일 작성 부분
-                                viewWriting(type)
-                            }
-                            if let list = getList(type),
-                               !list.isEmpty {
-                                // 할 일 리스트
-                                viewList(list)
-                            } else {
-                                if !(isEditing && targetNum == type) {
-                                    viewEmptyList
+            VStack {
+                ScrollView(showsIndicators: false) {
+                    ForEach(listSection, id: \.self) {type in
+                        Section {
+                            VStack(spacing: 10) {
+                                if isEditing && targetNum == type {
+                                    // 할 일 작성 부분
+                                    viewWriting(type)
+                                }
+                                if let list = getList(type),
+                                   !list.isEmpty {
+                                    // 할 일 리스트
+                                    viewList(list)
+                                } else {
+                                    if !(isEditing && targetNum == type) {
+                                        viewEmptyList
+                                    }
                                 }
                             }
+                            .padding(.bottom, 30)
+                        } header: {
+                            viewHeader(type)
                         }
-                    } header: {
-                        viewHeader(type)
                     }
                 }
             }
-            .padding(.vertical, 10)
+            .padding(.top, 5)
             .padding(.horizontal,20)
         }
         .id(idRefresh)
@@ -125,21 +128,25 @@ struct ViewToday: View {
     
     @ViewBuilder
     private var viewEmptyList: some View {
-        VStack(spacing: 0) {
+        HStack {
             Text("+ 버튼을 눌러 할 일을 작성할 수 있어요.")
+                .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(Color.gray)
-                .padding(.horizontal, 10)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.vertical, 10)
-            Divider()
-                .background(.gray)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.gray.opacity(0.4), lineWidth: 1)
+                }
         }
-        .frame(maxWidth: .infinity, maxHeight: 40)
+        .frame(height: 40)
+        .padding(2.5)
     }
     
     @ViewBuilder
     private func viewHeader(_ type: TypePlan) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack {
+        VStack(spacing: 5) {
+            HStack(spacing: 0) {
                 // 제목
                 Group {
                     if type == .day {
@@ -151,23 +158,20 @@ struct ViewToday: View {
                     }
                 }
                 .font(.system(size: 20, weight: .medium))
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 // 생성 버튼
-                Button {
+                // 할 일 작성 버튼
+                BtnImg("iconPlus", color: .cyan) {
                     isEditing = true
                     isFocusedSub = true
                     targetNum = type
-                } label: {
-                    ImgSafe("iconPlus", color: .cyan)
-                        .frame(width: 15, height: 15)
-                        .padding(5)
-                        .border(.cyan)
                 }
             }
+            .frame(height: 30)
             // 구분선
             Divider()
                 .frame(height: 1)
-                .background(.black)
+                .background(.gray.opacity(0.4))
         }
     }
     
