@@ -118,7 +118,7 @@ class ServiceWork: NnService {
         parent: Work? = nil
     ) -> Work {
         let new = getNew(title, parent: parent)
-        new.planType = TypePlan.week.rawValue
+        new.planType = TypePlan.day.rawValue
         new.planedDay = Int64(planedDay)
         new.planedMonth = Int64(planedMonth)
         new.planedYear = Int64(planedYear)

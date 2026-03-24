@@ -27,7 +27,7 @@ struct ModifierToast: ViewModifier {
                         .padding(.vertical, 10)
                         .background(Color.cyan.opacity(0.7))
                         .cornerRadius(10)
-                        .shadow(radius: 10)
+                        .shadow(radius: 0)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                         .padding(.bottom, 50)
                 }
