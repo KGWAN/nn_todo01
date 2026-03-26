@@ -9,69 +9,78 @@ import SwiftUI
 
 struct PopupSelectingKategory: View {
     // in value
-    @Binding var isPresented: Bool
     private let onSelected: (Kategory) -> Void
     // init
     init(
-        isPresented: Binding<Bool>,
         onSelected: @escaping (Kategory) -> Void
     ) {
-        self._isPresented = isPresented
         self.onSelected = onSelected
     }
     // state
 //    @State var target: Kategory
     @State private var list: [Kategory] = []
-//    @State private var idRefresh: UUID = UUID()
+    @State private var idRefresh: UUID = UUID()
+    @State private var isShowingPopupInputKategory: Bool = false
     // constant
     private let service: ServiceKategory = ServiceKategory()
     // environment
     @Environment(\.isPreview) var isPreview
+    @EnvironmentObject private var managerPopup: ManagerPopup
     
     var body: some View {
-        ContainerPopup(
-            .bottom,
-            isPresented: $isPresented,
-            content: {
-                // background
-                VStack(spacing:0) {
-                    // header
-                    viewHeader
-                    // body
-                    VStack {
-                        // list
-                        if list.isEmpty {
-                            Text("선택할 목록이 없습니다.")
-                                .foregroundStyle(.gray)
-                        } else {
-                            ScrollView {
-                                ForEach(list) { item in
-                                    // button selecting a kategory
-                                    Button {
-                                        onSelected(item)
-                                        isPresented = false
-                                    } label: {
-                                        ItemInventory(
-                                            item.title ?? "",
-                                            nameImg: "iconTempNomal",
-                                            color: Color(hex: item.color ?? "#000000"),
-                                            cnt: service.getCntNotDoneWorks(item)
-                                        )
-                                        .padding(.vertical, 5)
-                                        .border(.gray)
+        ZStack {
+            ContainerPopup(
+                .bottom,
+                content: {
+                    ZStack {
+                        // background
+                        UnevenRoundedRectangle(
+                            topLeadingRadius: 30,
+                            topTrailingRadius: 30
+                        )
+                        .fill(Color.white)
+                        .ignoresSafeArea(edges: .bottom)
+                        .padding(.top, 30)
+                        .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                        .padding(.top, 2.5)
+                        // contetn
+                        VStack(spacing:0) {
+                            // header
+                            viewHeader
+                            // body
+                            VStack {
+                                // list
+                                if list.isEmpty {
+                                    Text("선택할 목록이 없습니다.")
+                                        .foregroundStyle(.gray)
+                                } else {
+                                    ScrollView(showsIndicators: false) {
+                                        ForEach(list) { item in
+                                            // button selecting a kategory
+                                            Button {
+                                                onSelected(item)
+                                                managerPopup.hide()
+                                            } label: {
+                                                ItemInventory(
+                                                    item.title ?? "",
+                                                    nameImg: "iconTempNomal",
+                                                    color: Color(hex: item.color ?? "#000000"),
+                                                    cnt: service.getCntNotDoneWorks(item)
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .padding(.top, 30)
+                        .padding(.horizontal, 20)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(.horizontal, 20)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(.white)
-                .padding(.top, 30)
-            }
-        )
+            )
+        }
         .onAppear {
             reload()
         }
@@ -88,10 +97,8 @@ struct PopupSelectingKategory: View {
                 HStack {
                     // close button
                     BtnImg("iconX") {
-                        isPresented = false
+                        managerPopup.hide()
                     }
-                    .frame(width: 30, height: 30)
-                    .border(.gray)
                     Spacer()
                 }
                 // trail
@@ -99,16 +106,12 @@ struct PopupSelectingKategory: View {
                     Spacer()
                     // button creating kategory
                     BtnImg("iconPlus", color: .cyan) {
-                        
+                        isShowingPopupInputKategory = true
                     }
-                    .frame(width: 20, height: 20)
-                    .padding(5)
-                    .border(.cyan)
                 }
             }
             .frame(maxHeight: 30)
             .padding(.vertical, 20)
-            .padding(.horizontal, 20)
         }
     }
     
@@ -122,13 +125,21 @@ struct PopupSelectingKategory: View {
         } else {
             list = service.fetchAll()
         }
+        //
+        idRefresh = UUID()
+    }
+    
+    private func onCreate(_ result: Result) {
+        if !result.isSuccess {
+            
+        }
+        reload()
     }
 }
 
 #Preview {
-    @Previewable @State var isPresented: Bool = true
-    
-    PopupSelectingKategory(isPresented: $isPresented) {
+    PopupSelectingKategory {
         print("kategory was selected. >>> \($0)")
     }
+    .environmentObject(ManagerPopup())
 }

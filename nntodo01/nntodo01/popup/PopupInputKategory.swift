@@ -9,19 +9,16 @@
 import SwiftUI
 
 struct PopupInputKategory: View {
-    //init
-    @Binding var isPresented: Bool
+    //in
     let origin: Kategory?
     let onFinish: (Result) -> Void
     let onDelete: ((Result) -> Void)?
-    
+    // init
     init(
         origin: Kategory? = nil,
-        isPresented: Binding<Bool>,
         onFinish: @escaping (Result) -> Void,
         onDelete: ((Result) -> Void)? = nil
     ) {
-        self._isPresented = isPresented
         self.origin = origin
         self.onFinish = onFinish
         self.onDelete = onDelete
@@ -41,12 +38,13 @@ struct PopupInputKategory: View {
     @State private var selectedUserPhoto: UserPhoto? = nil
     // value
     let service: ServiceKategory = ServiceKategory()
+    // environment
+    @EnvironmentObject private var managerPopup: ManagerPopup
     
     
     var body: some View {
         ContainerPopup(
             .center,
-            isPresented: $isPresented,
             content: {
                 HStack {
                     VStack(spacing: 20) {
@@ -106,7 +104,7 @@ struct PopupInputKategory: View {
                         HStack(spacing: 40) {
                             Spacer()
                             BtnText("취소") {
-                                isPresented = false
+                                managerPopup.hide()
                             }
                             BtnActivationText(origin == nil ? "목록 만들기" : "저장", isEnabled: $canInput) {
                                 if origin == nil {
@@ -114,7 +112,7 @@ struct PopupInputKategory: View {
                                 } else {
                                     update()
                                 }
-                                isPresented = false
+                                managerPopup.hide()
                             }
                         }
                     }
@@ -186,19 +184,15 @@ struct PopupInputKategory: View {
 }
 
 #Preview {
-    @Previewable @State var isShowing: Bool = true
     let kategory: Kategory = ServiceKategory().getNew("kate_preview")
     
     // insert
-    PopupInputKategory(
-        isPresented: $isShowing,
-    ) { result in
+    PopupInputKategory() { result in
         
     }
     // update
     PopupInputKategory(
-        origin: kategory,
-        isPresented: $isShowing
+        origin: kategory
     ) { result in
         
     }

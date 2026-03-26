@@ -11,23 +11,34 @@ struct ViewSelectingPlan: View {
     @Binding var listTypePlan: TypePlan
     
     var body: some View {
-        HStack {
+        HStack(spacing: 5) {
             ForEach(TypePlan.allCases, id: \.rawValue) { type in
                 Button {
-                    if listTypePlan.contains(type) {
-                        listTypePlan.remove(type)
-                    } else {
-                        listTypePlan.insert(type)
+                    withAnimation {
+                        if listTypePlan.contains(type) {
+                            listTypePlan.remove(type)
+                        } else {
+                            listTypePlan.insert(type)
+                        }
                     }
                     NnLogger.log("Plan's Type was changed. >>> \(listTypePlan.rawValue)")
                 } label: {
                     Text(type.name)
-                        .foregroundStyle(listTypePlan.contains(type) ? .black : .gray)
+                        .fontWeight(listTypePlan.contains(type) ? .bold : .regular)
+                        .foregroundStyle(listTypePlan.contains(type) ? .cyan : .gray)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(listTypePlan.contains(type) ? .white : .clear)
                 }
             }
         }
+        .frame(height: 30)
+        .background(.ultraThinMaterial)
+        .cornerRadius(15)
+        .overlay {
+            RoundedRectangle(cornerRadius: 15)
+                .stroke(.white.opacity(0.2), lineWidth: 1)
+        }
+        .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+        .padding(2.5)
     }
 }
 

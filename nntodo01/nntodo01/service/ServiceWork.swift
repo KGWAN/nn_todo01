@@ -49,6 +49,17 @@ class ServiceWork: NnService {
         }
         return new
     }
+    // preview에서 확인을 위해 생성
+    func getDoneWork(_ title: String) -> Work {
+        let new = Work(context: context)
+        // auto
+        new.id = UUID()
+        new.createdDate = Date()
+        // user's input
+        new.title = title
+        new.isDone = true
+        return new
+    }
     // 별표 생성
     func getNew(
         _ title: String,

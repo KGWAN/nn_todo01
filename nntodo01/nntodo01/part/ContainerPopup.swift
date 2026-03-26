@@ -8,29 +8,28 @@
 import SwiftUI
 
 struct ContainerPopup<Content: View>: View {
-    // init
+    // in
     private let alignment: Alignment
     private let opacity: Double
-    @Binding private var isPresented: Bool
     @ViewBuilder private let content: Content
-    
+    // init
     init(
         _ alignment: Alignment = .center,
         opacity: Double = 0.4,
-        isPresented: Binding<Bool>,
         content: @escaping () -> Content
     ) {
         self.alignment = alignment
         self.opacity = opacity
-        self._isPresented = isPresented
         self.content = content()
     }
+    // environment
+    @EnvironmentObject private var manager: ManagerPopup
+    
     
     var body: some View {
         ZStack(alignment: alignment) {
-            ViewDim(isShowingPopup: $isPresented, opacity: opacity)
+            ViewDim(opacity: opacity)
             content
-            
         }
     }
 }

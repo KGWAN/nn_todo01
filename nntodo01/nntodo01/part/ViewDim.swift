@@ -8,24 +8,27 @@
 import SwiftUI
 
 struct ViewDim: View {
-    @Binding var isShowingPopup: Bool
+    // in
     @State var opacity: Double = 0.4
+    // init
+    init(opacity: Double) {
+        self.opacity = opacity
+    }
+    // environment
+    @EnvironmentObject private var manager: ManagerPopup
     
     var body: some View {
         Color.black.opacity(opacity)
             .ignoresSafeArea()
             .onTapGesture {
-                isShowingPopup = false
+                manager.hide()
             }
             .transition(.opacity)
-            .animation(.easeOut, value: isShowingPopup)
-            .edgesIgnoringSafeArea(.all)
             .contentShape(Rectangle())
     }
 }
 
 #Preview {
-    @Previewable @State var isShowingPopup: Bool = false
-    
-    ViewDim(isShowingPopup: $isShowingPopup)
+    ViewDim(opacity: 0.4)
+        .environmentObject(ManagerPopup())
 }

@@ -5,9 +5,9 @@
 //  Created by JUNGGWAN KIM on 3/11/26.
 //
 
-import Foundation
-
-@Observable
-class NnState {
-    var isPopupOpenForWritingTodo: Bool = false
-}
+//import Foundation
+//
+//@Observable
+//class NnState {
+//    var isPopupOpenForWritingTodo: Bool = false
+//}

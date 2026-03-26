@@ -11,21 +11,45 @@ import SwiftUI
 struct nntodo01App: App {
     // state
     @State private var isShowingMain = false
+    @StateObject private var managerPopup = ManagerPopup()
     // constant
     let persistenceController = PersistenceController.shared
-    @State private var state = NnState()
     
     var body: some Scene {
         WindowGroup {
-            if isShowingMain {
-                ViewShell()
-            } else {
-                ViewIntro {
-                    isShowingMain = true
+            ZStack {
+                if isShowingMain {
+                    ViewShell()
+                } else {
+                    ViewIntro {
+                        isShowingMain = true
+                    }
+                }
+                if let popup = managerPopup.popup {
+                    renderPopup(popup)
                 }
             }
         }
         .environment(\.managedObjectContext, persistenceController.container.viewContext)
-        .environment(state)
+        .environmentObject(managerPopup)
+    }
+    
+    
+    // viewBuilder
+    @ViewBuilder
+    private func renderPopup(_ popup: NnPopup) -> some View{
+        switch popup {
+        case .selectKategory(let onSelected):
+            PopupSelectingKategory(onSelected: onSelected)
+                .transition(.move(edge: .bottom))
+        case .setKategory(let target, let onFinished, let onDelete):
+            PopupInputKategory(origin: target, onFinish: onFinished, onDelete: onDelete)
+        case .viewDetailTodo(let todo, let onFinished):
+            PopupDetailTodo(todo, onFinish: onFinished)
+                .transition(.move(edge: .trailing))
+        case .selectTodo(destination: let destination, predicate: let predicate, onUpdate: let onUpdate):
+            PopupSelectingTodo(destination: destination, predicate: predicate, onUpdate: onUpdate)
+                .transition(.move(edge: .bottom))
+        }
     }
 }
