@@ -21,39 +21,43 @@ struct ViewYear: View {
     @State private var isEditing: Bool = false
     @State private var isModifying: Bool = false
     @State private var targetModifying: Work? = nil
+    @State private var isShowingPopupSelectingKategory: Bool = false
     // showing toast
     @State private var isShowingToast: Bool = false
     @State private var msgToast: String = ""
     // constant
     private let service: ServiceWork = ServiceWork()
+    // environment
+    @EnvironmentObject var managerPopup: ManagerPopup
     
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 10) {
-                // 제목
-                viewHeader
-                // 내용
-                VStack {
-                    ScrollView(showsIndicators: false) {
-                        if isEditing {
-                            // 할 일 작성 부분
-                            ViewCreatingTodo(year: year, isPresented: $isEditing) { result in
-                                onCreate(result)
+            ZStack {
+                VStack(spacing: 10) {
+                    // 제목
+                    viewHeader
+                    // 내용
+                    VStack {
+                        ScrollView(showsIndicators: false) {
+                            if isEditing {
+                                // 할 일 작성 부분
+                                ViewCreatingTodo(year: year, isPresented: $isEditing) { result in
+                                    onCreate(result)
+                                }
                             }
-                        }
-                        if list.isEmpty && !isEditing {
-                            // 리스트가 빈 경우 _ 가이드
-                            viewEmptyList
-                        } else {
-                            // 할 일 리스트
-                            viewList
+                            if list.isEmpty && !isEditing {
+                                // 리스트가 빈 경우 _ 가이드
+                                viewEmptyList
+                            } else {
+                                // 할 일 리스트
+                                viewList
+                            }
                         }
                     }
                 }
+                .padding(.top, 5)
             }
-            .padding(.top, 5)
-            .background(.gray.opacity(0.2))
         }
         .id(idRefresh)
         .onAppear {
@@ -111,41 +115,56 @@ struct ViewYear: View {
     @ViewBuilder
     private var viewList: some View {
         ForEach(list) { i in
-            NavigationLink(
-                destination: ViewDetailTodo(i) {result in
-                    onUpdate(result: result)
+            if isModifying &&  i == targetModifying {
+                // 수정 부분
+                ViewUpdatingTodo(
+                    i,
+                    isPresented: $isModifying
+                ) { k, v in
+                    update(i, key: k, value: v)
                 }
-            ) {
-                if isModifying &&  i == targetModifying {
-                    // 수정 부분
-                    ViewUpdatingTodo(
-                        i,
-                        isPresented: $isModifying
-                    ) { k, v in
-                        update(i, key: k, value: v)
+            } else {
+                ItemTodo(i) {
+                    update(i, key: $0, value: $1)
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    managerPopup.show(
+                        .viewDetailTodo(
+                            todo: i,
+                            onFinished: { result in
+                                onUpdate(result: result)
+                            }
+                        )
+                    )
+                }
+                .contextMenu {
+                    Button() {
+                        targetModifying = i
+                        isModifying = true
+                    } label: {
+                        Label("이름 수정하기", systemImage: "pencil")
                     }
-                } else {
-                    ItemTodo(i) {
-                        update(i, key: $0, value: $1)
+                    Button() {
+                        managerPopup.show(
+                            .selectKategory(
+                                onSelected: { kategory in
+                                    update(i, key: "kategory", value: kategory)
+                                }
+                            )
+                        )
+                    } label: {
+                        Label("목록에 추가", systemImage: "folder.badge.plus")
                     }
-                    .contentShape(Rectangle())
-                    .contextMenu {
-                        Button() {
-                            targetModifying = i
-                            isModifying = true
-                        } label: {
-                            Label("이름 수정하기", systemImage: "pencil")
-                        }
-                        Button(role: .destructive) {
-                            delete(i)
-                        } label: {
-                            Label("삭제하기", systemImage: "trash")
-                        }
-                        Button(role: .destructive) {
-                            deleteWithChildren(i)
-                        } label: {
-                            Label("서브 작업까지 모두 삭제하기", systemImage: "trash")
-                        }
+                    Button(role: .destructive) {
+                        delete(i)
+                    } label: {
+                        Label("삭제하기", systemImage: "trash")
+                    }
+                    Button(role: .destructive) {
+                        deleteWithChildren(i)
+                    } label: {
+                        Label("서브 작업까지 모두 삭제하기", systemImage: "trash")
                     }
                 }
             }

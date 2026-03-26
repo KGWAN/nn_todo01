@@ -13,18 +13,20 @@ struct ViewMain: View {
         self._list = State(initialValue: service.fetchAll())
     }
     // state
-    @State private var isShowingPopupInputKategory: Bool = false
     @State private var list: [Kategory]
     @State private var idRefresh: UUID = UUID()
     @State private var isShowingToast: Bool = false
     @State private var msgToast: String = ""
     // constatn
     private let service: ServiceKategory = ServiceKategory()
+    // environment
+    @EnvironmentObject private var managerPopup: ManagerPopup
+    
     
     var body: some View {
         ZStack {
             NavigationStack {
-                VStack(spacing: 30) {
+                VStack(spacing: 20) {
                     // header
                     HStack {
 //                        // 프로필
@@ -68,13 +70,13 @@ struct ViewMain: View {
                     .frame(height: 30)
                     // content
                     VStack {
-                        ScrollView() {
+                        ScrollView(showsIndicators: false) {
                             VStack(spacing: 10) {
                                 ForEach(Templete.allCases) { templete in
                                     NavigationLink(
                                         destination: ViewListTodo(
                                             templete,
-                                            onDismiss: {
+                                            onDismiss: {_ in 
                                                 reload()
                                             }
                                         )
@@ -90,12 +92,13 @@ struct ViewMain: View {
                             }
                             Divider()
                                 .padding(.vertical, 10)
-                            VStack(spacing: 20) {
+                            VStack(spacing: 10) {
                                 ForEach(list) { kate in
                                     NavigationLink(
                                         destination: ViewListTodo(
                                             kate,
-                                            onDismiss: {
+                                            onDismiss: { rseult in
+                                                print(rseult)
                                                 reload()
                                             }
                                         )
@@ -123,12 +126,6 @@ struct ViewMain: View {
             }
             .padding(.top, 5)
             .toast(msgToast, isPresented: $isShowingToast)
-            
-            if isShowingPopupInputKategory {
-                PopupInputKategory(isPresented: $isShowingPopupInputKategory) { result in
-                    onCreateKategory(result)
-                }
-            }
         }
         .id(idRefresh)
     }
@@ -138,7 +135,14 @@ struct ViewMain: View {
     @ViewBuilder
     private var btnCreating: some View {
         Button {
-            isShowingPopupInputKategory = true
+            managerPopup.show(
+                .setKategory(
+                    target: nil,
+                    onFinished: { result in
+                        onCreateKategory(result)
+                    }, onDelete: nil
+                )
+            )
         } label: {
             HStack(spacing: 0) {
                 ImgSafe("iconPlus", color: .white)

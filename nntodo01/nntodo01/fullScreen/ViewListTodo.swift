@@ -16,8 +16,6 @@ struct ViewListTodo: View {
     @State private var isEditing: Bool = false
     @State private var isModifyingName: Bool = false
     @State private var targetModifying: Work? = nil
-    @State private var isShowingPopupAddTodo: Bool = false
-    @State private var isShowingPopupSelectingKategory: Bool = false
     @State private var depth: Int = -1
     @State private var idxFilter: Int = -1 // -1: 전체, 0: 완료만 보기, 1: 미완료만 보기
     // showing toast
@@ -27,12 +25,13 @@ struct ViewListTodo: View {
     private let service: ServiceWork = ServiceWork()
     private let predicate: NSPredicate?
     // environment
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss // 리스트 닫기
+    @EnvironmentObject private var managerPopup: ManagerPopup
     // init
-    let onDismiss: () -> Void
+    let onDismiss: (Result) -> Void // 리스트 닫는 중
     
     // case: .normal, .marked
-    init(_ templete: Templete = .normal, onDismiss: @escaping () -> Void) {
+    init(_ templete: Templete = .normal, onDismiss: @escaping (Result) -> Void) {
         self.onDismiss = onDismiss
         self.templete = templete
         
@@ -48,7 +47,7 @@ struct ViewListTodo: View {
     private let templete: Templete
 
     // case: kategory
-    init(_ kategory: Kategory, onDismiss: @escaping () -> Void) {
+    init(_ kategory: Kategory, onDismiss: @escaping (Result) -> Void) {
         self.onDismiss = onDismiss
         self.templete = .normal
         self.kategory = kategory
@@ -59,8 +58,6 @@ struct ViewListTodo: View {
     }
     // state
     @State private var kategory: Kategory? = nil
-    @State private var isShowingPopupModifyKategory: Bool = false
-//    @State private var isPop: Bool = false
     
     
     // 연산 프로퍼티
@@ -96,8 +93,6 @@ struct ViewListTodo: View {
                                 }
                                 .pickerStyle(.palette)
                             }
-                            .border(.gray.opacity(0.4))
-                            .clipped()
                             if availableDepths.count > 0 {
                                 HStack(spacing: 0) {
                                     Text("레밸")
@@ -112,14 +107,12 @@ struct ViewListTodo: View {
                                     }
                                     .pickerStyle(.palette)
                                 }
-                                .border(.gray.opacity(0.4))
-                                .clipped()
                             }
                         }
                         .padding(.horizontal, 20)
                         // 내용
                         VStack {
-                            ScrollView {
+                            ScrollView(showsIndicators: false) {
                                 VStack {
                                     // 할 일 목록 부분
                                     if isEditing {
@@ -144,12 +137,18 @@ struct ViewListTodo: View {
                         .padding(.horizontal, 20)
                     }
                 } label: {
-                    if !isShowingPopupAddTodo
-                    {
-                        if kategory != nil {
+                        if let k = kategory {
                             // todo 추가 버튼
                             Button {
-                                isShowingPopupAddTodo = true
+                                managerPopup.show(
+                                    .selectTodo(
+                                        destination: k,
+                                        predicate: NSPredicate(format: "kategory == nil", k),
+                                        onUpdate: { result in
+                                            onUpdate(result: result)
+                                        }
+                                    )
+                                )
                             } label: {
                                 HStack(spacing: 0) {
                                     Text("기존 작업에서 추가")
@@ -170,39 +169,8 @@ struct ViewListTodo: View {
                             }
                             .padding(2.5)
                         }
-                    }
                 }
                 .padding(.top, 5)
-                if isShowingPopupAddTodo {
-                    // todo 추가 팝업
-                    if let k = kategory {
-                        // kategory의 경우
-                        PopupSelectingTodo(
-                            destination: k,
-                            predicate: NSPredicate(format: "kategory == nil", k),
-                            isPresented: $isShowingPopupAddTodo
-                        ) { result in
-                            onUpdate(result: result)
-                        }
-                    }
-                }
-                if kategory != nil && isShowingPopupModifyKategory {
-                    // kategory 수정 팝업
-                    PopupInputKategory(origin: kategory, isPresented: $isShowingPopupModifyKategory) { result in
-                        onUpdateKategory(result: result)
-                    } onDelete: { result in
-                        onDeleteKategory(result: result)
-                    }
-                }
-                if isShowingPopupSelectingKategory,
-                   !isShowingPopupAddTodo,
-                   !isShowingPopupModifyKategory {
-                    PopupSelectingKategory(isPresented: $isShowingPopupSelectingKategory) { selectedKategory in
-                        if let target = targetModifying {
-                            update(target, key: "kategory", value: selectedKategory)
-                        }
-                    }
-                }
             }
             .toast(msgToast, isPresented: $isShowingToast)
         }
@@ -263,7 +231,7 @@ struct ViewListTodo: View {
             HStack(spacing: 20){
                 // 뒤로가기 버튼
                 BtnImg("btnBack") {
-                    onDismiss()
+                    onDismiss(Result(code: "0001", msg: "back"))
                     dismiss()
                 }
                 // 제목
@@ -274,10 +242,19 @@ struct ViewListTodo: View {
             Spacer()
             // trailer
             HStack {
-                if kategory != nil {
+                if let k = kategory {
                     // 카테고리 수정 버튼
                     BtnImg("btnSetting") {
-                        isShowingPopupModifyKategory = true
+                        managerPopup.show(
+                            .setKategory(
+                                target: k,
+                                onFinished: { result in
+                                    onUpdateKategory(result: result)
+                                }, onDelete: { result in
+                                    onDeleteKategory(result: result)
+                                }
+                            )
+                        )
                     }
                 }
             }
@@ -314,11 +291,6 @@ struct ViewListTodo: View {
     @ViewBuilder
     private var viewList: some View {
         ForEach(listFiltered) { i in
-            NavigationLink(
-                destination: ViewDetailTodo(i) {result in
-                    onUpdate(result: result)
-                }
-            ) {
                 if isModifyingName &&  i == targetModifying {
                     // 수정 부분
                     ViewUpdatingTodo(
@@ -333,6 +305,16 @@ struct ViewListTodo: View {
                         update(i, key: $0, value: $1)
                     }
                     .contentShape(Rectangle())
+                    .onTapGesture {
+                        managerPopup.show(
+                            .viewDetailTodo(
+                                todo: i,
+                                onFinished: { result in
+                                    onUpdate(result: result)
+                                }
+                            )
+                        )
+                    }
                     .contextMenu {
                         Button() {
                             targetModifying = i
@@ -341,8 +323,13 @@ struct ViewListTodo: View {
                             Label("이름 수정", systemImage: "pencil")
                         }
                         Button() {
-                            isShowingPopupSelectingKategory = true
-                            targetModifying = i
+                            managerPopup.show(
+                                .selectKategory(
+                                    onSelected: { kategory in
+                                        update(i, key: "kategory", value: kategory)
+                                    }
+                                )
+                            )
                         } label: {
                             Label("다른 목록으로 이동", systemImage: "folder")
                         }
@@ -363,7 +350,6 @@ struct ViewListTodo: View {
                         }
                     }
                 }
-            }
         }
     }
     
@@ -463,7 +449,12 @@ struct ViewListTodo: View {
     
     private func onDeleteKategory(result: Result) {
         if result.isSuccess {
-            onDismiss()
+            // 목록 수정 팝업 닫기
+            managerPopup.hide()
+            // 리스트 닫기
+            dismiss()
+            // 결과값 전달
+            onDismiss(result)
         } else {
             showToast("카테고리 삭제에 실패했습니다.")
             // 화면 갱신
@@ -523,5 +514,5 @@ struct ViewListTodo: View {
     
 //    ViewListTodo(){}
 //    ViewListTodo(.marked){}
-    ViewListTodo(kategory, onDismiss: {})
+    ViewListTodo(kategory, onDismiss: {_ in })
 }

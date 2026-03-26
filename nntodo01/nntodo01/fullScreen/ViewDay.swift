@@ -32,6 +32,8 @@ struct ViewDay: View {
     // updating todo
     @State private var isModifying: Bool = false
     @State private var targetModifying: Work? = nil
+    // environment
+    @EnvironmentObject private var managerPopup: ManagerPopup
     
     
     // 현재 표시할 달의 첫 번째 날 구하기
@@ -54,7 +56,7 @@ struct ViewDay: View {
                         // 날짜 그리드
                         viewCalendar
                         // 할 일 목록 부분
-                        Group {
+                        VStack {
                             if isEditing,
                                let date = dateSelected {
                                 // 할 일 작성 부분
@@ -83,7 +85,6 @@ struct ViewDay: View {
                     }
                 }
             }
-            .background(.gray.opacity(0.2))
         }
         .id(idRefresh)
         .navigationBarBackButtonHidden()
@@ -109,7 +110,7 @@ struct ViewDay: View {
     @ViewBuilder
     private var viewSelectingMonth: some View {
         HStack(spacing: 10) {
-            BtnImg("left", color: .cyan) {
+            BtnImgConditional(nameImg: "left", isEnabled: month > 1) {
                 month -= 1
                 reload()
             }
@@ -124,7 +125,7 @@ struct ViewDay: View {
                 }
                 .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
                 .padding(2.5)
-            BtnImg("right", color: .cyan) {
+            BtnImgConditional(nameImg: "right", isEnabled: month < 12) {
                 month += 1
                 reload()
             }
@@ -194,46 +195,62 @@ struct ViewDay: View {
                 .padding(2.5)
         }
         .frame(height: 40)
+        .padding(2.5)
     }
     
     @ViewBuilder
     private var viewList: some View {
         ForEach(list, id: \.id) { todo in
-            NavigationLink(
-                destination: ViewDetailTodo(todo) {result in
-                    onUpdate(result: result)
+            if isModifying &&  todo == targetModifying {
+                // 수정 부분
+                ViewUpdatingTodo(
+                    todo,
+                    isPresented: $isModifying
+                ) { k, v in
+                    update(todo, key: k, value: v)
                 }
-            ) {
-                if isModifying &&  todo == targetModifying {
-                    // 수정 부분
-                    ViewUpdatingTodo(
-                        todo,
-                        isPresented: $isModifying
-                    ) { k, v in
-                        update(todo, key: k, value: v)
+            } else {
+                ItemTodo(todo) {
+                    update(todo, key: $0, value: $1)
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    managerPopup.show(
+                        .viewDetailTodo(
+                            todo: todo,
+                            onFinished: { result in
+                                onUpdate(result: result)
+                            }
+                        )
+                    )
+                }
+                .contextMenu {
+                    Button() {
+                        targetModifying = todo
+                        isModifying = true
+                    } label: {
+                        Label("이름 수정하기", systemImage: "pencil")
                     }
-                } else {
-                    ItemTodo(todo) {
-                        update(todo, key: $0, value: $1)
+                    Button() {
+                        managerPopup.show(
+                            .selectKategory(
+                                onSelected: { kategory in
+                                    update(todo, key: "kategory", value: kategory)
+                                }
+                            )
+                        )
+                    } label: {
+                        Label("목록에 추가", systemImage: "folder.badge.plus")
                     }
-                    .contentShape(Rectangle())
-                    .contextMenu {
-                        Button() {
-                            targetModifying = todo
-                            isModifying = true
-                        } label: {
-                            Label("이름 수정하기", systemImage: "pencil")
-                        }
-                        Button(role: .destructive) {
-                            delete(todo)
-                        } label: {
-                            Label("삭제하기", systemImage: "trash")
-                        }
-                        Button(role: .destructive) {
-                            deleteWithChildren(todo)
-                        } label: {
-                            Label("서브 작업까지 모두 삭제하기", systemImage: "trash")
-                        }
+                    Button(role: .destructive) {
+                        delete(todo)
+                    } label: {
+                        Label("삭제하기", systemImage: "trash")
+                    }
+                    Button(role: .destructive) {
+                        deleteWithChildren(todo)
+                    } label: {
+                        Label("서브 작업까지 모두 삭제하기", systemImage: "trash")
                     }
                 }
             }

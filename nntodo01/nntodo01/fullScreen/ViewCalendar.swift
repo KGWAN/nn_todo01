@@ -73,7 +73,6 @@ struct ViewCalendar: View {
             }
             .id(idRefresh)
             .padding(.horizontal, 20)
-            .background(.gray.opacity(0.2))
         }
     }
     
