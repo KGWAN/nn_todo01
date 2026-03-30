@@ -17,7 +17,7 @@ enum NnPopup: Identifiable {
         switch self {
         case .selectKategory: return "selectKategory"
         case .setKategory: return "setKategory"
-        case .viewDetailTodo: return "viewDetailTodo"
+        case .viewDetailTodo(let todo, _): return "viewDetailTodo-\(todo.objectID.description)"
         case .selectTodo: return "selectTodo"
         }
     }

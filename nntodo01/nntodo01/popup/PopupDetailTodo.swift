@@ -34,8 +34,8 @@ struct PopupDetailTodo: View {
     @State private var planedWeek: Int = 0
     @State private var planedMonth: Int = 0
     @State private var planedYear: Int = 0
-    @State private var cntWeek: Int = 0
-    @State private var cntDate: Int = 0
+    @State private var cntWeek: Int = 1
+    @State private var cntDate: Int = 1
     // 기타
     @State private var idRefresh: UUID = UUID()
     // creating sub
@@ -53,6 +53,7 @@ struct PopupDetailTodo: View {
     // constant
     private let service: ServiceWork = ServiceWork()
     private let format: String = "yyyy년MM월dd일"
+    private let arrYear: Array<Int> = Array(2000...2100)
     
     
     var body: some View {
@@ -92,14 +93,38 @@ struct PopupDetailTodo: View {
                         VStack(spacing: 5) {
                             ViewSelectingPlan(listTypePlan: $planType)
                             if !planType.isEmpty {
-                                ViewAdjustingNum($planedYear, limit: 9999, labelText: "연도")
+                                viewAdjusingPlan(
+                                    title: "연도",
+                                    range: arrYear,
+                                    startPoint: planedYear > 0 ? planedYear : Calendar.nn.getYear(Date())
+                                ) { new in
+                                    planedYear = new
+                                }
                                 if planType != .year {
-                                    ViewAdjustingNum($planedMonth, limit: 12, labelText: "월")
+                                    viewAdjusingPlan(
+                                        title: "월",
+                                        range: Array(1...12),
+                                        startPoint: planedMonth > 0 ? planedMonth : Calendar.nn.getMonth(Date()),
+                                    ) { new in
+                                        planedMonth = new
+                                    }
                                     if planType.contains(.week) {
-                                        ViewAdjustingNum($planedWeek, limit: cntWeek, labelText: "주")
+                                        viewAdjusingPlan(
+                                            title: "주",
+                                            range: Array(1...cntWeek),
+                                            startPoint: planedWeek > 0 ? planedWeek : Calendar.nn.getWeek(Date()),
+                                        ) { new in
+                                            planedWeek = new
+                                        }
                                     }
                                     if planType.contains(.day) {
-                                        ViewAdjustingNum($planedDay, limit: cntDate, labelText: "일")
+                                        viewAdjusingPlan(
+                                            title: "일",
+                                            range: Array(1...cntDate),
+                                            startPoint: planedDay > 0 ? planedDay : Calendar.nn.getDay(Date()),
+                                        ) { new in
+                                            planedDay = new
+                                        }
                                     }
                                 }
                             }
@@ -127,7 +152,7 @@ struct PopupDetailTodo: View {
                             ImgSafe("btnDelete", color: .red)
                                 .frame(width: 22.5, height: 22.5)
                                 .padding(2.5)
-                                .background(.ultraThinMaterial)
+                                .background(.white)
                                 .cornerRadius(15)
                                 .overlay {
                                     RoundedRectangle(cornerRadius: 15)
@@ -171,12 +196,10 @@ struct PopupDetailTodo: View {
             update("isDone", value: isDone)
         }
         .onChange(of: planedYear) {_, new in
-            print(new)
-            resetLimitOfViewAdjustingNum()
+            resetLimitOfViewAdjustingNum(month: planedMonth, year: planedYear)
         }
         .onChange(of: planedMonth) {_, new in
-            print(new)
-            resetLimitOfViewAdjustingNum()
+            resetLimitOfViewAdjustingNum(month: planedMonth, year: planedYear)
         }
     }
     
@@ -188,12 +211,20 @@ struct PopupDetailTodo: View {
         HStack {
             // lead
             HStack(alignment: .center) {
-                // 뒤로가기 버튼
-                BtnImg("btnBack") {
-                    onUpdate()
-                    managerPopup.hide()
+                if let parent = item.parent {
+                    // 부모로 가기 버튼
+                    BtnImg("btnInputTodo") {
+                        onUpdate()
+                        managerPopup.replace(
+                            with:.viewDetailTodo(
+                                todo: parent,
+                                onFinished: { _ in
+                                }
+                            )
+                        )
+                    }
+                    .frame(width: 30, height: 30)
                 }
-                .frame(width: 30, height: 30)
                 HStack(spacing: 0) {
                     TextFieldTitle(placeholder: "할 일의 이름을 바꾸어 보세요.", text: $textTitle)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -247,6 +278,12 @@ struct PopupDetailTodo: View {
             }
             .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
             .padding(2.5)
+            // 닫기 버튼
+            BtnImg("iconX") {
+                onUpdate()
+                managerPopup.hide()
+            }
+            .frame(width: 30, height: 30)
         }
         .padding(.horizontal, 20)
     }
@@ -293,14 +330,13 @@ struct PopupDetailTodo: View {
                 }
                 .contentShape(Rectangle())
                 .onTapGesture {
-//                    managerPopup.show(
-//                        .viewDetailTodo(
-//                            todo: sub,
-//                            onFinished: { result in
-//                                onUpdate(result: result)
-//                            }
-//                        )
-//                    )
+                    managerPopup.replace(
+                        with:.viewDetailTodo(
+                            todo: sub,
+                            onFinished: { _ in
+                            }
+                        )
+                    )
                 }
                 .contextMenu {
                     Button() {
@@ -355,6 +391,30 @@ struct PopupDetailTodo: View {
         .padding(2.5)
     }
     
+    @ViewBuilder
+    private func viewAdjusingPlan(title: String, range: Array<Int>, startPoint: Int, onChange: @escaping (Int) -> Void) -> some View {
+        HStack(spacing: 5) {
+            Text(title)
+                .foregroundStyle(.gray)
+                .frame(maxWidth: .infinity)
+            PickerWheelHorizontal(
+                range: range,
+                startPoint: startPoint,
+                onChange: onChange
+            )
+            .frame(height: 30)
+            .padding(.horizontal, 10)
+            .background(.white)
+            .cornerRadius(15)
+            .overlay {
+                RoundedRectangle(cornerRadius: 15)
+                    .stroke(.white.opacity(0.2), lineWidth: 1)
+            }
+            .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+            .padding(2.5)
+        }
+    }
+    
     
     // func
     func showToast(_ msg: String) {
@@ -388,18 +448,21 @@ struct PopupDetailTodo: View {
             planedWeek = Int(item.planedWeek)
             planedDay = Int(item.planedDay)
             // 주와 날짜 한계 재설정
-            resetLimitOfViewAdjustingNum()
+//            if let year = planedYear,
+//               let month = planedMonth {
+//                resetLimitOfViewAdjustingNum(month: month, year: year)
+//            }
         }
         idRefresh = UUID()
     }
     // 주와 날짜 한계 재설정
-    private func resetLimitOfViewAdjustingNum() {
+    private func resetLimitOfViewAdjustingNum(month: Int, year: Int) {
         // 마지막 주
-        cntWeek = Calendar.nn.getWeeksInMonth(month: planedMonth, year: planedYear).count
-        print("cntWeek >>> \(cntWeek)")
+        cntWeek = Calendar.nn.getWeeksInMonth(month: month, year: year).count
         // 마지막 날
-        cntDate = Calendar.nn.getDaysInMonth(month: planedMonth, year: planedYear).count
-        print("cntDate >>> \(cntDate)")
+        cntDate = Calendar.nn.getDaysInMonth(month: month, year: year).count
+        print(cntWeek)
+        print(cntDate)
     }
     // 단일 수정
     private func update(_ key: String, value: Any) {
@@ -481,8 +544,8 @@ struct PopupDetailTodo: View {
 }
 
 #Preview {
-    let item = ServiceWork().getNew("todo example", planedWeek: 4, planedMonth: 3, planedYear: 2026)
-//    let itemChild = ServiceWork().getNew("todo example child", parent: item)
+    let item = ServiceWork().getNew("todo example", planedMonth: 4, planedYear: 2026)
+    let itemChild = ServiceWork().getNew("todo example child", parent: item)
     
     PopupDetailTodo(item) {
         NnLogger.log("result code: \($0)", level: .debug)

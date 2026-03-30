@@ -240,7 +240,7 @@ struct ViewDay: View {
                             )
                         )
                     } label: {
-                        Label("목록에 추가", systemImage: "folder.badge.plus")
+                        Label("목록에 추가/이동", systemImage: "folder.badge.plus")
                     }
                     Button(role: .destructive) {
                         delete(todo)

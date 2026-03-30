@@ -31,7 +31,7 @@ struct ViewSelectingPlan: View {
             }
         }
         .frame(height: 30)
-        .background(.ultraThinMaterial)
+        .background(.white)
         .cornerRadius(15)
         .overlay {
             RoundedRectangle(cornerRadius: 15)

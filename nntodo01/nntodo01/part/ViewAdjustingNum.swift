@@ -18,8 +18,7 @@ struct ViewAdjustingNum: View {
         self.limit = limit
         self.title = labelText
     }
-    
-    @State private var isOpend: Bool = true
+
     
     var body: some View {
         HStack(spacing: 0) {

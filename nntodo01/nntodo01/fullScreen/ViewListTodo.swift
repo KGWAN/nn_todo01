@@ -333,10 +333,13 @@ struct ViewListTodo: View {
                         } label: {
                             Label("다른 목록으로 이동", systemImage: "folder")
                         }
-                        Button() {
-                            update(i, key: "kategory", value: nil)
-                        } label: {
-                            Label("목록에서 제외", systemImage: "minus")
+                        if !(templete == .normal && kategory == nil) {
+                            // 모두 보기의 경우는 필요없는 기능
+                            Button() {
+                                update(i, key: "kategory", value: nil)
+                            } label: {
+                                Label("목록에서 제외", systemImage: "minus")
+                            }
                         }
                         Button(role: .destructive) {
                             delete(i)

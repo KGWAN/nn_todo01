@@ -86,7 +86,7 @@ extension View {
 // MARK: Calendar
 extension Calendar {
     static var nn: Calendar {
-        var cal = Calendar.current
+        let cal = Calendar.current
         // 공통적인 설정
         return cal
     }
@@ -174,6 +174,10 @@ extension Calendar {
     
     func getYear(_ date: Date) -> Int {
         return self.component(.year, from: date)
+    }
+    
+    func getWeek(_ date: Date) -> Int {
+        return self.component(.weekOfMonth, from: date)
     }
 }
 

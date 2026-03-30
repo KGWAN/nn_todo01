@@ -198,8 +198,6 @@ struct ViewCreatingTodo: View {
         } else if kategory != nil {
             return service.create(title, kategory: kategory, parent: parent)
         } else if typePlan == .day {
-            print(typePlan?.rawValue)
-            print(TypePlan.day.rawValue)
             return service.create(title, planedDay: day!, planedMonth: month!, planedYear: year!, parent: parent)
         } else if typePlan == .week {
             return service.create(title, planedWeek: week!, planedMonth: month!, planedYear: year!, parent: parent)
