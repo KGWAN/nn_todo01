@@ -57,6 +57,25 @@ struct ViewDay: View {
                         viewCalendar
                         // 할 일 목록 부분
                         VStack {
+                            HStack(spacing: 0) {
+                                Spacer()
+                                // 할 일 추가
+                                BtnImg("iconPlus", color: .blue) {
+                                    managerPopup.show(
+                                        .selectTodoForAddToPlanDay(
+                                            to: calendar.getDay(dateSelected!),
+                                            month: month,
+                                            year: year,
+                                            predicate: NSPredicate(format: "planType == 0", TypePlan.year.rawValue),
+                                            onUpdate: { result in
+                                                reload()
+                                            }
+                                        )
+                                    )
+                                }
+                                .disabled(dateSelected == nil)
+                            }
+                            .padding(.horizontal, 5)
                             if isEditing,
                                let date = dateSelected {
                                 // 할 일 작성 부분

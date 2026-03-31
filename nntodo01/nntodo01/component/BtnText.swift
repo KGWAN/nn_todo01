@@ -21,9 +21,18 @@ struct BtnText: View {
             action()
         } label: {
             Text(text)
-                .font(Font.system(size: 20, weight: .medium))
+                .font(Font.system(size: 18, weight: .medium))
                 .foregroundColor(.black)
-                .padding(.vertical, 10)
+                .padding(.vertical, 5)
+                .padding(.horizontal, 10)
+                .background(.ultraThinMaterial)
+                .cornerRadius(15)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                .padding(2.5)
         }
     }
 }

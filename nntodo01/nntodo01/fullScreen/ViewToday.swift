@@ -11,6 +11,7 @@ struct ViewToday: View {
     // state
     @State private var idRefresh: UUID = UUID()
     @State private var listToday: [Work] = []
+    @State private var listThisWeek: [Work] = []
     @State private var listMonth: [Work] = []
     @State private var listYear: [Work] = []
     // showing toast
@@ -28,20 +29,31 @@ struct ViewToday: View {
     private let service = ServiceWork()
     private let dateToday = Date()
     private let calendar: Calendar = .nn
-    private let listSection: [TypePlan] = [.day, .month, .year]
+    private let listSection: [TypePlan] = [.day, .week, .month, .year]
     // environment
     @EnvironmentObject private var managerPopup: ManagerPopup
     // init
+    private let day: Int
+    private let week: Int
+    private let month: Int
+    private let year: Int
     private let predicateToday: NSPredicate
+    private let predicateThisWeek: NSPredicate
     private let predicateMonth: NSPredicate
     private let predicateYear: NSPredicate
     init() {
+        self.day = calendar.getDay(dateToday)
+        self.week = calendar.getWeek(dateToday)
+        self.month = calendar.getMonth(dateToday)
+        self.year = calendar.getYear(dateToday)
         // today
-        self.predicateToday = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d AND planedMonth == %d AND planedDay == %d", TypePlan.day.rawValue, calendar.getYear(dateToday), calendar.getMonth(dateToday), calendar.getDay(dateToday))
+        self.predicateToday = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d AND planedMonth == %d AND planedDay == %d", TypePlan.day.rawValue, year, month, day)
+        // week
+        self.predicateThisWeek = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d AND planedMonth == %d AND planedWeek == %d", TypePlan.week.rawValue, year, month, week)
         // month
-        self.predicateMonth = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d AND planedMonth == %d", TypePlan.month.rawValue, calendar.getYear(dateToday), calendar.getMonth(dateToday))
+        self.predicateMonth = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d AND planedMonth == %d", TypePlan.month.rawValue, year, month)
         // year
-        self.predicateYear = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d", TypePlan.year.rawValue, calendar.getYear(dateToday))
+        self.predicateYear = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d", TypePlan.year.rawValue, year)
     }
     
     var body: some View {
@@ -168,6 +180,8 @@ struct ViewToday: View {
                 Group {
                     if type == .day {
                         Text("오늘의 할 일")
+                    } else if type == .week {
+                        Text("이번 주의 할 일")
                     } else if type == .month {
                         Text("이번 달의 할 일")
                     } else if type == .year {
@@ -176,12 +190,62 @@ struct ViewToday: View {
                 }
                 .font(.system(size: 20, weight: .medium))
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                Spacer()
                 // 생성 버튼
                 // 할 일 작성 버튼
                 BtnImg("iconPlus", color: .cyan) {
                     isEditing = true
                     isFocusedSub = true
                     targetNum = type
+                }
+                // 할 일 추가
+                BtnImg("iconPlus", color: .blue) {
+                    if type == .day {
+                        managerPopup.show(
+                            .selectTodoForAddToPlanDay(
+                                to: day,
+                                month: month,
+                                year: year,
+                                predicate: NSPredicate(format: "planType == 0", TypePlan.year.rawValue),
+                                onUpdate: { result in
+                                    reload()
+                                }
+                            )
+                        )
+                    } else if type == .week {
+                        managerPopup.show(
+                            .selectTodoForAddToPlanWeek(
+                                to: week,
+                                month: month,
+                                year: year,
+                                predicate: NSPredicate(format: "planType == 0", TypePlan.year.rawValue),
+                                onUpdate: { result in
+                                    reload()
+                                }
+                            )
+                        )
+                    } else if type == .month {
+                        managerPopup.show(
+                            .selectTodoForAddToPlanMonth(
+                                to: month,
+                                year: year,
+                                predicate: NSPredicate(format: "planType == 0", TypePlan.year.rawValue),
+                                onUpdate: { result in
+                                    reload()
+                                }
+                            )
+                        )
+                    } else if type == .year {
+                        managerPopup.show(
+                            .selectTodoForAddToPlanYear(
+                                to: year,
+                                predicate: NSPredicate(format: "planType == 0", TypePlan.year.rawValue),
+                                onUpdate: { result in
+                                    reload()
+                                }
+                            )
+                        )
+                    }
                 }
             }
             .frame(height: 30)
@@ -194,11 +258,12 @@ struct ViewToday: View {
     
     @ViewBuilder
     private func viewWriting(_ type: TypePlan) -> some View {
-        let day = calendar.getDay(dateToday)
-        let month = calendar.getMonth(dateToday)
-        let year = calendar.getYear(dateToday)
         if type == .day {
             ViewCreatingTodo(day: day, month: month, year: year, isPresented: $isEditing) { result in
+                onCreat(result)
+            }
+        } else if type == .week {
+            ViewCreatingTodo(week: week, month: month, year: year, isPresented: $isEditing) { result in
                 onCreat(result)
             }
         } else if type == .month {
@@ -216,6 +281,7 @@ struct ViewToday: View {
     // func
     private func reload() {
         listToday = service.fetchList(predicateToday)
+        listThisWeek = service.fetchList(predicateThisWeek)
         listMonth = service.fetchList(predicateMonth)
         listYear = service.fetchList(predicateYear)
         // view refresh trager
@@ -279,6 +345,8 @@ struct ViewToday: View {
     private func getList(_ type: TypePlan) -> [Work]? {
         return if type == .day {
             listToday
+        } else if type == .week {
+            listThisWeek
         } else if type == .month {
             listMonth
         } else if type == .year {

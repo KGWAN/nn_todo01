@@ -77,7 +77,7 @@ struct ViewYear: View {
     @ViewBuilder
     private var viewHeader: some View {
         VStack(spacing: 5) {
-            HStack(spacing: 0) {
+            HStack(spacing: 10) {
                 // 연도
                 Text("\(String(year))년 할 일")
                     .font(.system(size: 20, weight: .bold))
@@ -85,7 +85,22 @@ struct ViewYear: View {
                     .padding(.vertical, 5)
                 // 할 일 작성 버튼
                 BtnImg("iconPlus", color: .cyan) {
-                    isEditing = true
+                    withAnimation {
+                        isEditing = true
+                    }
+                }
+                // 할 일 추가
+                BtnImg("iconPlus", color: .blue) {
+                    managerPopup.show(
+                        .selectTodoForAddToPlanYear(
+                            to: year,
+                            predicate: NSPredicate(format: "planType == 0", TypePlan.year.rawValue),
+                            onUpdate: { result in
+                                // 할 일 추가에 실패
+                                reload()
+                            }
+                        )
+                    )
                 }
             }
             .frame(height: 30)
@@ -183,8 +198,10 @@ struct ViewYear: View {
     private func reload() {
         isEditing = false
         let predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d", TypePlan.year.rawValue, year)
-        list = service.fetchList(predicate)
-        idRefresh = UUID()
+        withAnimation {
+            list = service.fetchList(predicate)
+            idRefresh = UUID()
+        }
     }
     
     private func onCreate(_ result: Result) {

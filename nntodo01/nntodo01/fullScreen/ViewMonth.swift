@@ -96,6 +96,19 @@ struct ViewMonth: View {
                     targetMonth = month
                     isEditing = true
                 }
+                // 할 일 추가
+                BtnImg("iconPlus", color: .blue) {
+                    managerPopup.show(
+                        .selectTodoForAddToPlanMonth(
+                            to: month,
+                            year: year,
+                            predicate: NSPredicate(format: "planType == 0", TypePlan.year.rawValue),
+                            onUpdate: { result in
+                                reload()
+                            }
+                        )
+                    )
+                }
             }
             Divider()
                 .frame(height: 1)

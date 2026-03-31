@@ -23,9 +23,18 @@ struct BtnActivationText: View {
             action()
         } label: {
             Text(text)
-                .font(Font.system(size: 20, weight: isEnabled ? .medium : .light))
-                .foregroundColor(isEnabled ? .blue : .gray)
-                .padding(.vertical, 10)
+                .font(Font.system(size: 18, weight: isEnabled ? .bold : .medium))
+                .foregroundColor(isEnabled ? .cyan : .gray)
+                .padding(.vertical, 5)
+                .padding(.horizontal, 10)
+                .background(.ultraThinMaterial)
+                .cornerRadius(15)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                .padding(2.5)
         }
         .disabled(!isEnabled)
     }

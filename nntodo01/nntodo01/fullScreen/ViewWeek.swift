@@ -131,6 +131,20 @@ struct ViewWeek: View {
                     // 편집 모드 들어가기
                     isEditing = true
                 }
+                // 할 일 추가
+                BtnImg("iconPlus", color: .blue) {
+                    managerPopup.show(
+                        .selectTodoForAddToPlanWeek(
+                            to: week.num,
+                            month: month,
+                            year: year,
+                            predicate: NSPredicate(format: "planType == 0", TypePlan.year.rawValue),
+                            onUpdate: { result in
+                                reload()
+                            }
+                        )
+                    )
+                }
             }
             // 구분선
             Divider()

@@ -16,7 +16,7 @@ struct ViewListTodo: View {
     @State private var isEditing: Bool = false
     @State private var isModifyingName: Bool = false
     @State private var targetModifying: Work? = nil
-    @State private var depth: Int = -1
+    @State private var depth: Int = 0 // -1: 전체
     @State private var idxFilter: Int = -1 // -1: 전체, 0: 완료만 보기, 1: 미완료만 보기
     // showing toast
     @State private var isShowingToast: Bool = false
@@ -86,7 +86,7 @@ struct ViewListTodo: View {
                                     .font(.system(size: 14))
                                     .foregroundStyle(.black)
                                     .padding(.horizontal, 25)
-                                Picker("LocalizedStringKey", selection: $idxFilter) {
+                                Picker("완료여부 선택", selection: $idxFilter) {
                                     Text("전체").tag(-1)
                                     Text("완료").tag(0)
                                     Text("미완료").tag(1)
@@ -141,7 +141,7 @@ struct ViewListTodo: View {
                             // todo 추가 버튼
                             Button {
                                 managerPopup.show(
-                                    .selectTodo(
+                                    .selectTodoForMovingTo(
                                         destination: k,
                                         predicate: NSPredicate(format: "kategory == nil", k),
                                         onUpdate: { result in
@@ -191,16 +191,16 @@ struct ViewListTodo: View {
     private var background: some View {
         if let kate = kategory {
             switch kate.markType {
-            case TypeMarkKategory.photo.rawValue:
-                if let name = kate.photo,
-                    let img = UIImage(named: name) {
-                    Image(uiImage: img)
-                        .resizable()
-                        .ignoresSafeArea()
-                } else {
-                    Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
-                        .ignoresSafeArea()
-                }
+//            case TypeMarkKategory.photo.rawValue:
+//                if let name = kate.photo,
+//                    let img = UIImage(named: name) {
+//                    Image(uiImage: img)
+//                        .resizable()
+//                        .ignoresSafeArea()
+//                } else {
+//                    Color(hex: kate.color ?? ColorMarkKategory.allCases[0].rawValue)
+//                        .ignoresSafeArea()
+//                }
 //                    case TypeMarkKategory.user.rawValue:
 //                        if let path = kate.userPhoto?.path,
 //                            let url = URL(string: path),
@@ -513,7 +513,7 @@ struct ViewListTodo: View {
 }
 
 #Preview {
-    let kategory: Kategory = ServiceKategory().getNew("kate_preview", markType: TypeMarkKategory.photo.rawValue, photo: "bgKate00")
+    let kategory: Kategory = ServiceKategory().getNew("kate_preview", markType: TypeMarkKategory.color.rawValue, photo: "bgKate00")
     
 //    ViewListTodo(){}
 //    ViewListTodo(.marked){}
