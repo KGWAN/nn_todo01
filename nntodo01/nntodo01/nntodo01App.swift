@@ -47,9 +47,22 @@ struct nntodo01App: App {
         case .viewDetailTodo(let todo, let onFinished):
             PopupDetailTodo(todo, onFinish: onFinished)
                 .transition(.move(edge: .trailing))
-        case .selectTodo(destination: let destination, predicate: let predicate, onUpdate: let onUpdate):
+        case .selectTodoForMovingTo(destination: let destination, predicate: let predicate, onUpdate: let onUpdate):
             PopupSelectingTodo(destination: destination, predicate: predicate, onUpdate: onUpdate)
                 .transition(.move(edge: .bottom))
+        case .selectTodoForAddToPlanYear(to: let year, predicate: let predicate, onUpdate: let onUpdate):
+            PopupSelectingTodo(to: year, predicate: predicate, onUpdate: onUpdate)
+                .transition(.move(edge: .bottom))
+        case .selectTodoForAddToPlanMonth(to: let month, year: let year, predicate: let predicate, onUpdate: let onUpdate):
+            PopupSelectingTodo(to: month, year: year, predicate: predicate, onUpdate: onUpdate)
+                .transition(.move(edge: .bottom))
+        case .selectTodoForAddToPlanWeek(to: let week, month: let month, year: let year, predicate: let predicate, onUpdate: let onUpdate):
+            PopupSelectingTodo(toWeek: week, month: month, year: year, predicate: predicate, onUpdate: onUpdate)
+                .transition(.move(edge: .bottom))
+        case .selectTodoForAddToPlanDay(to: let day, month: let month, year: let year, predicate: let predicate, onUpdate: let onUpdate):
+            PopupSelectingTodo(toDay: day, month: month, year: year, predicate: predicate, onUpdate: onUpdate)
+                .transition(.move(edge: .bottom))
         }
+        
     }
 }

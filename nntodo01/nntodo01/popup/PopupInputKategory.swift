@@ -49,21 +49,24 @@ struct PopupInputKategory: View {
                 HStack {
                     VStack(spacing: 20) {
                         // popup title
-                        HStack {
+                        HStack(spacing: 0) {
                             Text(origin == nil ? "새 목록" : "목록 수정")
+                                .font(.system(size: 18, weight: .bold))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             if origin != nil {
                                 BtnImg("btnDelete", color: .red) {
                                     delete()
                                 }
-                                .frame(width: 30, height: 30)
                             }
                         }
                         // title
                         HStack {
                             ImgSafe("iconTempNomal", color: selectedColor.color)
-                                .frame(width: 40, height: 40)
-                            TextFieldTitle(placeholder: "목록 제목", text: $text, color: selectedColor.color)
+                                .frame(width: 25, height: 25)
+                                .padding(5)
+                                .background(selectedColor.color.opacity(0.1))
+                                .cornerRadius(15)
+                            TextFieldTitle(placeholder: "목록 제목", text: $text, color: selectedColor.color.opacity(0.8))
                                 .frame(maxWidth: .infinity)
                         }
                         .padding(.top, 10)
@@ -71,29 +74,52 @@ struct PopupInputKategory: View {
                             checkCanInput()
                         }
                         // mark
-                        Group {
-                            HStack(spacing: 15) {
+                        VStack(spacing: 5) {
+                            HStack(spacing: 0) {
                                 ForEach(TypeMarkKategory.allCases, id: \.id) { mark in
                                     Button {
                                         selectedRadio = mark
                                     } label: {
                                         Text(mark.rawValue)
-                                            .font(.system(size: 17, weight: .bold))
-                                            .foregroundStyle(mark == selectedRadio ? Color.white : selectedColor.color)
-                                            .padding(.vertical, 8)
-                                            .padding(.horizontal, 15)
-                                            .background(mark == selectedRadio ? selectedColor.color : Color.white)
-                                            .border(selectedColor.color, width: 1)
+                                            .font(.system(size: 16, weight: .bold))
+                                            .foregroundStyle(.black)
+//                                            .foregroundStyle(.cyan)
+                                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                            .padding(.vertical, 5)
+                                            .padding(.horizontal, 10)
+                                            .background {
+                                                if selectedRadio == mark {
+                                                    Color.white
+                                                        .cornerRadius(15)
+                                                        .overlay {
+                                                            RoundedRectangle(cornerRadius: 15)
+                                                                .stroke(selectedColor.color.opacity(0.8), lineWidth: 1)
+                                                        }
+                                                        .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                                                } else {
+                                                    Color.clear
+                                                }
+                                            }
                                     }
                                 }
-                                Spacer()
+                                .disabled(true)
                             }
+                            .frame(height: 30)
+                            .background(.ultraThinMaterial)
+                            .cornerRadius(15)
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(.white.opacity(0.2), lineWidth: 1)
+                            }
+                            .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                            .padding(2.5)
+                            //
                             Group {
                                 switch selectedRadio {
                                 case .color:
                                     ViewSelectColorMarkKategory(selectedOne: $selectedColor)
-                                case .photo:
-                                    ViewSelectPhotoMarkKategory(selectedOne: $selectedPhoto)
+//                                case .photo:
+//                                    ViewSelectPhotoMarkKategory(selectedOne: $selectedPhoto)
 //                                case .user:
 //                                    ViewSelectUserMarkKategory(for: $selectedUserPhoto)
                                 }
@@ -101,7 +127,7 @@ struct PopupInputKategory: View {
                             .frame(maxWidth: .infinity, maxHeight: 40)
                         }
                         // button
-                        HStack(spacing: 40) {
+                        HStack(spacing: 20) {
                             Spacer()
                             BtnText("취소") {
                                 managerPopup.hide()
@@ -118,7 +144,14 @@ struct PopupInputKategory: View {
                     }
                     .padding(.vertical, 20)
                     .padding(.horizontal, 20)
-                    .background(Color.white)
+                    .background(.white)
+                    .cornerRadius(15)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 15)
+                            .stroke(.white.opacity(0.2), lineWidth: 1)
+                    }
+                    .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                    .padding(2.5)
                 }
                 .padding(.horizontal, 40)
             }

@@ -11,18 +11,18 @@ struct ViewSelectColorMarkKategory: View {
     @Binding var selectedOne : ColorMarkKategory
     
     // constant
-    private let radius : CGFloat = 20
+    private let radius : CGFloat = 15
     
     var body: some View {
         ScrollView(.horizontal) {
-            HStack(spacing: 20) {
+            HStack(spacing: 15) {
                 ForEach(ColorMarkKategory.allCases, id: \.id) { type in
                     ZStack {
                         Button {
                             selectedOne = type
                         } label: {
                             Circle()
-                                .fill(type.color)
+                                .fill(type.color.opacity(0.8))
                                 .frame(width: radius*2, height: radius*2, alignment: .center)
                         }
                         if selectedOne == type {

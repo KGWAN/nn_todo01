@@ -57,129 +57,133 @@ struct PopupDetailTodo: View {
     
     
     var body: some View {
-        NavigationStack {
-            // head
-            viewHeader
-            // content
+        NavigationStack() {
             VStack(spacing: 0) {
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 0) {
-                        // 하위 작업 ---------------------------------------------
-                        VStack {
-                            if isEditingSub {
-                                // 하위 작업 작성 부분
-                                ViewCreatingTodo(parent: item, isPresented: $isEditingSub) { result in
-                                    onCreateSub(result)
-                                }
-                            } else {
-                                // 하위 작업 생성 부분
-                                btnCreating
-                            }
-                            // 하위 작업 리스트
-                            if !listSub.isEmpty {
-                                // 리스트
-                                viewList
-                            } else {
-                                if !(isEditingSub) {
-                                    // 리스트가 빈 경우 _ 가이드
-                                    // viewEmptyList
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
-                        // --------------------------------------------------
-                        // plan ---------------------------------------------
-                        VStack(spacing: 5) {
-                            ViewSelectingPlan(listTypePlan: $planType)
-                            if !planType.isEmpty {
-                                viewAdjusingPlan(
-                                    title: "연도",
-                                    range: arrYear,
-                                    startPoint: planedYear > 0 ? planedYear : Calendar.nn.getYear(Date())
-                                ) { new in
-                                    planedYear = new
-                                }
-                                if planType != .year {
-                                    viewAdjusingPlan(
-                                        title: "월",
-                                        range: Array(1...12),
-                                        startPoint: planedMonth > 0 ? planedMonth : Calendar.nn.getMonth(Date()),
-                                    ) { new in
-                                        planedMonth = new
+                // head
+                viewHeader
+                // content
+                VStack(spacing: 0) {
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 0) {
+                            // 하위 작업 ---------------------------------------------
+                            VStack {
+                                if isEditingSub {
+                                    // 하위 작업 작성 부분
+                                    ViewCreatingTodo(parent: item, isPresented: $isEditingSub) { result in
+                                        onCreateSub(result)
                                     }
-                                    if planType.contains(.week) {
-                                        viewAdjusingPlan(
-                                            title: "주",
-                                            range: Array(1...cntWeek),
-                                            startPoint: planedWeek > 0 ? planedWeek : Calendar.nn.getWeek(Date()),
-                                        ) { new in
-                                            planedWeek = new
-                                        }
-                                    }
-                                    if planType.contains(.day) {
-                                        viewAdjusingPlan(
-                                            title: "일",
-                                            range: Array(1...cntDate),
-                                            startPoint: planedDay > 0 ? planedDay : Calendar.nn.getDay(Date()),
-                                        ) { new in
-                                            planedDay = new
-                                        }
+                                } else {
+                                    // 하위 작업 생성 부분
+                                    btnCreating
+                                }
+                                // 하위 작업 리스트
+                                if !listSub.isEmpty {
+                                    // 리스트
+                                    viewList
+                                } else {
+                                    if !(isEditingSub) {
+                                        // 리스트가 빈 경우 _ 가이드
+                                        // viewEmptyList
                                     }
                                 }
                             }
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
-                        // --------------------------------------------------
-                        // 메모 입력
-                        viewWritingMemo
                             .padding(.horizontal, 20)
                             .padding(.vertical, 10)
-                        // footer
-                        HStack {
-                            Group {
-                                if let date = item.updatedDate {
-                                    Text(date.getStrDate(format: format) + "에 수정됨")
-                                } else if let date = item.createdDate {
-                                    Text(date.getStrDate(format: format) + "에 생성됨")
+                            // --------------------------------------------------
+                            // plan ---------------------------------------------
+                            VStack(spacing: 5) {
+                                ViewSelectingPlan(listTypePlan: $planType)
+                                if !planType.isEmpty {
+                                    viewAdjusingPlan(
+                                        title: "연도",
+                                        range: arrYear,
+                                        startPoint: planedYear > 0 ? planedYear : Calendar.nn.getYear(Date())
+                                    ) { new in
+                                        planedYear = new
+                                    }
+                                    if planType != .year {
+                                        viewAdjusingPlan(
+                                            title: "월",
+                                            range: Array(1...12),
+                                            startPoint: planedMonth > 0 ? planedMonth : Calendar.nn.getMonth(Date()),
+                                        ) { new in
+                                            planedMonth = new
+                                        }
+                                        if planType.contains(.week) {
+                                            viewAdjusingPlan(
+                                                title: "주",
+                                                range: Array(1...cntWeek),
+                                                startPoint: planedWeek > 0 ? planedWeek : Calendar.nn.getWeek(Date()),
+                                            ) { new in
+                                                planedWeek = new
+                                            }
+                                        }
+                                        if planType.contains(.day) {
+                                            viewAdjusingPlan(
+                                                title: "일",
+                                                range: Array(1...cntDate),
+                                                startPoint: planedDay > 0 ? planedDay : Calendar.nn.getDay(Date()),
+                                            ) { new in
+                                                planedDay = new
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                            .foregroundColor(.gray)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                            Spacer()
-                            // 삭제 버튼
-                            ImgSafe("btnDelete", color: .red)
-                                .frame(width: 22.5, height: 22.5)
-                                .padding(2.5)
-                                .background(.white)
-                                .cornerRadius(15)
-                                .overlay {
-                                    RoundedRectangle(cornerRadius: 15)
-                                        .stroke(.white.opacity(0.2), lineWidth: 1)
-                                }
-                                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
-                                .padding(2.5)
-                                .contextMenu {
-                                    Button(role: .destructive) {
-                                        onDelete()
-                                    } label: {
-                                        Label("삭제하기", systemImage: "trash")
-                                    }
-                                    Button(role: .destructive) {
-                                        onDeleteWithChildren()
-                                    } label: {
-                                        Label("서브 작업까지 모두 삭제하기", systemImage: "trash")
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            // --------------------------------------------------
+                            // 메모 입력
+                            viewWritingMemo
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 10)
+                            // footer
+                            HStack {
+                                Group {
+                                    if let date = item.updatedDate {
+                                        Text(date.getStrDate(format: format) + "에 수정됨")
+                                    } else if let date = item.createdDate {
+                                        Text(date.getStrDate(format: format) + "에 생성됨")
                                     }
                                 }
+                                .foregroundColor(.gray)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                                Spacer()
+                                // 삭제 버튼
+                                ImgSafe("btnDelete", color: .red)
+                                    .frame(width: 22.5, height: 22.5)
+                                    .padding(2.5)
+                                    .background(.white)
+                                    .cornerRadius(15)
+                                    .overlay {
+                                        RoundedRectangle(cornerRadius: 15)
+                                            .stroke(.white.opacity(0.2), lineWidth: 1)
+                                    }
+                                    .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                                    .padding(2.5)
+                                    .contextMenu {
+                                        Button(role: .destructive) {
+                                            onDelete()
+                                            managerPopup.hide()
+                                        } label: {
+                                            Label("삭제하기", systemImage: "trash")
+                                        }
+                                        Button(role: .destructive) {
+                                            onDeleteWithChildren()
+                                            managerPopup.hide()
+                                        } label: {
+                                            Label("서브 작업까지 모두 삭제하기", systemImage: "trash")
+                                        }
+                                    }
+                            }
+                            .frame(height: 40)
+                            .padding(.horizontal, 20)
                         }
-                        .frame(height: 40)
-                        .padding(.horizontal, 20)
                     }
                 }
             }
-            .background(Color.gray.opacity(0.2))
             .navigationBarBackButtonHidden()
+            .background(Color.gray.opacity(0.2))
         }
         .id(idRefresh)
         .onAppear {
@@ -208,9 +212,37 @@ struct PopupDetailTodo: View {
     // header: tool bar
     @ViewBuilder
     private var viewHeader: some View {
-        HStack {
-            // lead
-            HStack(alignment: .center) {
+        VStack {
+            HStack {
+                // lead
+                HStack(alignment: .center) {
+                    // 닫기 버튼
+                    BtnImg("iconX") {
+                        onUpdate()
+                        managerPopup.hide()
+                    }
+                    .frame(width: 30, height: 30)
+                }
+                Spacer()
+                //trail
+                HStack(spacing: 5) {
+                    // 완료 체크 버튼
+                    BtnCheckImg("btnDone", isChecked: $isDone)
+                        .frame(width: 22.5, height: 22.5)
+                        .disabled(item.isLocked)
+                    // 별표 체크 버튼
+                    BtnCheckImg("btnStar", colorY: .yellow, isChecked: $isMarked)
+                        .frame(width: 22.5, height: 22.5)
+                }
+                .padding(2.5)
+                .background(.ultraThinMaterial)
+                .cornerRadius(15)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                .padding(2.5)
                 if let parent = item.parent {
                     // 부모로 가기 버튼
                     BtnImg("btnInputTodo") {
@@ -225,66 +257,49 @@ struct PopupDetailTodo: View {
                     }
                     .frame(width: 30, height: 30)
                 }
-                HStack(spacing: 0) {
-                    TextFieldTitle(placeholder: "할 일의 이름을 바꾸어 보세요.", text: $textTitle)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .padding(.horizontal, 5)
-                    // 층수
-                    if item.depth > 0 {
-                        Text("lv \(item.depth)")
-                            .font(.system(size: 14))
-                            .foregroundStyle(.white)
-                            .frame(maxHeight: .infinity)
-                            .padding(.horizontal, 10)
-                            .background {
-                                Color.gray
-                                    .cornerRadius(15)
-                                    .overlay {
-                                        RoundedRectangle(cornerRadius: 15)
-                                            .stroke(.white.opacity(0.2), lineWidth: 1)
-                                    }
-                                    .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
-                            }
-                            .padding(2.5)
-                    }
-                }
-                .frame(height: 30)
-                .background(.ultraThinMaterial)
-                .cornerRadius(15)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 15)
-                        .stroke(.white.opacity(0.2), lineWidth: 1)
-                }
-                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
-                .padding(2.5)
             }
-            Spacer()
-            //trail
-            HStack(spacing: 5) {
-                // 완료 체크 버튼
-                BtnCheckImg("btnDone", isChecked: $isDone)
-                    .frame(width: 22.5, height: 22.5)
-                    .disabled(item.isLocked)
-                // 별표 체크 버튼
-                BtnCheckImg("btnStar", colorY: .yellow, isChecked: $isMarked)
-                    .frame(width: 22.5, height: 22.5)
+            HStack(spacing: 0) {
+                TextFieldTitle(placeholder: "할 일의 이름을 바꾸어 보세요.", text: $textTitle)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.horizontal, 5)
+                // 층수
+                if item.depth > 0 {
+                    Text("lv \(item.depth)")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.white)
+                        .frame(maxHeight: .infinity)
+                        .padding(.horizontal, 10)
+                        .background {
+                            Color.gray
+                                .cornerRadius(15)
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .stroke(.white.opacity(0.2), lineWidth: 1)
+                                }
+                                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                        }
+                        .padding(2.5)
+                }
             }
-            .padding(2.5)
+            .frame(height: 30)
             .background(.ultraThinMaterial)
             .cornerRadius(15)
             .overlay {
                 RoundedRectangle(cornerRadius: 15)
-                    .stroke(.white.opacity(0.2), lineWidth: 1)
+                    .stroke((kategory?.color == nil ? .white.opacity(0.2) : Color(hex: kategory!.color!).opacity(0.8)), lineWidth: 1)
             }
             .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
             .padding(2.5)
-            // 닫기 버튼
-            BtnImg("iconX") {
-                onUpdate()
-                managerPopup.hide()
-            }
-            .frame(width: 30, height: 30)
         }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(.white)
+        .overlay {
+            RoundedRectangle(cornerRadius: 15)
+                .stroke(.white.opacity(0.2), lineWidth: 1)
+        }
+        .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+        .cornerRadius(15)
         .padding(.horizontal, 20)
     }
     
@@ -544,10 +559,12 @@ struct PopupDetailTodo: View {
 }
 
 #Preview {
+    let kategory = ServiceKategory().getNew("todo example", color: "#ff0000")
+    let itemWithKategory = ServiceWork().getNew("todo example", kategory: kategory)
     let item = ServiceWork().getNew("todo example", planedMonth: 4, planedYear: 2026)
     let itemChild = ServiceWork().getNew("todo example child", parent: item)
     
-    PopupDetailTodo(item) {
+    PopupDetailTodo(itemChild) {
         NnLogger.log("result code: \($0)", level: .debug)
     }
 }

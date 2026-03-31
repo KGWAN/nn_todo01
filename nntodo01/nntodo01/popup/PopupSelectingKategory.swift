@@ -105,9 +105,9 @@ struct PopupSelectingKategory: View {
                 HStack {
                     Spacer()
                     // button creating kategory
-                    BtnImg("iconPlus", color: .cyan) {
-                        isShowingPopupInputKategory = true
-                    }
+//                    BtnImg("iconPlus", color: .cyan) {
+//                        isShowingPopupInputKategory = true
+//                    }
                 }
             }
             .frame(maxHeight: 30)

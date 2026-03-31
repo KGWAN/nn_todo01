@@ -24,11 +24,40 @@ struct PopupSelectingTodo: View {
         // dummy value
 //        self.templete = .normal
     }
+    init(to year: Int, predicate: NSPredicate, onUpdate: @escaping (Result) -> Void) {
+        self.onUpdate = onUpdate
+        self.predicate = predicate
+        self.year = year
+    }
+    init(to month: Int, year: Int, predicate: NSPredicate, onUpdate: @escaping (Result) -> Void) {
+        self.onUpdate = onUpdate
+        self.predicate = predicate
+        self.year = year
+        self.month = month
+    }
+    init(toWeek week: Int, month: Int, year: Int, predicate: NSPredicate, onUpdate: @escaping (Result) -> Void) {
+        self.onUpdate = onUpdate
+        self.predicate = predicate
+        self.year = year
+        self.month = month
+        self.week = week
+    }
+    init(toDay day: Int, month: Int, year: Int, predicate: NSPredicate, onUpdate: @escaping (Result) -> Void) {
+        self.onUpdate = onUpdate
+        self.predicate = predicate
+        self.year = year
+        self.month = month
+        self.day = day
+    }
     // in value
 //    private let templete: Templete
-    private let kategory: Kategory?
     private let predicate: NSPredicate
     private let onUpdate: (Result) -> Void
+    private var kategory: Kategory? = nil
+    private var year: Int? = nil
+    private var month: Int? = nil
+    private var week: Int? = nil
+    private var day: Int? = nil
     // state
     @State private var text: String = ""
     @State private var list: [Work] = []
@@ -69,6 +98,24 @@ struct PopupSelectingTodo: View {
                                             Button {
                                                 if let k = kategory {
                                                     update(i, key: "kategory", value: k)
+                                                } else if let y = year {
+                                                    if let m = month {
+                                                        if let w = week {
+                                                            i.listTypePlan = .week
+                                                            i.planedWeek = Int64(w)
+                                                        } else if let d = day {
+                                                            i.listTypePlan = .day
+                                                            i.planedDay = Int64(d)
+                                                        } else {
+                                                            i.listTypePlan = .month
+                                                        }
+                                                        i.planedMonth = Int64(m)
+                                                    } else {
+                                                        i.listTypePlan = .year
+                                                    }
+                                                    i.planedYear = Int64(y)
+                                                    onUpdate(service.save())
+                                                    managerPopup.hide()
                                                 }
                                             } label: {
                                                 ItemTodo(i)
@@ -149,8 +196,8 @@ struct PopupSelectingTodo: View {
         if !result.isSuccess {
             showToast("할 일 추가에 실패했습니다.")
         } else {
-            managerPopup.hide()
             onUpdate(result)
+            managerPopup.hide()
         }
         
         // 화면 갱신

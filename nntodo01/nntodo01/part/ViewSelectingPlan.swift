@@ -18,7 +18,8 @@ struct ViewSelectingPlan: View {
                         if listTypePlan.contains(type) {
                             listTypePlan.remove(type)
                         } else {
-                            listTypePlan.insert(type)
+                            listTypePlan = [type]
+//                            listTypePlan.insert(type)
                         }
                     }
                     NnLogger.log("Plan's Type was changed. >>> \(listTypePlan.rawValue)")

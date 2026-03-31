@@ -121,7 +121,7 @@ struct ItemTodo: View {
                 .cornerRadius(15)
                 .overlay {
                     RoundedRectangle(cornerRadius: 15)
-                        .stroke((kategory?.color == nil ? .gray : Color(hex: kategory!.color!)).opacity(0.2), lineWidth: 1)
+                        .stroke((kategory?.color == nil ? .gray : Color(hex: kategory!.color!)).opacity(0.8), lineWidth: 1)
                 }
                 .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
         }
