@@ -227,7 +227,7 @@ struct PopupDetailTodo: View {
                 //trail
                 HStack(spacing: 5) {
                     // 완료 체크 버튼
-                    BtnCheckImg("btnDone", isChecked: $isDone)
+                    BtnCheckImg("btnDone", colorY: .blue, isChecked: $isDone)
                         .frame(width: 22.5, height: 22.5)
                         .disabled(item.isLocked)
                     // 별표 체크 버튼

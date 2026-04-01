@@ -36,13 +36,15 @@ struct ViewIntro: View {
             onFinished()
         } label: {
             VStack(spacing: 0) {
-                Text("nn")
+                Text("olii")
                     .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.yellow)
                     .frame(maxWidth:.infinity)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
                 Text("TODO")
                     .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.yellow)
                     .frame(maxWidth:.infinity)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
@@ -53,7 +55,7 @@ struct ViewIntro: View {
                     .cornerRadius(75)
                     .overlay {
                         RoundedRectangle(cornerRadius: 75)
-                            .stroke(.cyan.opacity(0.2), lineWidth: 10)
+                            .stroke(.yellow.opacity(0.2), lineWidth: 10)
                     }
                     .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
             }

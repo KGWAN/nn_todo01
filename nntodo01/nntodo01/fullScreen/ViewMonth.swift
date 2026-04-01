@@ -206,8 +206,10 @@ struct ViewMonth: View {
         isEditing = false
         let predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d", TypePlan.month.rawValue, year)
         list = service.fetchList(predicate)
-        listGrouped = Dictionary(grouping: list, by: { Int($0.planedMonth) })
-        idRefresh = UUID()
+        withAnimation {
+            listGrouped = Dictionary(grouping: list, by: { Int($0.planedMonth) })
+            idRefresh = UUID()
+        }
     }
     
     private func onCreate(_ result: Result) {

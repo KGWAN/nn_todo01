@@ -244,8 +244,10 @@ struct ViewWeek: View {
         listSection = Calendar.nn.getWeeksInMonth(month: month, year: year)
         let predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedMonth == %d AND planedYear == %d", TypePlan.week.rawValue, month, year)
         list = service.fetchList(predicate)
-        listGrouped = Dictionary(grouping: list, by: { Int($0.planedWeek) })
-        idRefresh = UUID()
+        withAnimation {
+            listGrouped = Dictionary(grouping: list, by: { Int($0.planedWeek) })
+            idRefresh = UUID()
+        }
     }
     
     private func onCreate(_ result: Result) {

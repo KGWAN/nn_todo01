@@ -41,7 +41,7 @@ struct nntodo01App: App {
         switch popup {
         case .selectKategory(let onSelected):
             PopupSelectingKategory(onSelected: onSelected)
-                .transition(.move(edge: .bottom))
+                .transition(.move(edge: .bottom).combined(with: .opacity))
         case .setKategory(let target, let onFinished, let onDelete):
             PopupInputKategory(origin: target, onFinish: onFinished, onDelete: onDelete)
         case .viewDetailTodo(let todo, let onFinished):
@@ -63,6 +63,5 @@ struct nntodo01App: App {
             PopupSelectingTodo(toDay: day, month: month, year: year, predicate: predicate, onUpdate: onUpdate)
                 .transition(.move(edge: .bottom))
         }
-        
     }
 }

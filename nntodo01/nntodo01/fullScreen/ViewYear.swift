@@ -85,9 +85,7 @@ struct ViewYear: View {
                     .padding(.vertical, 5)
                 // 할 일 작성 버튼
                 BtnImg("iconPlus", color: .cyan) {
-                    withAnimation {
-                        isEditing = true
-                    }
+                    isEditing = true
                 }
                 // 할 일 추가
                 BtnImg("iconPlus", color: .blue) {
