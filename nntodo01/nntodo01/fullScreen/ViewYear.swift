@@ -77,18 +77,18 @@ struct ViewYear: View {
     @ViewBuilder
     private var viewHeader: some View {
         VStack(spacing: 5) {
-            HStack(spacing: 10) {
+            HStack(spacing: 5) {
                 // 연도
                 Text("\(String(year))년 할 일")
                     .font(.system(size: 20, weight: .bold))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                     .padding(.vertical, 5)
                 // 할 일 작성 버튼
-                BtnImg("iconPlus", color: .cyan) {
+                BtnImg("iconPlus", color: .cyan, size: 40) {
                     isEditing = true
                 }
                 // 할 일 추가
-                BtnImg("iconPlus", color: .blue) {
+                BtnImg("bringTodo", color: .cyan, size: 30) {
                     managerPopup.show(
                         .selectTodoForAddToPlanYear(
                             to: year,

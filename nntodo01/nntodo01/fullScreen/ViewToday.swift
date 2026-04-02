@@ -175,7 +175,7 @@ struct ViewToday: View {
     @ViewBuilder
     private func viewHeader(_ type: TypePlan) -> some View {
         VStack(spacing: 5) {
-            HStack(spacing: 0) {
+            HStack(spacing: 5) {
                 // 제목
                 Group {
                     if type == .day {
@@ -193,13 +193,13 @@ struct ViewToday: View {
                 Spacer()
                 // 생성 버튼
                 // 할 일 작성 버튼
-                BtnImg("iconPlus", color: .cyan) {
+                BtnImg("iconPlus", color: .cyan, size: 40) {
                     isEditing = true
                     isFocusedSub = true
                     targetNum = type
                 }
                 // 할 일 추가
-                BtnImg("iconPlus", color: .blue) {
+                BtnImg("bringTodo", color: .cyan, size: 30) {
                     if type == .day {
                         managerPopup.show(
                             .selectTodoForAddToPlanDay(

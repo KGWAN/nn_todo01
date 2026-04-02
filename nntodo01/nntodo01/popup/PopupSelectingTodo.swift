@@ -149,7 +149,7 @@ struct PopupSelectingTodo: View {
     private var viewHeader: some View {
         VStack {
             ZStack() {
-                Text("목록에 할 일 추가")
+                Text("할 일 추가")
                     .frame(maxWidth: .infinity)
                 // lead
                 HStack {

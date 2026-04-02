@@ -126,13 +126,13 @@ struct ViewWeek: View {
                     .font(.system(size: 20, weight: .medium))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 // 할 일 작성 버튼
-                BtnImg("iconPlus", color: .cyan) {
+                BtnImg("iconPlus", color: .cyan, size: 40) {
                     targetNum = week.num
                     // 편집 모드 들어가기
                     isEditing = true
                 }
                 // 할 일 추가
-                BtnImg("iconPlus", color: .blue) {
+                BtnImg("bringTodo", color: .cyan, size: 30) {
                     managerPopup.show(
                         .selectTodoForAddToPlanWeek(
                             to: week.num,

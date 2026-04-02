@@ -60,7 +60,7 @@ struct ViewDay: View {
                             HStack(spacing: 0) {
                                 Spacer()
                                 // 할 일 추가
-                                BtnImg("iconPlus", color: .blue) {
+                                BtnImg("bringTodo", color: .cyan, size: 30) {
                                     managerPopup.show(
                                         .selectTodoForAddToPlanDay(
                                             to: calendar.getDay(dateSelected!),
