@@ -244,7 +244,7 @@ class ServiceWork: NnService {
         request.fetchLimit = 1
         return fetch(request).first
     }
-    // 작업 수
+    // 작업 수(templete)
     func getCntNotDone(templete: Templete) -> Int {
         if let predicate = templete.predicate {
             return fetchList(predicate).filter { !$0.isDone }.count
@@ -252,7 +252,20 @@ class ServiceWork: NnService {
             return fetchAll().filter { !$0.isDone }.count
         }
     }
-
+    // 작업 수(일별)
+    func getCntNotDone(of month: Int) -> [Int: Int] {
+        print(TypePlan.day.rawValue)
+        print(Int64(month))
+        print(Int64(1))
+        print(Int64(31))
+        let works = fetchList(NSPredicate(format: "planType == 8 AND planedMonth == %d AND planedDay >= 1 AND planedDay <= 31 AND isDone == %@", Int64(month), NSNumber(value: false)))
+        print(works.count)
+        let grouped = Dictionary(grouping: works) { work in
+            Int(work.planedDay)
+        }
+        return grouped.mapValues { $0.count }
+//        return [:]
+    }
     // MARK: update
     // 일괄
     func update(_ newWork: Work) -> Result {

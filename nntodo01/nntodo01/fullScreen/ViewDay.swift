@@ -32,6 +32,8 @@ struct ViewDay: View {
     // updating todo
     @State private var isModifying: Bool = false
     @State private var targetModifying: Work? = nil
+    // cnt works
+    @State private var dictCntForDays: [Int: Int] = [:]
     // environment
     @EnvironmentObject private var managerPopup: ManagerPopup
     
@@ -280,6 +282,23 @@ struct ViewDay: View {
     private func viewItem(_ date: Date) -> some View {
         VStack {
             // TODO: 일 별 할 일 개수 표시
+            if let cnt = dictCntForDays[Int(date.getStrDate(format: "d")) ?? 0] {
+                Text("\(cnt)")
+                    .frame(width: 20, height: 20)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.white)
+                    .background {
+                        Color.red
+                            .opacity(0.8)
+                            .cornerRadius(15)
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(.white.opacity(0.2), lineWidth: 1)
+                            }
+                            .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+                    }
+                    .padding(2.5)
+            }
             Spacer()
             HStack {
                 if let selected = dateSelected,
@@ -333,6 +352,9 @@ struct ViewDay: View {
     private func reload() {
         // 편집 모드 해제
         isEditing = false
+        // dictCntForDays
+        dictCntForDays = service.getCntNotDone(of: month)
+        print("\(dictCntForDays)")
         //
         if let date = dateSelected {
             let predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedDay == %d AND planedMonth == %d AND planedYear = %d", TypePlan.day.rawValue, calendar.getDay(date), calendar.getMonth(date), calendar.getYear(date))

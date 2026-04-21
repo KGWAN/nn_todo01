@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreData
+import WidgetKit
 
 struct PersistenceController {
     // constant
@@ -20,25 +21,40 @@ struct PersistenceController {
     
     init() {
         container = NSPersistentContainer(name: "NnModel")
-        if let description = container.persistentStoreDescriptions.first {
-            description.shouldMigrateStoreAutomatically = true
-            description.shouldInferMappingModelAutomatically = true
-            if isPreview {
-                description.type = NSInMemoryStoreType
-            }
-        }
+        // persistentStoreDescriptions 설정
+        // 기본 생성
+        container.persistentStoreDescriptions = [getDescription()]
         container.loadPersistentStores { storeDescription, error in
             NnLogger.log("CoreData load storeDescription: \(storeDescription)", level: .info)
             if let e = error {
                 fatalError("CoreData load failed: \(e)")
             }
         }
+        container.viewContext.automaticallyMergesChangesFromParent = true
     }
     
     // func
+    private func getDescription() -> NSPersistentStoreDescription {
+        // 기본 생성
+        let description = NSPersistentStoreDescription()
+        if isPreview {
+            description.type = NSInMemoryStoreType
+        } else {
+            // App Group 공유 폴더 URL 가져오기
+            let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.olii")!
+            // SQLite 파일 경로 생성
+            let storeURL = groupURL.appendingPathComponent("olii.todo.sqlite")
+            description.url = storeURL
+        }
+        description.shouldMigrateStoreAutomatically = true
+        description.shouldInferMappingModelAutomatically = true
+        return description
+    }
+    
     func save() -> Result {
         do {
             try container.viewContext.save()
+            WidgetCenter.shared.reloadAllTimelines()
             return Result(code: "0000", msg: "성공")
         } catch {
             let nsError = error as NSError

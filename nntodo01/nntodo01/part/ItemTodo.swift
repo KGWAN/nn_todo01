@@ -50,14 +50,22 @@ struct ItemTodo: View {
     
     var body: some View {
         HStack(spacing: 5) {
-            // 완료 여부 체크 버튼
-            BtnCheckImg(
-                "btnDone",
-                colorY: .blue,
-                isChecked: $isDone)
+            if isLocked {
+                // 잠김 여부
+                ImgSafe("lock", color: .gray)
+                    .frame(width: 22.5, height: 22.5)
+                    .padding(2.5)
+                    .opacity(isLocked ? 1 : 0)
+            } else {
+                // 완료 여부 체크 버튼
+                BtnCheckImg(
+                    "btnDone",
+                    colorY: .blue,
+                    isChecked: $isDone)
                 .frame(width: 25, height: 25)
                 .padding(2.5)
                 .disabled(isLocked)
+            }
             // 이름
             Text(title)
                 .font(.system(size: 16, weight: .medium))
@@ -66,28 +74,23 @@ struct ItemTodo: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 .padding(.leading, 10)
                 .padding(.vertical, 3)
-            // 잠김 여부
-            ImgSafe("lock", color: .gray)
-                .frame(width: 22.5, height: 22.5)
-                .padding(2.5)
-                .opacity(isLocked ? 1 : 0)
             // 층수
-            Text("lv.\(depth)")
-                .font(.system(size: 12))
-                .foregroundStyle(.white)
-                .frame(height: 20)
-                .padding(.horizontal, 10)
-                .background {
-                    Color.gray
-                        .cornerRadius(15)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 15)
-                                .stroke(.white.opacity(0.2), lineWidth: 1)
-                        }
-                        .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
-                }
-                .padding(2.5)
-                .opacity(depth == 0 ? 0 : 1)
+//            Text("lv.\(depth)")
+//                .font(.system(size: 12))
+//                .foregroundStyle(.white)
+//                .frame(height: 20)
+//                .padding(.horizontal, 10)
+//                .background {
+//                    Color.gray
+//                        .cornerRadius(15)
+//                        .overlay {
+//                            RoundedRectangle(cornerRadius: 15)
+//                                .stroke(.white.opacity(0.2), lineWidth: 1)
+//                        }
+//                        .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+//                }
+//                .padding(2.5)
+//                .opacity(depth == 0 ? 0 : 1)
             // 자식 수
             Text(String(cntChild))
                 .frame(width: 20, height: 20)
@@ -106,13 +109,13 @@ struct ItemTodo: View {
                 .padding(2.5)
                 .opacity(cntChild == 0 ? 0 : 1)
             // 즐겨찾기 여부 체크 버튼
-            BtnCheckImg(
-                "btnStar",
-                colorY: .yellow,
-                isChecked: $isMarked
-            )
-            .frame(width: 25, height: 25)
-            .padding(2.5)
+//            BtnCheckImg(
+//                "btnStar",
+//                colorY: .yellow,
+//                isChecked: $isMarked
+//            )
+//            .frame(width: 25, height: 25)
+//            .padding(2.5)
         }
         .frame(height: 40)
         .padding(.horizontal, 10)

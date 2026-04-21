@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ViewCalendar: View {
     // state
-    @State private var idxSelectedTab = 0
+    @State private var idxSelectedTab = 3
     @State private var year: Int = Calendar.nn.getYear(Date())
     @State private var idRefresh: UUID = UUID()
     // constant
