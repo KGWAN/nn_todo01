@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		A32A67B82F14E541001C55B7 /* NnModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = A32A67B62F14E541001C55B7 /* NnModel.xcdatamodeld */; };
+		A3ADAF4F2F8CCA2300E6B6C8 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3ADAF4E2F8CCA2300E6B6C8 /* WidgetKit.framework */; };
+		A3ADAF512F8CCA2300E6B6C8 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3ADAF502F8CCA2300E6B6C8 /* SwiftUI.framework */; };
+		A3ADAF622F8CCA2400E6B6C8 /* oliiTodoWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A3ADAF4C2F8CCA2300E6B6C8 /* oliiTodoWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A3CC6D6F2F9743CF005807BA /* NnModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = A32A67B62F14E541001C55B7 /* NnModel.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -25,13 +29,39 @@
 			remoteGlobalIDString = A32A65A42F0B8B04001C55B7;
 			remoteInfo = nntodo01;
 		};
+		A3ADAF602F8CCA2400E6B6C8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A32A659D2F0B8B04001C55B7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A3ADAF4B2F8CCA2300E6B6C8;
+			remoteInfo = oliiTodoWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A3ADAF632F8CCA2400E6B6C8 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A3ADAF622F8CCA2400E6B6C8 /* oliiTodoWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		A32A65A52F0B8B04001C55B7 /* olii todo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "olii todo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A32A65B22F0B8B05001C55B7 /* olii todoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "olii todoTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A32A65BC2F0B8B05001C55B7 /* olii todoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "olii todoUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A32A67B72F14E541001C55B7 /* NnModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = NnModel.xcdatamodel; sourceTree = "<group>"; };
+		A3ADAF4C2F8CCA2300E6B6C8 /* oliiTodoWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = oliiTodoWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A3ADAF4E2F8CCA2300E6B6C8 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		A3ADAF502F8CCA2300E6B6C8 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		A3CC6D7C2F97522C005807BA /* olii todo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "olii todo.entitlements"; sourceTree = "<group>"; };
+		A3D5CAD72F9753A500A9B6C7 /* oliiTodoWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = oliiTodoWidgetExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -41,6 +71,24 @@
 				Info.plist,
 			);
 			target = A32A65A42F0B8B04001C55B7 /* olii todo */;
+		};
+		A3ADAF672F8CCA2400E6B6C8 /* Exceptions for "oliiTodoWidget" folder in "oliiTodoWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A3ADAF4B2F8CCA2300E6B6C8 /* oliiTodoWidgetExtension */;
+		};
+		A3CC6D712F9743F7005807BA /* Exceptions for "nntodo01" folder in "oliiTodoWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				dataModel/enum/TypePlan.swift,
+				dataModel/Result.swift,
+				utility/ExtensionEntity.swift,
+				utility/NnLogger.swift,
+				utility/PersistenceController.swift,
+			);
+			target = A3ADAF4B2F8CCA2300E6B6C8 /* oliiTodoWidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -59,8 +107,17 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				A32A68932F28AF87001C55B7 /* Exceptions for "nntodo01" folder in "olii todo" target */,
+				A3CC6D712F9743F7005807BA /* Exceptions for "nntodo01" folder in "oliiTodoWidgetExtension" target */,
 			);
 			path = nntodo01;
+			sourceTree = "<group>";
+		};
+		A3ADAF522F8CCA2300E6B6C8 /* oliiTodoWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A3ADAF672F8CCA2400E6B6C8 /* Exceptions for "oliiTodoWidget" folder in "oliiTodoWidgetExtension" target */,
+			);
+			path = oliiTodoWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -87,16 +144,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A3ADAF492F8CCA2300E6B6C8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A3ADAF512F8CCA2300E6B6C8 /* SwiftUI.framework in Frameworks */,
+				A3ADAF4F2F8CCA2300E6B6C8 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		A32A659C2F0B8B04001C55B7 = {
 			isa = PBXGroup;
 			children = (
+				A3D5CAD72F9753A500A9B6C7 /* oliiTodoWidgetExtension.entitlements */,
+				A3CC6D7C2F97522C005807BA /* olii todo.entitlements */,
 				A32A68762F28AF87001C55B7 /* nntodo01 */,
 				A32A67B62F14E541001C55B7 /* NnModel.xcdatamodeld */,
 				A32A65B52F0B8B05001C55B7 /* nntodo01Tests */,
 				A32A65BF2F0B8B05001C55B7 /* nntodo01UITests */,
+				A3ADAF522F8CCA2300E6B6C8 /* oliiTodoWidget */,
+				A3ADAF4D2F8CCA2300E6B6C8 /* Frameworks */,
 				A32A65A62F0B8B04001C55B7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -107,8 +177,18 @@
 				A32A65A52F0B8B04001C55B7 /* olii todo.app */,
 				A32A65B22F0B8B05001C55B7 /* olii todoTests.xctest */,
 				A32A65BC2F0B8B05001C55B7 /* olii todoUITests.xctest */,
+				A3ADAF4C2F8CCA2300E6B6C8 /* oliiTodoWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A3ADAF4D2F8CCA2300E6B6C8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A3ADAF4E2F8CCA2300E6B6C8 /* WidgetKit.framework */,
+				A3ADAF502F8CCA2300E6B6C8 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -121,10 +201,12 @@
 				A32A65A12F0B8B04001C55B7 /* Sources */,
 				A32A65A22F0B8B04001C55B7 /* Frameworks */,
 				A32A65A32F0B8B04001C55B7 /* Resources */,
+				A3ADAF632F8CCA2400E6B6C8 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				A3ADAF612F8CCA2400E6B6C8 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				A32A68762F28AF87001C55B7 /* nntodo01 */,
@@ -182,6 +264,28 @@
 			productReference = A32A65BC2F0B8B05001C55B7 /* olii todoUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		A3ADAF4B2F8CCA2300E6B6C8 /* oliiTodoWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A3ADAF662F8CCA2400E6B6C8 /* Build configuration list for PBXNativeTarget "oliiTodoWidgetExtension" */;
+			buildPhases = (
+				A3ADAF482F8CCA2300E6B6C8 /* Sources */,
+				A3ADAF492F8CCA2300E6B6C8 /* Frameworks */,
+				A3ADAF4A2F8CCA2300E6B6C8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A3ADAF522F8CCA2300E6B6C8 /* oliiTodoWidget */,
+			);
+			name = oliiTodoWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = oliiTodoWidgetExtension;
+			productReference = A3ADAF4C2F8CCA2300E6B6C8 /* oliiTodoWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -189,7 +293,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2630;
 				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					A32A65A42F0B8B04001C55B7 = {
@@ -202,6 +306,9 @@
 					A32A65BB2F0B8B05001C55B7 = {
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = A32A65A42F0B8B04001C55B7;
+					};
+					A3ADAF4B2F8CCA2300E6B6C8 = {
+						CreatedOnToolsVersion = 26.3;
 					};
 				};
 			};
@@ -222,6 +329,7 @@
 				A32A65A42F0B8B04001C55B7 /* olii todo */,
 				A32A65B12F0B8B05001C55B7 /* olii todoTests */,
 				A32A65BB2F0B8B05001C55B7 /* olii todoUITests */,
+				A3ADAF4B2F8CCA2300E6B6C8 /* oliiTodoWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -242,6 +350,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		A32A65BA2F0B8B05001C55B7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A3ADAF4A2F8CCA2300E6B6C8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -273,6 +388,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A3ADAF482F8CCA2300E6B6C8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A3CC6D6F2F9743CF005807BA /* NnModel.xcdatamodeld in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -285,6 +408,11 @@
 			isa = PBXTargetDependency;
 			target = A32A65A42F0B8B04001C55B7 /* olii todo */;
 			targetProxy = A32A65BD2F0B8B05001C55B7 /* PBXContainerItemProxy */;
+		};
+		A3ADAF612F8CCA2400E6B6C8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A3ADAF4B2F8CCA2300E6B6C8 /* oliiTodoWidgetExtension */;
+			targetProxy = A3ADAF602F8CCA2400E6B6C8 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -417,6 +545,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "olii todo.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
@@ -431,7 +560,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -455,6 +584,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "olii todo.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
@@ -469,7 +599,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -560,6 +690,72 @@
 			};
 			name = Release;
 		};
+		A3ADAF642F8CCA2400E6B6C8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = oliiTodoWidgetExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = JS4NTJ5J64;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = oliiTodoWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = oliiTodoWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.olii.todo.oliiTodoWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A3ADAF652F8CCA2400E6B6C8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = oliiTodoWidgetExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = JS4NTJ5J64;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = oliiTodoWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = oliiTodoWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.olii.todo.oliiTodoWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -595,6 +791,15 @@
 			buildConfigurations = (
 				A32A65CD2F0B8B05001C55B7 /* Debug */,
 				A32A65CE2F0B8B05001C55B7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A3ADAF662F8CCA2400E6B6C8 /* Build configuration list for PBXNativeTarget "oliiTodoWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A3ADAF642F8CCA2400E6B6C8 /* Debug */,
+				A3ADAF652F8CCA2400E6B6C8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
