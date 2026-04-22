@@ -13,7 +13,8 @@ import SwiftUI
 @main
 struct oliiTodoWidgetBundle: WidgetBundle {
     var body: some Widget {
-        oliiTodoWidget()
+        oliiTodoWidgetForSmall()
+        oliiTodoWidgetForMedium()
 //        oliiTodoWidgetControl()
 //        oliiTodoWidgetLiveActivity()
     }
