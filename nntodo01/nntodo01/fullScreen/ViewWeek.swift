@@ -32,6 +32,11 @@ struct ViewWeek: View {
     // constant
     private let service: ServiceWork = ServiceWork()
 //    private let year: Int = Calendar.nn.getYear(Date())
+    private let sortDescriptors: [NSSortDescriptor] = [
+        NSSortDescriptor(keyPath: \Work.kategory?.title, ascending: true),
+        NSSortDescriptor(keyPath: \Work.updatedDate, ascending: false),
+        NSSortDescriptor(keyPath: \Work.createdDate, ascending: false)
+    ]
     // environment
     @EnvironmentObject private var managerPopup: ManagerPopup
     
@@ -243,7 +248,7 @@ struct ViewWeek: View {
         isEditing = false
         listSection = Calendar.nn.getWeeksInMonth(month: month, year: year)
         let predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedMonth == %d AND planedYear == %d", TypePlan.week.rawValue, month, year)
-        list = service.fetchList(predicate)
+        list = service.fetchList(predicate, sort: sortDescriptors)
         withAnimation {
             listGrouped = Dictionary(grouping: list, by: { Int($0.planedWeek) })
             idRefresh = UUID()

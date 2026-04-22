@@ -237,6 +237,12 @@ class ServiceWork: NnService {
         req.sortDescriptors = sort ?? sortDefalt
         return fetch(req)
     }
+    // 목록별로 그룹 짓기
+    func getGroupedList(_ origin: [Work]) -> Array<(key: String, value: Array<Work>)> {
+        return Dictionary(grouping: origin) { work in
+            work.nameOfKategory
+        }.sorted { $0.key < $1.key }
+    }
     // 특정
     func fetchOne(_ id: UUID) -> Work? {
         let request: NSFetchRequest<Work> = Work.fetchRequest()
@@ -254,17 +260,11 @@ class ServiceWork: NnService {
     }
     // 작업 수(일별)
     func getCntNotDone(of month: Int) -> [Int: Int] {
-        print(TypePlan.day.rawValue)
-        print(Int64(month))
-        print(Int64(1))
-        print(Int64(31))
         let works = fetchList(NSPredicate(format: "planType == 8 AND planedMonth == %d AND planedDay >= 1 AND planedDay <= 31 AND isDone == %@", Int64(month), NSNumber(value: false)))
-        print(works.count)
         let grouped = Dictionary(grouping: works) { work in
             Int(work.planedDay)
         }
         return grouped.mapValues { $0.count }
-//        return [:]
     }
     // MARK: update
     // 일괄

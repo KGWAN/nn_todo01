@@ -12,4 +12,8 @@ extension Work {
         get { TypePlan(rawValue: self.planType) }
         set { self.planType = newValue.rawValue }
     }
+    // kategory가 nil이면 "미분류"를 반환
+    var nameOfKategory: String {
+        kategory?.title ?? "미분류"
+    }
 }

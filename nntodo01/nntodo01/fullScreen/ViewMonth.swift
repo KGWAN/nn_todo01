@@ -31,6 +31,11 @@ struct ViewMonth: View {
     private let listSection: [Int] = Array(1...12)
 //    private let year: Int = Calendar.nn.getYear(Date())
     private let service: ServiceWork = ServiceWork()
+    private let sortDescriptors: [NSSortDescriptor] = [
+        NSSortDescriptor(keyPath: \Work.kategory?.title, ascending: true),
+        NSSortDescriptor(keyPath: \Work.updatedDate, ascending: false),
+        NSSortDescriptor(keyPath: \Work.createdDate, ascending: false)
+    ]
     // environment
     @EnvironmentObject private var managerPopup: ManagerPopup
     
@@ -205,7 +210,7 @@ struct ViewMonth: View {
         // 편집 모드 해제
         isEditing = false
         let predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d", TypePlan.month.rawValue, year)
-        list = service.fetchList(predicate)
+        list = service.fetchList(predicate, sort: sortDescriptors)
         withAnimation {
             listGrouped = Dictionary(grouping: list, by: { Int($0.planedMonth) })
             idRefresh = UUID()

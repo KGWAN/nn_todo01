@@ -41,6 +41,11 @@ struct ViewToday: View {
     private let predicateThisWeek: NSPredicate
     private let predicateMonth: NSPredicate
     private let predicateYear: NSPredicate
+    private let sortDescriptors: [NSSortDescriptor] = [
+        NSSortDescriptor(keyPath: \Work.kategory?.title, ascending: true),
+        NSSortDescriptor(keyPath: \Work.updatedDate, ascending: false),
+        NSSortDescriptor(keyPath: \Work.createdDate, ascending: false)
+    ]
     init() {
         self.day = calendar.getDay(dateToday)
         self.week = calendar.getWeek(dateToday)
@@ -280,10 +285,10 @@ struct ViewToday: View {
     
     // func
     private func reload() {
-        listToday = service.fetchList(predicateToday)
-        listThisWeek = service.fetchList(predicateThisWeek)
-        listMonth = service.fetchList(predicateMonth)
-        listYear = service.fetchList(predicateYear)
+        listToday = service.fetchList(predicateToday, sort: sortDescriptors)
+        listThisWeek = service.fetchList(predicateThisWeek, sort: sortDescriptors)
+        listMonth = service.fetchList(predicateMonth, sort: sortDescriptors)
+        listYear = service.fetchList(predicateYear, sort: sortDescriptors)
         // view refresh trager
         idRefresh = UUID()
     }

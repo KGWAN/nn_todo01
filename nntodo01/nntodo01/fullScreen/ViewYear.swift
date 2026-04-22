@@ -27,6 +27,11 @@ struct ViewYear: View {
     @State private var msgToast: String = ""
     // constant
     private let service: ServiceWork = ServiceWork()
+    private let sortDescriptors: [NSSortDescriptor] = [
+        NSSortDescriptor(keyPath: \Work.kategory?.title, ascending: true),
+        NSSortDescriptor(keyPath: \Work.updatedDate, ascending: false),
+        NSSortDescriptor(keyPath: \Work.createdDate, ascending: false)
+    ]
     // environment
     @EnvironmentObject var managerPopup: ManagerPopup
     
@@ -197,7 +202,7 @@ struct ViewYear: View {
         isEditing = false
         let predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedYear == %d", TypePlan.year.rawValue, year)
         withAnimation {
-            list = service.fetchList(predicate)
+            list = service.fetchList(predicate, sort: sortDescriptors)
             idRefresh = UUID()
         }
     }

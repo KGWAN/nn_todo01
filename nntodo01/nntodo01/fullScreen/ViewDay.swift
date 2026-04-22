@@ -19,6 +19,11 @@ struct ViewDay: View {
     private let calendar = Calendar.nn
     private let dateBase: Date = Date()
     private let service: ServiceWork = ServiceWork()
+    private let sortDescriptors: [NSSortDescriptor] = [
+        NSSortDescriptor(keyPath: \Work.kategory?.title, ascending: true),
+        NSSortDescriptor(keyPath: \Work.updatedDate, ascending: false),
+        NSSortDescriptor(keyPath: \Work.createdDate, ascending: false)
+    ]
     // state
     @State private var idRefresh: UUID = UUID()
     @State var dateSelected: Date? = nil
@@ -281,7 +286,7 @@ struct ViewDay: View {
     @ViewBuilder
     private func viewItem(_ date: Date) -> some View {
         VStack {
-            // TODO: 일 별 할 일 개수 표시
+            // 일 별 할 일 개수 표시
             if let cnt = dictCntForDays[Int(date.getStrDate(format: "d")) ?? 0] {
                 Text("\(cnt)")
                     .frame(width: 20, height: 20)
@@ -358,7 +363,7 @@ struct ViewDay: View {
         //
         if let date = dateSelected {
             let predicate: NSPredicate = NSPredicate(format: "(planType & %d) != 0 AND planedDay == %d AND planedMonth == %d AND planedYear = %d", TypePlan.day.rawValue, calendar.getDay(date), calendar.getMonth(date), calendar.getYear(date))
-            list = service.fetchList(predicate)
+            list = service.fetchList(predicate, sort: sortDescriptors)
         }
         idRefresh = UUID()
     }
