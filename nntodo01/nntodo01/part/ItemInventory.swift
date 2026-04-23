@@ -28,7 +28,7 @@ struct ItemInventory: View {
                 .frame(width: 25, height: 25)
                 .padding(2.5)
             Text(title)
-                .font(.system(size: 16, weight: .medium))
+                .font(.system(size: 14))
                 .multilineTextAlignment(.leading)
                 .foregroundStyle(Color.black)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)

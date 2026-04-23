@@ -51,7 +51,7 @@ struct PopupInputKategory: View {
                         // popup title
                         HStack(spacing: 0) {
                             Text(origin == nil ? "새 목록" : "목록 수정")
-                                .font(.system(size: 18, weight: .bold))
+                                .font(.system(size: 16))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             if origin != nil {
                                 BtnImg("btnDelete", color: .red) {
@@ -81,7 +81,7 @@ struct PopupInputKategory: View {
                                         selectedRadio = mark
                                     } label: {
                                         Text(mark.rawValue)
-                                            .font(.system(size: 16, weight: .bold))
+                                            .font(.system(size: 14))
                                             .foregroundStyle(.black)
 //                                            .foregroundStyle(.cyan)
                                             .frame(maxWidth: .infinity, maxHeight: .infinity)

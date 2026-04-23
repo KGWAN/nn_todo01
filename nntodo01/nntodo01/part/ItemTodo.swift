@@ -60,7 +60,7 @@ struct ItemTodo: View {
                 // 완료 여부 체크 버튼
                 BtnCheckImg(
                     "btnDone",
-                    colorY: .blue,
+                    colorY: kategory != nil ? Color(hex: kategory!.color!) : .cyan,
                     isChecked: $isDone)
                 .frame(width: 25, height: 25)
                 .padding(2.5)

@@ -25,7 +25,7 @@ struct ViewSelectingPlan: View {
                     NnLogger.log("Plan's Type was changed. >>> \(listTypePlan.rawValue)")
                 } label: {
                     Text(type.name)
-                        .fontWeight(listTypePlan.contains(type) ? .bold : .regular)
+                        .font(.system(size: listTypePlan.contains(type) ? 18 : 14))
                         .foregroundStyle(listTypePlan.contains(type) ? .cyan : .gray)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }

@@ -31,7 +31,7 @@ struct PickerWheelHorizontal: View {
                 ForEach(range, id: \.self) { i in
                     Text("\(String(i))")
                         .id(i)
-                        .font(.system(size: target == i ? 20 : 16, weight: target == i ? .bold : .light))
+                        .font(.system(size: target == i ? 20 : 12))
                         .foregroundStyle(target == i ? .cyan : .gray)
                         .frame(width: widthItem)
                         .onTapGesture {

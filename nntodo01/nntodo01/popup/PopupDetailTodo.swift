@@ -146,8 +146,10 @@ struct PopupDetailTodo: View {
                                         Text(date.getStrDate(format: format) + "에 생성됨")
                                     }
                                 }
+                                .font(.system(size: 14))
                                 .foregroundColor(.gray)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                                .padding(.horizontal, 5)
                                 Spacer()
                                 // 삭제 버튼
                                 ImgSafe("btnDelete", color: .red)
@@ -227,7 +229,7 @@ struct PopupDetailTodo: View {
                 //trail
                 HStack(spacing: 5) {
                     // 완료 체크 버튼
-                    BtnCheckImg("btnDone", colorY: .blue, isChecked: $isDone)
+                    BtnCheckImg("btnDone", colorY: kategory != nil ? Color(hex: kategory!.color!) : .cyan, isChecked: $isDone)
                         .frame(width: 22.5, height: 22.5)
                         .disabled(item.isLocked)
                     // 별표 체크 버튼
@@ -309,6 +311,7 @@ struct PopupDetailTodo: View {
             isEditingSub = true
         } label: {
             Text("이 버튼을 눌러 할 일을 작성할 수 있어요.")
+                .font(.system(size: 16))
                 .foregroundStyle(Color.white)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.horizontal, 10)
@@ -410,6 +413,7 @@ struct PopupDetailTodo: View {
     private func viewAdjusingPlan(title: String, range: Array<Int>, startPoint: Int, onChange: @escaping (Int) -> Void) -> some View {
         HStack(spacing: 5) {
             Text(title)
+                .font(.system(size: 14))
                 .foregroundStyle(.gray)
                 .frame(maxWidth: .infinity)
             PickerWheelHorizontal(
