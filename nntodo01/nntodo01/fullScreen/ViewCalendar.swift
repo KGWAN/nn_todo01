@@ -30,7 +30,7 @@ struct ViewCalendar: View {
                             }
                         } label: {
                             Text("\(listTab[idx].name)")
-                                .fontWeight(idxSelectedTab == idx ? .bold : .regular)
+                                .font(.system(size: idxSelectedTab == idx ? 18 : 14))
                                 .foregroundStyle(idxSelectedTab == idx ? .cyan : .gray)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .background{
@@ -86,7 +86,7 @@ struct ViewCalendar: View {
                 reload()
             }
             Text("\(String(year))년")
-                .font(.system(size: 20, weight: .bold))
+                .font(.system(size: 18))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(.ultraThinMaterial)
                 .cornerRadius(15)

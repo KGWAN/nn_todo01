@@ -145,13 +145,12 @@ struct ViewMain: View {
             )
         } label: {
             HStack(spacing: 0) {
-                ImgSafe("iconPlus", color: .white)
-                    .frame(width: 40, height: 40)
-                    .padding(2.5)
-                Text("새 목록")
-                    .font(.system(size: 18))
+//                ImgSafe("iconPlus", color: .white)
+//                    .frame(width: 27.5, height: 27.5)
+//                    .padding(2.5)
+                Text("새로운 목록 추가")
+                    .font(.system(size: 16))
                     .foregroundStyle(Color.white)
-                    .padding(.horizontal, 10)
             }
             .frame(maxWidth: .infinity)
         }

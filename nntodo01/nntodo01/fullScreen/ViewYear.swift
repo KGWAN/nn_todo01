@@ -85,7 +85,8 @@ struct ViewYear: View {
             HStack(spacing: 5) {
                 // 연도
                 Text("\(String(year))년 할 일")
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.system(size: 18))
+                    .foregroundStyle(.gray)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                     .padding(.vertical, 5)
                 // 할 일 작성 버튼

@@ -23,7 +23,7 @@ struct BtnActivationText: View {
             action()
         } label: {
             Text(text)
-                .font(Font.system(size: 18, weight: isEnabled ? .bold : .medium))
+                .font(Font.system(size: 16))
                 .foregroundColor(isEnabled ? .cyan : .gray)
                 .padding(.vertical, 5)
                 .padding(.horizontal, 10)

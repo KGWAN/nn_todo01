@@ -104,7 +104,7 @@ struct ViewWeek: View {
                 reload()
             }
             Text("\(String(month))월 주별 할 일")
-                .font(.system(size: 16, weight: .bold))
+                .font(.system(size: 14))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(.ultraThinMaterial)
                 .cornerRadius(15)
@@ -128,7 +128,8 @@ struct ViewWeek: View {
             HStack {
                 // 제목
                 Text("\(week.num)주차 (\(week.startDate.getStrDate(format: "MM.dd")) - \(week.endDate.getStrDate(format: "MM.dd")))")
-                    .font(.system(size: 20, weight: .medium))
+                    .font(.system(size: 18))
+                    .foregroundStyle(.gray)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 // 할 일 작성 버튼
                 BtnImg("iconPlus", color: .cyan, size: 40) {

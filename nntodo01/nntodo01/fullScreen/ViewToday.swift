@@ -193,7 +193,8 @@ struct ViewToday: View {
                         Text("올 해의 할 일")
                     }
                 }
-                .font(.system(size: 20, weight: .medium))
+                .font(.system(size: 18))
+                .foregroundStyle(.gray)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 Spacer()
                 // 생성 버튼

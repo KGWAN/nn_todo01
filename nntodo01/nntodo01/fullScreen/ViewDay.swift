@@ -141,7 +141,7 @@ struct ViewDay: View {
                 reload()
             }
             Text("\(String(month))월 일별 할 일")
-                .font(.system(size: 16, weight: .bold))
+                .font(.system(size: 14))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(.ultraThinMaterial)
                 .cornerRadius(15)
@@ -205,6 +205,7 @@ struct ViewDay: View {
             isEditing = true
         } label: {
             Text("이 버튼을 눌러 할 일을 작성할 수 있어요.")
+                .font(.system(size: 16))
                 .foregroundStyle(Color.white)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.horizontal, 10)

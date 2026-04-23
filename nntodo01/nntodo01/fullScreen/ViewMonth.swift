@@ -94,7 +94,8 @@ struct ViewMonth: View {
         VStack(spacing: 5) {
             HStack {
                 Text("\(month) 월")
-                    .font(.system(size: 20, weight: .medium))
+                    .font(.system(size: 18))
+                    .foregroundStyle(.gray)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 // 할 일 작성 버튼
                 BtnImg("iconPlus", color: .cyan, size: 40) {

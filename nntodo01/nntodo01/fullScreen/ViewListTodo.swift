@@ -83,27 +83,33 @@ struct ViewListTodo: View {
                         VStack {
                             HStack(spacing: 0) {
                                 Text("완료여부")
-                                    .font(.system(size: 14))
-                                    .foregroundStyle(.black)
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(.gray)
                                     .padding(.horizontal, 25)
                                 Picker("완료여부 선택", selection: $idxFilter) {
-                                    Text("전체").tag(-1)
-                                    Text("완료").tag(0)
-                                    Text("미완료").tag(1)
+                                    Group {
+                                        Text("전체").tag(-1)
+                                        Text("완료").tag(0)
+                                        Text("미완료").tag(1)
+                                    }
+                                    .font(.system(size: 14))
                                 }
                                 .pickerStyle(.palette)
                             }
                             if availableDepths.count > 0 {
                                 HStack(spacing: 0) {
                                     Text("레밸")
-                                        .font(.system(size: 14))
-                                        .foregroundStyle(.black)
+                                        .font(.system(size: 12))
+                                        .foregroundStyle(.gray)
                                         .padding(.horizontal, 25)
                                     Picker("depth 선택", selection: $depth) {
-                                        Text("전체").tag(-1)
-                                        ForEach(availableDepths, id: \.self) {
-                                            Text("\($0)").tag($0)
+                                        Group {
+                                            Text("전체").tag(-1)
+                                            ForEach(availableDepths, id: \.self) {
+                                                Text("\($0)").tag($0)
+                                            }
                                         }
+                                        .font(.system(size: 14))
                                     }
                                     .pickerStyle(.palette)
                                 }
@@ -236,7 +242,7 @@ struct ViewListTodo: View {
                 }
                 // 제목
                 Text(title)
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.system(size: 18))
                     .foregroundStyle(Color.black)
             }
             Spacer()
@@ -269,6 +275,7 @@ struct ViewListTodo: View {
             isEditing = true
         } label: {
             Text("이 버튼을 눌러 할 일을 작성할 수 있어요.")
+                .font(.system(size: 16))
                 .foregroundStyle(Color.white)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.horizontal, 10)
