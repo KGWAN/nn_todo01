@@ -134,38 +134,114 @@ struct oliiTodoWidgetEntryViewForSmall : View {
     var entry: ProviderForSmall.Entry
 
     var body: some View {
-        VStack {
-            Text("오늘")
-            Text(entry.date, style: .date)
-            Text("남은 할 일")
-            Text("\(entry.cnt)개")
+        VStack(spacing: 10) {
+            VStack {
+                Text(getStrDate(entry.date, format: "M월, YYYY"))
+                    .font(.system(size: 14))
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 10)
+                Text(getStrDate(entry.date, format: "dd"))
+                    .font(.system(size: 34))
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 10)
+            }
+            VStack() {
+                Text("오늘 남은 할 일")
+                    .font(.system(size: 16))
+                    .foregroundColor(entry.cnt > 0 ? .black : .gray)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 10)
+                if entry.cnt > 0 {
+                    Text("\(entry.cnt)개")
+                } else {
+                    Text("없음")
+                        .font(.system(size: 20))
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .leading)
+                        .padding(.horizontal, 10)
+                }
+            }
         }
+    }
+    
+    private func getStrDate(_ date: Date, format: String) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        return formatter.string(from: date)
     }
 }
 struct oliiTodoWidgetEntryViewForMedium : View {
     var entry: ProviderForMedium.Entry
 
     var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Text("오늘")
-                Text(entry.date, style: .date)
+        HStack(alignment: .top) {
+            VStack {
+                Text(getStrDate(entry.date, format: "M월, YYYY"))
+                    .font(.system(size: 14))
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 5)
+                Text(getStrDate(entry.date, format: "dd"))
+                    .font(.system(size: 34))
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 5)
+                Spacer()
             }
-            Text("남은 할 일")
-            if entry.listWork.isEmpty {
-                Text("없습니다.")
-            } else {
-                ForEach(entry.listWork) { work in
-                    if work.isDone {
-                        Text(work.title ?? "이름 없음")
-                            .foregroundStyle(.gray)
-                            .strikethrough(true, color: .gray)
+            .frame(width: 100)
+            VStack(spacing: 5) {
+                Text("오늘 할 일")
+                    .font(.system(size: 14))
+                    .foregroundColor(.gray)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 5)
+                VStack(spacing: 3) {
+                    if entry.listWork.isEmpty {
+                        Text("없음")
+                            .font(.system(size: 16))
+                            .foregroundColor(.gray)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 5)
                     } else {
-                        Text(work.title ?? "이름 없음")
+                        ForEach(entry.listWork) { work in
+                            if work.isDone {
+                                HStack(spacing: 0) {
+                                    Circle()
+                                        .fill(.gray)
+                                        .frame(width: 5, height: 5)
+                                    Text(work.title ?? "이름 없음")
+                                        .font(.system(size: 16))
+                                        .strikethrough(true, color: .gray)
+                                        .foregroundColor(.gray)
+                                        .frame(maxWidth: .infinity,alignment: .leading)
+                                        .padding(.horizontal, 5)
+                                }
+                            } else {
+                                HStack(spacing: 0) {
+                                    Circle()
+                                        .fill(.black)
+                                        .frame(width: 5, height: 5)
+                                    Text(work.title ?? "이름 없음")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.black)
+                                        .frame(maxWidth: .infinity ,alignment: .leading)
+                                        .padding(.horizontal, 5)
+                                }
+                            }
+                        }
                     }
+                    Spacer()
                 }
             }
         }
+    }
+    
+    private func getStrDate(_ date: Date, format: String) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        return formatter.string(from: date)
     }
 }
 
