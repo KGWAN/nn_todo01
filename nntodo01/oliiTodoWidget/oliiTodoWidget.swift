@@ -213,7 +213,7 @@ struct oliiTodoWidgetEntryViewForMedium : View {
                                         .frame(width: 5, height: 5)
                                     Text(work.title ?? "이름 없음")
                                         .font(.system(size: 16))
-                                        .strikethrough(true, color: .gray)
+                                        .strikethrough(true, color: .black)
                                         .foregroundColor(.gray)
                                         .frame(maxWidth: .infinity,alignment: .leading)
                                         .padding(.horizontal, 5)
