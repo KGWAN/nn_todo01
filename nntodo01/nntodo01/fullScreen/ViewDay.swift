@@ -359,7 +359,7 @@ struct ViewDay: View {
         // 편집 모드 해제
         isEditing = false
         // dictCntForDays
-        dictCntForDays = service.getCntNotDone(of: month)
+        dictCntForDays = service.getCntNotDone(of: month, year: year)
         print("\(dictCntForDays)")
         //
         if let date = dateSelected {
