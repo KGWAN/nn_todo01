@@ -259,8 +259,8 @@ class ServiceWork: NnService {
         }
     }
     // 작업 수(일별)
-    func getCntNotDone(of month: Int) -> [Int: Int] {
-        let works = fetchList(NSPredicate(format: "planType == 8 AND planedMonth == %d AND planedDay >= 1 AND planedDay <= 31 AND isDone == %@", Int64(month), NSNumber(value: false)))
+    func getCntNotDone(of month: Int, year: Int) -> [Int: Int] {
+        let works = fetchList(NSPredicate(format: "planType == 8 AND planedYear == %d AND planedMonth == %d AND planedDay >= 1 AND planedDay <= 31 AND isDone == %@", Int64(year), Int64(month), NSNumber(value: false)))
         let grouped = Dictionary(grouping: works) { work in
             Int(work.planedDay)
         }
