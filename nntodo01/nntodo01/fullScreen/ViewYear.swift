@@ -122,10 +122,10 @@ struct ViewYear: View {
                 .foregroundStyle(Color.gray)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.vertical, 10)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 15)
-                        .stroke(.gray.opacity(0.4), lineWidth: 1)
-                }
+//                .overlay {
+//                    RoundedRectangle(cornerRadius: 15)
+//                        .stroke(.gray.opacity(0.4), lineWidth: 1)
+//                }
         }
         .frame(height: 40)
         .padding(2.5)

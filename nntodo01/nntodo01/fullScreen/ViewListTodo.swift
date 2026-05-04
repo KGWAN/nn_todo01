@@ -40,7 +40,7 @@ struct ViewListTodo: View {
         if predicate != nil {
             self._list = State(initialValue: service.fetchList(predicate!))
         } else {
-            self._list = State(initialValue: service.fetchAll())
+            self._list = State(initialValue: service.fetchAllWithSort([NSSortDescriptor(keyPath: \Work.kategory?.title, ascending: true)]))
         }
     }
     // constant
@@ -410,7 +410,7 @@ struct ViewListTodo: View {
         if predicate != nil {
             list = service.fetchList(predicate!)
         } else {
-            list = service.fetchAll()
+            list = service.fetchAllWithSort([NSSortDescriptor(keyPath: \Work.kategory?.title, ascending: true)])
         }
         if let kate = kategory {
             title = kate.title ?? ""
