@@ -230,6 +230,11 @@ class ServiceWork: NnService {
         req.sortDescriptors = sortDefalt
         return fetch(req)
     }
+    func fetchAllWithSort(_ sort: [NSSortDescriptor]) -> [Work] {
+        let req: NSFetchRequest<Work> = Work.fetchRequest()
+        req.sortDescriptors = sort
+        return fetch(req)
+    }
     // 조건부 리스트
     func fetchList(_ predicate: NSPredicate, sort: [NSSortDescriptor]? = nil) -> [Work] {
         let req: NSFetchRequest<Work> = Work.fetchRequest()
