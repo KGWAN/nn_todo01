@@ -119,15 +119,15 @@ struct ItemTodo: View {
         }
         .frame(height: 40)
         .padding(.horizontal, 10)
-        .background {
-            Color.white
-                .cornerRadius(15)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 15)
-                        .stroke((kategory?.color == nil ? .gray : Color(hex: kategory!.color!)).opacity(0.8), lineWidth: 1)
-                }
-                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
-        }
+//        .background {
+//            Color.white
+//                .cornerRadius(15)
+//                .overlay {
+//                    RoundedRectangle(cornerRadius: 15)
+//                        .stroke((kategory?.color == nil ? .gray : Color(hex: kategory!.color!)).opacity(0.8), lineWidth: 1)
+//                }
+//                .shadow(color: .black.opacity(0.1), radius: 2.5, x: 0, y: 0)
+//        }
         .padding(2.5)
         .onChange(of: isDone) { _, new in
             onUpdate("isDone", new)
